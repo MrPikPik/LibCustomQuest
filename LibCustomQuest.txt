@@ -1,0 +1,39 @@
+## Title: LibCustomQuest
+## Author: MrPikPik
+## APIVersion: 100031
+## AddonVersion: 1
+## Version: 0.01
+## IsLibrary: true
+## DependsOn: LibCustomDialog
+## Description: Provides functionality to create and show custom quests.
+
+;Language files
+lang/en.lua
+lang/$(language).lua
+
+;Globals
+Globals.lua
+
+
+;Bindings
+bindings.xml
+
+;Quest Manager
+QuestManager/CustomQuest_Manager.lua
+
+
+
+;Quest Journal
+QuestJournal/CustomQuestJournal_Manager.lua
+QuestJournal/CustomQuestJournal_Shared.lua
+QuestJournal/keyboard/CustomQuestJournal_Keyboard.lua
+QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
+
+
+
+
+scene.lua
+
+;Startup
+LibCustomQuest.lua
+ExampleQuest.lua
