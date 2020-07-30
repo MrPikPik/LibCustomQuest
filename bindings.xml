@@ -3,7 +3,7 @@
         <Category name="SI_KEYBINDINGS_CATEGORY_USER_INTERFACE">
             <Action name="TOGGLE_CUSTOM_JOURNAL">
                 <Down>
-                    SYSTEMS:GetObject("mainMenu"):ToggleCategory(MENU_CATEGORY_CUSTOM_JOURNAL)
+                    SYSTEMS:GetObject("mainMenu"):ToggleScene("customQuestJournal")
                 </Down>
             </Action>
         </Category>

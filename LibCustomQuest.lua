@@ -78,20 +78,65 @@ function LibCustomQuest.Initialize()
         type = "None",
         name = "Slapp Folvet",
         level = 69,
-        instanceDisplayType = "???",
+        instanceDisplayType = INSTANCE_DISPLAY_TYPE_RAID,
         text = "Folvet needs a real good slapping",
         stages = {
             [1] = {
                 text = "I should go and slap her real good.",
                 tasks = {
                     [1] = {
-                        text = "Do stuff", 
+                        text = "Do \"stuff\"",
+                        max = 420,
+                    },
+                },
+            },
+        },
+    }
+    
+    local quest2 = {
+        id = "TESTQUEST2",
+        location = "My Basement",
+        type = "None",
+        name = "Slapp Hellhound",
+        level = 50,
+        instanceDisplayType = INSTANCE_DISPLAY_TYPE_DUNGEON,
+        text = "Hellhound also needs a real good slapping",
+        stages = {
+            [1] = {
+                text = "I should go and slap him.",
+                tasks = {
+                    [1] = {
+                        text = "Do \"stuff\"",
+                        max = 420,
+                    },
+                },
+            },
+        },
+    }
+    
+    local quest3 = {
+        id = "TESTQUEST3",
+        location = "Stonefalls",
+        type = "None",
+        name = "New Content Awaits",
+        level = 50,
+        instanceDisplayType = INSTANCE_DISPLAY_TYPE_NONE,
+        text = "I've heard about an addon creator, MrPikPik, who made it possible to create custom quests.\nI am very intrigued by this, so I will see what's up with this.",
+        stages = {
+            [1] = {
+                text = "I heard the start of these new custom quests lies in Davon's Watch. I will immediately start my journey there and see if I can find new content.",
+                tasks = {
+                    [1] = {
+                        text = "Travel to Davon's Watch",
                     },
                 },
             },
         },
     }
     CUSTOM_QUEST_MANAGER:RegisterQuest(quest)
+    CUSTOM_QUEST_MANAGER:RegisterQuest(quest2)
+    CUSTOM_QUEST_MANAGER:RegisterQuest(quest3)
+
     
     CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()    
     
@@ -102,7 +147,7 @@ function LibCustomQuest.Initialize()
         iconData[i + 1] = iconData[i]
         if i == 2 then
             iconData[2] = {
-                categoryName = SI_JOURNAL_QUEST_LOG_MENU_HEADER,
+                categoryName = SI_JOURNAL_CUSTOM_QUEST_MENU_HEADER,
                 descriptor = CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName,
                 normal = "EsoUI/Art/Journal/journal_tabIcon_quest_up.dds",
                 pressed = "EsoUI/Art/Journal/journal_tabIcon_quest_down.dds",
@@ -121,12 +166,26 @@ function LibCustomQuest.Initialize()
 	MAIN_MENU_KEYBOARD:AddRawScene(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName, MENU_CATEGORY_JOURNAL, MAIN_MENU_KEYBOARD.categoryInfo[MENU_CATEGORY_JOURNAL], "journalSceneGroup")
     
     
+    CUSTOM_QUEST_JOURNAL_SCENE:RegisterCallback("StateChange", function(old, new)
+        if new == "showing" then
+            CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestMasterList()
+            CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
+            CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
+        end
+    end)
+    
 end
 
 
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
+    
+    
+    
+    LibCustomQuest.SV = ZO_SavedVars:New("LCQSavedVariables", 1.0, nil, {})
+    CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV
+    
     
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_INVENTORY_SINLGE_SLOT_UPDATE, LibCustomQuest.OnInventoryChange)
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_CURRENCY_UPDATE, LibCustomQuest.OnCurrencyUpdate)

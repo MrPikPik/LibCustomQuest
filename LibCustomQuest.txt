@@ -4,7 +4,8 @@
 ## AddonVersion: 1
 ## Version: 0.01
 ## IsLibrary: true
-## DependsOn: LibCustomDialog
+## SavedVaribales: LCQSavedVariables
+## DependsOn: LibMapPins-1.0 LibCustomDialog
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
@@ -32,7 +33,7 @@ QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
 
 
 
-scene.lua
+;scene.lua
 
 ;Startup
 LibCustomQuest.lua

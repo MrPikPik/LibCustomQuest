@@ -27,7 +27,7 @@ function CustomQuestJournal_Manager:RegisterForEvents()
 end
 
 local function BuildTextHelper(questIndex, stepIndex, conditionStep, questStrings)
-    local conditionText, currentCount, maxCount, isFailCondition, isComplete, _, isVisible = GetJournalQuestConditionInfo(questIndex, stepIndex, conditionStep)
+    local conditionText, currentCount, maxCount, isFailCondition, isComplete, _, isVisible = CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questIndex, stepIndex, conditionStep)
 
     if(isVisible and not isFailCondition and conditionText ~= "") then
         if isComplete then
@@ -90,16 +90,16 @@ local function CustomQuestJournal_Manager_SortQuestEntries(entry1, entry2)
     return entry1.categoryType < entry2.categoryType
 end
 
-ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY =
-{
-    [QUEST_TYPE_MAIN_STORY] = true,
-    [QUEST_TYPE_GUILD] = true,
-    [QUEST_TYPE_CRAFTING] = true,
-    [QUEST_TYPE_HOLIDAY_EVENT] = true,
-    [QUEST_TYPE_BATTLEGROUND] = true,
-    [QUEST_TYPE_PROLOGUE] = true,
-    [QUEST_TYPE_UNDAUNTED_PLEDGE] = true,
-}
+-- ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY =
+-- {
+--     [QUEST_TYPE_MAIN_STORY] = true,
+--     [QUEST_TYPE_GUILD] = true,
+--     [QUEST_TYPE_CRAFTING] = true,
+--     [QUEST_TYPE_HOLIDAY_EVENT] = true,
+--     [QUEST_TYPE_BATTLEGROUND] = true,
+--     [QUEST_TYPE_PROLOGUE] = true,
+--     [QUEST_TYPE_UNDAUNTED_PLEDGE] = true,
+-- }
 
 function CustomQuestJournal_Manager:GetQuestCategoryNameAndType(questType, zone)
     local categoryName, categoryType
@@ -187,8 +187,8 @@ function CustomQuestJournal_Manager:GetQuestListData()
     end
 
     -- Sort the tables
-    table.sort(categories, ZO_QuestJournal_Manager_SortQuestCategories)
-    table.sort(quests, ZO_QuestJournal_Manager_SortQuestEntries)
+    --table.sort(categories, CustomQuestJournal_Manager_SortQuestCategories)
+    --table.sort(quests, CustomQuestJournal_Manager_SortQuestEntries)
 
     return quests, categories, seenCategories
 end

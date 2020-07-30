@@ -130,7 +130,7 @@ function CustomQuestJournal_Keyboard:InitializeQuestList()
             self:RefreshDetails()
             -- The quest tracker performs focus logic on quest/remove/update, only force focus if the player has clicked on the quest through the journal UI
             if SCENE_MANAGER:IsShowing(self.sceneName) then
-                FOCUSED_QUEST_TRACKER:ForceAssist(data.questIndex)
+                --FOCUSED_QUEST_TRACKER:ForceAssist(data.questIndex)
             end
         end
 
@@ -390,9 +390,9 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
 
         ZO_ClearNumericallyIndexedTable(questStrings)
 
-        local showMultipleOrSteps = QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
+        local showMultipleOrSteps = CUSTOM_QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
         self.conditionTextOrLabel:SetText(showMultipleOrSteps and GetString(SI_QUEST_OR_DESCRIPTION) or "")
-        QUEST_JOURNAL_MANAGER:BuildTextForTasks(stepOverrideText, questIndex, questStrings)
+        CUSTOM_QUEST_JOURNAL_MANAGER:BuildTextForTasks(stepOverrideText, questIndex, questStrings)
 
         for i = 1, #questStrings do
             self.conditionTextBulletList:AddLine(questStrings[i].name)
