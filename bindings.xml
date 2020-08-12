@@ -6,6 +6,9 @@
                     SYSTEMS:GetObject("mainMenu"):ToggleScene("customQuestJournal")
                 </Down>
             </Action>
+            <Action name="ALIANYM_INTERACT_KEY">
+                <Down>Alianym.Interact()</Down>
+            </Action>
         </Category>
     </Layer>
 </Bindings>

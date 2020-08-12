@@ -200,5 +200,6 @@ local function OnLibraryLoaded(event, addonName)
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
     
     LibCustomQuest.Initialize()
+    Alianym_Reticle:Initialize()
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)
