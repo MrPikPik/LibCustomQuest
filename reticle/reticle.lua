@@ -70,7 +70,7 @@ SecurePostHook(RETICLE, "UpdateInteractText", function()
             AlianymKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteractContext, BOTTOMLEFT, 20, 6)
         end
 
-        if not isValidDialogueTarget then return else action = GetString(ALIANYM_CUSTOM_DIALOGUE_ACTION) interactableName = dialogueTarget end
+        if not isValidDialogueTarget then return else action = GetString(SI_GAMECAMERAACTIONTYPE2) interactableName = dialogueTarget end
 
         local interactKeybindButtonColor = ZO_NORMAL_TEXT
         local additionalInfoLabelColor = ZO_CONTRAST_TEXT
@@ -159,7 +159,7 @@ function Alianym.Interact() --Can be refined.
     if not Alianym_Reticle.interactionBlocked and not Alianym_Reticle.interact:IsHidden() then
 
         --Filter on action type. This means in the future you could re-use this function for other interactions.
-        if currentInteractAction == GetString(ALIANYM_CUSTOM_DIALOGUE_ACTION) then
+        if currentInteractAction == GetString(SI_GAMECAMERAACTIONTYPE2) then
             success = HandleDialogueInteract()
         end
     end
