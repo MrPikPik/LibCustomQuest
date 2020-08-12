@@ -146,8 +146,6 @@ local function HandleDialogueInteract()
     local _, _, dialogId = Alianym_Reticle.isValidDialogueTarget(currentDialogueTarget)
 
     if dialogId then
-        --Might want to make the "Dialogues[questId]" array multi-dimensional as the same NPC could have separate dialogues based on quest stage.
-        --Should also do a check that the Dialogue Tree chosen matches up not only with a quest, but with a specific quest -stage-.
         LibCustomDialog.ShowDialog(Alianym.Dialogues[dialogId].ENTRY)
         return true
     end
