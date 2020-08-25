@@ -151,22 +151,6 @@ function CustomQuestJournal_Keyboard:InitializeKeybindStripDescriptors()
     {
         alignment = KEYBIND_STRIP_ALIGN_CENTER,
 
-        -- Cycle Focused Quest
-        {
-            name = GetString(SI_QUEST_JOURNAL_CYCLE_FOCUSED_QUEST),
-            keybind = "UI_SHORTCUT_QUATERNARY",
-
-            callback = function()
-                local IGNORE_SCENE_RESTRICTION = true
-                FOCUSED_QUEST_TRACKER:AssistNext(IGNORE_SCENE_RESTRICTION)
-                self:FocusQuestWithIndex(QUEST_JOURNAL_MANAGER:GetFocusedQuestIndex())
-            end,
-
-            visible = function()
-                return GetNumJournalQuests() >= 2
-            end
-        },
-
         -- Show On Map
         {
             name = GetString(SI_QUEST_JOURNAL_SHOW_ON_MAP),
@@ -331,7 +315,7 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
     local questID = questData.questIndex
     local questName, bgText, stepText, stepType, stepOverrideText, completed, tracked, _, _, questType, instanceDisplayType = CUSTOM_QUEST_MANAGER:GetQuestInfo(questID)
     local conColorDef = ZO_ColorDef:New(GetConColor(questData.level))
-    local repeatableType = GetJournalQuestRepeatType(questIndex)
+    local isRepeatable = CUSTOM_QUEST_MANAGER:IsRepeatable(questID)
 
     self.titleText:SetText(zo_strformat(SI_QUEST_JOURNAL_QUEST_NAME_FORMAT, questName))
     self.levelText:SetText(zo_strformat(SI_QUEST_JOURNAL_QUEST_LEVEL, conColorDef:Colorize(tostring(questData.level))))
@@ -345,7 +329,7 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
         self.questIcon:SetHidden(true)
     end
 
-    if repeatableType ~= QUEST_REPEAT_NOT_REPEATABLE then
+    if isRepeatable then
         self.repeatableText:SetText(GetString(SI_QUEST_JOURNAL_REPEATABLE_TEXT))
         self.repeatableText:SetHidden(false)
         self.repeatableIcon:SetHidden(false)

@@ -2,17 +2,17 @@
 -- Custom Quest Manager
 -----------------------------------------
 
-CustomQuest_Manager = ZO_CallbackObject:Subclass()
+CustomQuest_Manager = ZO_Object:Subclass()
 
 -- Creates a new instance of the CustomQuest_Manager object
-function CustomQuest_Manager:New(...)
-    local manager = ZO_CallbackObject.New(self)
-    manager:Initialize(...)
+function CustomQuest_Manager:New()
+    local manager = ZO_Object.New(self)
+    manager:Initialize()
     return manager
 end
 
 -- Initializes a CustomQuest_Manager object
-function CustomQuest_Manager:Initialize(control)
+function CustomQuest_Manager:Initialize()
     self.quests = {}
     self.progress = {}
 end
@@ -24,8 +24,9 @@ function CustomQuest_Manager:RegisterQuest(quest)
     if self.quests[quest.id] ~= nil then
         error("Quest ID already in use.")
     else
-        self.quests[quest.id] = quest
-        return quest.id  
+        -- Instantiate quest object
+        self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.type, quest.location, quest.instanceDisplayType, quest.stages, quest.repeatable)
+        return quest.id 
     end
 end
 
@@ -65,6 +66,14 @@ function CustomQuest_Manager:GetQuestProgress(questID, stage, condition)
     end
 end
 
+
+function CustomQuest_Manager:GetQuestCurrentStage(questID)
+    local quest = self
+
+    
+    return stage
+end
+
 -- Sets the progress of a specified quest's stage's condition/task to a given value
 function CustomQuest_Manager:SetQuestProgress(questID, stage, condition, value)
     -- Check if we have any progress data for the given questID
@@ -89,30 +98,42 @@ end
 -- Gets the zone name of a quest. This is used for grouping in the journal
 function CustomQuest_Manager:GetQuestLocationInfo(questID)
     local quest = self:GetQuest(questID)
-    return quest.location
+    if quest then
+        return quest:GetLocation()
+    end
 end
 
+-- Gets the type of the quest
 function CustomQuest_Manager:GetQuestType(questID)
     local quest = self:GetQuest(questID)
-    return quest.type
+    if quest then
+        return quest:GetType()
+    end
 end
+
 
 -- Gets the name of the quest
 function CustomQuest_Manager:GetQuestName(questID)
     local quest = self:GetQuest(questID)
-    return quest.name
+    if quest then
+        return quest:GetName()
+    end
 end
 
 -- Gets the level requirement/recommendation of the quest
 function CustomQuest_Manager:GetQuestLevel(questID)
     local quest = self:GetQuest(questID)
-    return quest.level
+    if quest then
+        return quest:GetLevel()
+    end
 end
 
 -- Gets the instance display type of the quest, e.g. trial, dungeon, etc.
 function CustomQuest_Manager:GetQuestInstanceDisplayType(questID)
     local quest = self:GetQuest(questID)
-    return quest.instanceDisplayType
+    if quest then
+        return quest:GetInstanceDisplayType()
+    end
 end
 
 -- Gets the number of stages in the quest
@@ -137,16 +158,7 @@ end
 function CustomQuest_Manager:GetQuestInfo(questID)
     local quest = self:GetQuest(questID)
     if quest then
-        local currentStep = quest.stages.current or 1
-        local name = quest.name or "No name provided"
-        local bgText = quest.text or "No text provided"
-        local stepText = quest.stages[currentStep].text or "No text provided"
-        local stepType = quest.stages[currentStep].type or "???"
-        local questType = "???"
-        local instanceDisplayType = quest.instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
-        
-        
-        return name, bgText, stepText, stepType, "???", false, false, 50, false, questType, instanceDisplayType
+        return quest:GetInfo()
     end
 end
 
@@ -158,7 +170,7 @@ function CustomQuest_Manager:GetQuestTaskInfo(questID, stage, task)
             local task = stage.tasks[task]
         
             local conditionText = task.text
-            local currentCount = self.GetQuestProgress(questID, stage, task)
+            local currentCount = 0 --self.GetQuestProgress(questID, stage, task)
             local maxCount = task.max or 1
             local isFailCondition = false
             local isComplete = (currentCount <= maxCount)
@@ -170,6 +182,32 @@ function CustomQuest_Manager:GetQuestTaskInfo(questID, stage, task)
         end
     end
 end
+
+-- TODO
+function CustomQuest_Manager:GetCustomQuestNumConditions(questIndex, questType)
+    d("CustomQuest_Manager:GetCustomQuestNumConditions(" .. questIndex .. ", " .. questType .. ")")
+    return 1
+end
+
+function CustomQuest_Manager:IsRepeatable(questID)
+    local quest = self:GetQuest(questID)
+    if quest then
+        return quest:IsRepeatable()
+    end
+end
+
+-----------------------------------------
+-- Find data in quests
+-----------------------------------------
+
+-- Checks if a given name is aa valid active target
+function CustomQuest_Manager:IsValidInteractionTarget(target)
+    for id, quest in pairs(self.quests) do
+        
+    end
+end
+
+
 
 
 CUSTOM_QUEST_MANAGER = CustomQuest_Manager:New()

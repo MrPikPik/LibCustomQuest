@@ -1,6 +1,6 @@
 ## Title: LibCustomQuest
-## Author: MrPikPik
-## APIVersion: 100031
+## Author: MrPikPik, Alianym
+## APIVersion: 100032
 ## AddonVersion: 1
 ## Version: 0.01
 ## IsLibrary: true
@@ -18,17 +18,20 @@ lang/$(language).lua
 ;Globals
 Globals.lua
 
-
 ;Bindings
 bindings.xml
+
+;Debugger
+LCQ_Debugger.lua
+
+;Classes
+CustomQuest.lua
 
 ;Reticle
 reticle/reticle.lua
 
 ;Quest Manager
 QuestManager/CustomQuest_Manager.lua
-
-
 
 ;Quest Journal
 QuestJournal/CustomQuestJournal_Manager.lua
@@ -44,3 +47,4 @@ QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
 ;Startup
 LibCustomQuest.lua
 ExampleQuest.lua
+AlianymExampleDialogue.lua

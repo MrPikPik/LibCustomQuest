@@ -76,6 +76,7 @@ function LibCustomQuest.Initialize()
         id = "TESTQUEST",
         location = "My Basement",
         type = "None",
+        repeatable = true,
         name = "Slapp Folvet",
         level = 69,
         instanceDisplayType = INSTANCE_DISPLAY_TYPE_RAID,
@@ -137,6 +138,64 @@ function LibCustomQuest.Initialize()
     CUSTOM_QUEST_MANAGER:RegisterQuest(quest2)
     CUSTOM_QUEST_MANAGER:RegisterQuest(quest3)
 
+    local quest4 = {
+        id = "TESTQUEST4",
+        location = "Stonefalls",
+        type = "None",
+        name = "Master Clothier",
+        level = 50,
+        instanceDisplayType = INSTANCE_DISPLAY_TYPE_NONE,
+        text = "To become a better crafter, I must talk to the local master craftsmen.",
+        stages = {
+            [1] = {
+                text = "I better talk to Voldsea Arvel in Davon's Watch.",
+                tasks = {
+                    [1] = {
+                        text = "Talk to Voldsea Arvel",
+                        type = QUEST_CONDITION_TYPE_TALK,
+                        data = {
+                            target = "Voldsea Arvel",
+                            dialog = {},
+                        }
+                    },
+                },
+            },
+            [2] = {
+                text = "I talked to Voldsea Arvel in Davon's Watch.\nShe asked me to make some clothing at the crafting station nearby.",
+                tasks = {
+                    [1] = {
+                        text = "Craft a robe",
+                    },
+                },
+            },
+        },
+    }
+    CUSTOM_QUEST_MANAGER:RegisterQuest(quest4)
+    
+    
+    
+    
+    
+    local quest5 = {
+        id = "TESTQUEST5",
+        location = "Guilds",
+        type = "None",
+        name = "Finding Glory",
+        level = 50,
+        instanceDisplayType = INSTANCE_DISPLAY_TYPE_HOUSING,
+        text = "I seek to become a member of a guild I hearded about. The |H1:guild:546486|hAction Force Academy|h.",
+        stages = {
+            [1] = {
+                text = "I must find someone of their guild to talk to and join.",
+                tasks = {
+                    [1] = {
+                        text = "Find a member of |H1:guild:546486|hAction Force Academy|h and talk to them",
+                    },
+                },
+            },
+        },
+    }
+    CUSTOM_QUEST_MANAGER:RegisterQuest(quest5)
     
     CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()    
     
@@ -177,6 +236,57 @@ function LibCustomQuest.Initialize()
 end
 
 
+
+
+
+
+
+local function HandleDialogueInteract()
+
+    local _, _, dialogId = LCQ_isValidDialogueTarget(currentDialogueTarget)
+
+    if dialogId then
+        LibCustomDialog.ShowDialog(Alianym.Dialogues[dialogId].ENTRY)
+        return true
+    end
+
+    return false
+end
+
+function LibCustomQuest.InteractionHandler()
+    if not LCQ_Reticle.interactionBlocked and not Alianym_Reticle.interact:IsHidden() then
+        --Filter on action type. This means in the future you could re-use this function for other interactions.
+        if currentInteractAction == GetString(SI_GAMECAMERAACTIONTYPE2) then
+            success = HandleDialogueInteract()
+        end
+    end
+end
+
+function LibCustomQuest.GetWayshrines(num)
+    for nodeIndex = 1, num do
+        local known, name, _, _, _, _, _, _, locked = GetFastTravelNodeInfo(nodeIndex)
+        local wayshrine = {
+            ["known"] = known,
+            ["name"] = name,
+            ["nodeIndex"] = nodeIndex,
+            ["locked"] = locked,
+        }
+        
+        if not known then
+            d("Unknown wayshrine: " .. name)
+        end
+        
+        if locked then
+            d("Locked wayshrine: " .. name)
+        end
+        
+        if name ~= "" then
+            LibCustomQuest.Wayshrines[name] = wayshrine
+        end
+    end
+end
+
+
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
@@ -200,6 +310,17 @@ local function OnLibraryLoaded(event, addonName)
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
     
     LibCustomQuest.Initialize()
-    Alianym_Reticle:Initialize()
+    
+    LibCustomQuest.Zones = {}
+    for zoneId = 1, 100000 do
+        local zone = GetZoneNameById(zoneId)
+        if zone ~= "" then
+            LibCustomQuest.Zones[zoneId] = zone
+        end
+    end
+    
+    LibCustomQuest.Wayshrines = {}
+    
+    
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)

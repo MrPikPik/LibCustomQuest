@@ -1,116 +1,114 @@
-if not Alianym then Alianym = {} end
-if not ALIANYM then ALIANYM = {} end
+-----------------
+-- LCQ Reticle --
+-----------------
 
-Alianym_Reticle = {}
-local currentDialogueTarget = ""
-local currentInteractAction = ""
+LCQ_Reticle = ZO_Object:Subclass()
 
-local AlianymContext
-local AlianymInteract
-local AlianymKeybindButton
-
-function Alianym_Reticle:Initialize()
-    local RETICLE_KEYBOARD_STYLE =
-    {
-        font = "ZoInteractionPrompt",
-        keybindButtonStyle = KEYBIND_STRIP_STANDARD_STYLE,
-    }
-    local RETICLE_GAMEPAD_STYLE =
-    {
-        font = "ZoFontGamepad42",
-        keybindButtonStyle = KEYBIND_STRIP_GAMEPAD_STYLE,
-    }
-
-    AlianymInteract = WINDOW_MANAGER:CreateControl("ALIANYMInteract", ZO_ReticleContainer, CT_CONTROL)
-    AlianymInteract:SetDimensions(200, 50)
-    AlianymInteract:SetAnchor(LEFT, ZO_ReticleContainer, CENTER, 45, 40)
-
-    AlianymContext = WINDOW_MANAGER:CreateControl("ALIANYMInteractContext", AlianymInteract, CT_LABEL)
-    AlianymContext:SetDimensionConstraints(-1, -1, 380, -1)
-    AlianymContext:SetAnchor(BOTTOMLEFT, ZO_ReticleContainerInteract, BOTTOMLEFT, 0, 0)
-
-    AlianymKeybindButton = WINDOW_MANAGER: CreateControlFromVirtual("ALIANYMInteractKeybindButton", AlianymInteract, "ZO_KeybindButton")
-    --AlianymKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteract, BOTTOMLEFT, 0, 0)
-
-    if IsInGamepadPreferredMode() then
-        AlianymContext:SetFont(RETICLE_GAMEPAD_STYLE.font)
-        AlianymKeybindButton:SetNameFont(RETICLE_GAMEPAD_STYLE.font)
-        AlianymKeybindButton:SetupStyle(RETICLE_GAMEPAD_STYLE.keybindButtonStyle)
-    else
-        AlianymContext:SetFont(RETICLE_KEYBOARD_STYLE.font)
-        AlianymKeybindButton:SetNameFont(RETICLE_KEYBOARD_STYLE.font)
-        AlianymKeybindButton:SetupStyle(RETICLE_KEYBOARD_STYLE.keybindButtonStyle)
-    end
-
-    Alianym_Reticle.interact = AlianymInteract
-    Alianym_Reticle.interactContext = AlianymContext
-    Alianym_Reticle.interactKeybindButton = AlianymKeybindButton
+function LCQ_Reticle:New()
+    local reticle = ZO_Object:New(self)
+    reticle:Initialize()
+    return reticle
 end
 
-SecurePostHook(RETICLE, "UpdateInteractText", function()
-    local interactionPossible = GetGameCameraInteractableInfo()
+function LCQ_Reticle:Initialize()
+    local LCQ_Interact = WINDOW_MANAGER:CreateControl("LCQ_InteractContainer", ZO_ReticleContainer, CT_CONTROL)
+    LCQ_Interact:SetDimensions(200, 50)
+    LCQ_Interact:SetAnchor(LEFT, ZO_ReticleContainer, CENTER, 45, 40)
 
-    Alianym_Reticle.interact:SetHidden(true)
+    local LCQ_Context = WINDOW_MANAGER:CreateControl("LCQ_InteractContext", LCQ_InteractContainer, CT_LABEL)
+    LCQ_Context:SetDimensionConstraints(-1, -1, 380, -1)
+    LCQ_Context:SetAnchor(BOTTOMLEFT, ZO_ReticleContainerInteract, BOTTOMLEFT, 0, 0)
 
-    if interactionPossible then
-        local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
+    local LCQ_KeybindButton = WINDOW_MANAGER:CreateControlFromVirtual("LCQ_InteractKeybindButton", LCQ_InteractContainer, "ZO_KeybindButton")
+    --LCQ_KeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteract, BOTTOMLEFT, 0, 0)
 
-        --
-        local isValidDialogueTarget, dialogueTarget = Alianym_Reticle.isValidDialogueTarget(interactableName or GetUnitName("reticleover"))
-        --
+    self.interact = LCQ_Interact
+    self.interactContext = LCQ_Context
+    self.interactKeybindButton = LCQ_KeybindButton
+    
+    self:UpdateGamepadMode()
+    
+    local HookFunction = function()
+        local interactionPossible = GetGameCameraInteractableInfo()
 
-        --Could be more efficient?
-        if interactableName then 
-            hideInteractContextString = true
-            AlianymKeybindButton:ClearAnchors()
-            AlianymKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteractContext, BOTTOMLEFT, 20, 46)
-        else
-            hideInteractContextString = false
-            AlianymKeybindButton:ClearAnchors()
-            AlianymKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteractContext, BOTTOMLEFT, 20, 6)
-        end
+        self.interact:SetHidden(true)
 
-        if not isValidDialogueTarget then return else action = GetString(SI_GAMECAMERAACTIONTYPE2) interactableName = dialogueTarget end
+        if interactionPossible then
+            local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
 
-        local interactKeybindButtonColor = ZO_NORMAL_TEXT
-        local additionalInfoLabelColor = ZO_CONTRAST_TEXT
-        Alianym_Reticle.interactKeybindButton:ShowKeyIcon()
+            --
+            local isValidDialogueTarget, dialogueTarget = LCQ_isValidDialogueTarget(interactableName or GetUnitName("reticleover"))
+            --
 
-        local hideInteractContextString
-        local interactContextString
-
-        Alianym_Reticle.interactKeybindButton:SetKeybind("ALIANYM_INTERACT_KEY", hideUnbound, "ALIANYM_INTERACT_KEY") --The Keybind is shared between Keyboard/Gamepad. The user can input any valid Keybind (I think).
-
-        if action and interactableName then
-            currentInteractAction = action
-            currentDialogueTarget = interactableName
-            
-
-            if isOwned or isCriminalInteract then
-                interactKeybindButtonColor = ZO_ERROR_COLOR
+            --Could be more efficient?
+            if interactableName then 
+                hideInteractContextString = true
+                self.interactKeybindButton:ClearAnchors()
+                self.interactKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteractContext, BOTTOMLEFT, 20, 46)
+            else
+                hideInteractContextString = false
+                self.interactKeybindButton:ClearAnchors()
+                self.interactKeybindButton:SetAnchor(TOPLEFT, ZO_ReticleContainerInteractContext, BOTTOMLEFT, 20, 6)
             end
-            
-            if hideInteractContextString then interactContextString = ""
-            else interactContextString = interactableName end
 
-            Alianym_Reticle.interactContext:SetText(interactContextString)
+            if not isValidDialogueTarget then return else action = GetString(SI_GAMECAMERAACTIONTYPE2) interactableName = dialogueTarget end
 
-            Alianym_Reticle.interactionBlocked = interactionBlocked
-            Alianym_Reticle.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
-            Alianym_Reticle.interactKeybindButton:SetText(zo_strformat(SI_GAME_CAMERA_TARGET, action))
+            local interactKeybindButtonColor = ZO_NORMAL_TEXT
+            local additionalInfoLabelColor = ZO_CONTRAST_TEXT
+            self.interactKeybindButton:ShowKeyIcon()
 
-            local interactionType = GetInteractionType()
-            local showBusy = interactionType ~= INTERACTION_NONE and interactionType ~= INTERACTION_FISH and interactionType ~= INTERACTION_PICKPOCKET  and interactionType ~= INTERACTION_HIDEYHOLE or (IsInGamepadPreferredMode() and IsBlockActive())
-            Alianym_Reticle.interactKeybindButton:SetEnabled(not showBusy and not Alianym_Reticle.interactionBlocked)
+            local hideInteractContextString
+            local interactContextString
 
-            Alianym_Reticle.interact:SetHidden(false)
+            self.interactKeybindButton:SetKeybind("LCQ_INTERACT", hideUnbound, "LCQ_INTERACT") --The Keybind is shared between Keyboard/Gamepad. The user can input any valid Keybind (I think).
 
-            return
+            if action and interactableName then
+                currentInteractAction = action
+                currentDialogueTarget = interactableName
+                
+
+                if isOwned or isCriminalInteract then
+                    interactKeybindButtonColor = ZO_ERROR_COLOR
+                end
+                
+                if hideInteractContextString then interactContextString = ""
+                else interactContextString = interactableName end
+
+                self.interactContext:SetText(interactContextString)
+
+                self.interactionBlocked = interactionBlocked
+                self.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
+                self.interactKeybindButton:SetText(zo_strformat(SI_GAME_CAMERA_TARGET, action))
+
+                local interactionType = GetInteractionType()
+                local showBusy = interactionType ~= INTERACTION_NONE and interactionType ~= INTERACTION_FISH and interactionType ~= INTERACTION_PICKPOCKET  and interactionType ~= INTERACTION_HIDEYHOLE or (IsInGamepadPreferredMode() and IsBlockActive())
+                self.interactKeybindButton:SetEnabled(not showBusy and not self.interactionBlocked)
+
+                self.interact:SetHidden(false)
+
+                return
+            end
         end
     end
-end)
+    
+    EVENT_MANAGER:RegisterForEvent("LCQ_Reticle", EVENT_GAMEPAD_PREFERRED_MODE_CHANGED, self.UpdateGamepadMode)
 
-function Alianym_Reticle.isValidDialogueTarget(target)
+    SecurePostHook(RETICLE, "UpdateInteractText", HookFunction)
+end
+
+function LCQ_Reticle:UpdateGamepadMode()
+    if IsInGamepadPreferredMode() then   
+        self.interactContext:SetFont("ZoFontGamepad42")
+        self.interactKeybindButton:SetNameFont("ZoFontGamepad42")
+        self.interactKeybindButton:SetupStyle(KEYBIND_STRIP_GAMEPAD_STYLE)
+    else
+        self.interactContext:SetFont("ZoInteractionPrompt")
+        self.interactKeybindButton:SetNameFont("ZoInteractionPrompt")
+        self.interactKeybindButton:SetupStyle(KEYBIND_STRIP_STANDARD_STYLE)
+    end
+end
+
+function LCQ_isValidDialogueTarget(target)
     local isTargetASpeaker = false --You can loop over possible speakers to match target to speaker and thus dialogue.
     local interactionExists, _, _, _, _, _, _ = GetGameCameraInteractableInfo()
     local dialogueTarget = ""
@@ -141,24 +139,5 @@ function Alianym_Reticle.isValidDialogueTarget(target)
     return isTargetASpeaker, dialogueTarget
 end
 
-local function HandleDialogueInteract()
 
-    local _, _, dialogId = Alianym_Reticle.isValidDialogueTarget(currentDialogueTarget)
-
-    if dialogId then
-        LibCustomDialog.ShowDialog(Alianym.Dialogues[dialogId].ENTRY)
-        return true
-    end
-
-    return false
-end
-
-function Alianym.Interact() --Can be refined.
-    if not Alianym_Reticle.interactionBlocked and not Alianym_Reticle.interact:IsHidden() then
-
-        --Filter on action type. This means in the future you could re-use this function for other interactions.
-        if currentInteractAction == GetString(SI_GAMECAMERAACTIONTYPE2) then
-            success = HandleDialogueInteract()
-        end
-    end
-end
+LCQ_RETICLE = LCQ_Reticle:New()

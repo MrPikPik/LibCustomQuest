@@ -6,8 +6,8 @@
                     SYSTEMS:GetObject("mainMenu"):ToggleScene("customQuestJournal")
                 </Down>
             </Action>
-            <Action name="ALIANYM_INTERACT_KEY">
-                <Down>Alianym.Interact()</Down>
+            <Action name="LCQ_INTERACT">
+                <Down>LibCustomQuest.InteractionHandler()</Down>
             </Action>
         </Category>
     </Layer>

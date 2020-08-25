@@ -1,0 +1,24 @@
+location            -- A location ID
+type
+    location        -- Go to a location
+    eliminate       -- Eliminate X of Y
+    collect         -- Collect X of Y44
+name                -- Quest Name
+bgtext              -- Background story for quest
+stages
+level               -- Quest level requirement
+instanceDisplayType
+
+
+
+quest = {
+    id = string
+    name = string
+    bgtext = string
+    level = number
+    instanceDisplayType = INSTANCE_DISPLAY_TYPE
+    stages = {
+        text = string
+        
+    }
+}

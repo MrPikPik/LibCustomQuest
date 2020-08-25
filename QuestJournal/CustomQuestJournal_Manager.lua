@@ -53,7 +53,7 @@ function CustomQuestJournal_Manager:BuildTextForTasks(stepOverrideText, questInd
     if stepOverrideText and (stepOverrideText ~= "") then
         BuildTextHelper(questIndex, QUEST_MAIN_STEP_INDEX, nil, questStrings)
     else
-        local conditionCount = GetJournalQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
+        local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
         self:BuildTextForConditions(questIndex, QUEST_MAIN_STEP_INDEX, conditionCount, questStrings)
     end
 end
@@ -62,7 +62,7 @@ function CustomQuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, st
     if stepOverrideText and (stepOverrideText ~= "") then
         return false
     else
-        local conditionCount = GetJournalQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
+        local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
         if(stepType == QUEST_STEP_TYPE_OR and conditionCount > 1) then
             return true
         else
