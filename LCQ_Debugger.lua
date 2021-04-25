@@ -2,15 +2,15 @@
 -- LCQ_Debugger
 ----------
 
---debugger version 1.3
+--debugger version 1.3.1
 
-LCQ_DBG_QUIET = 0
-LCQ_DBG_NORMAL = 1
-LCQ_DBG_INFO = 2
-LCQ_DBG_VERBOSE = 3
-LCQ_DBG_ERROR = 4
-LCQ_DBG_CRITICAL = 5
-LCQ_DBG_DEBUG = 6
+LCQ_DBG_QUIET       = 0
+LCQ_DBG_NORMAL      = 1
+LCQ_DBG_INFO        = 2
+LCQ_DBG_VERBOSE     = 3
+LCQ_DBG_ERROR       = 4
+LCQ_DBG_CRITICAL    = 5
+LCQ_DBG_DEBUG       = 6
 
 
 LCQ_Debugger = ZO_Object:Subclass()
@@ -44,19 +44,19 @@ function LCQ_Debugger:Log(message, debugLevel, ...)
     local level = debugLevel or 1
     if level <= self.logLevel then
         local lvlstr = "|cffffff"
-        if level == 2 then
+        if level == LCQ_DBG_INFO then
             lvlstr = "|c0fb800[Info] "
-        elseif level == 3 then
+        elseif level == LCQ_DBG_VERBOSE then
             lvlstr = "|cff9d00[Warning] "
-        elseif level == 4 then
+        elseif level == LCQ_DBG_ERROR then
             lvlstr = "|cc40000[Error] "
-        elseif level == 5 then
+        elseif level == LCQ_DBG_CRITICAL then
             lvlstr = "|cff0000[Critical] "
-        elseif level == 6 then
+        elseif level == LCQ_DBG_DEBUG then
             lvlstr = "|c0081b8[Debug] "
         end
         
-        df("[LCQ Debug] " .. lvlstr .. tostring(message) .. "|r", ...)
+        d("[LCQ Debug] " .. lvlstr .. zo_strformat(message, ...) .. "|r")
     end
 end
 
@@ -70,9 +70,19 @@ function LCQ_Debugger:Info(message, ...)
     self:Log(message, LCQ_DBG_INFO, ...)
 end
 
+function LCQ_Debugger:Verbose(message, ...)
+    if not message then return end
+    self:Log(message, LCQ_DBG_VERBOSE, ...)
+end
+
 function LCQ_Debugger:Error(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_ERROR, ...)
+end
+
+function LCQ_Debugger:Critical(message, ...)
+    if not message then return end
+    self:Log(message, LCQ_DBG_CRITICAL, ...)
 end
 
 function LCQ_Debugger:Debug(message, ...)

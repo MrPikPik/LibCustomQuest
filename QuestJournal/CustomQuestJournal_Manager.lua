@@ -26,8 +26,8 @@ function CustomQuestJournal_Manager:RegisterForEvents()
     EVENT_MANAGER:RegisterForEvent("CustomQuestJournal_Manager", CUSTOM_EVENT_QUEST_SHOW_JOURNAL_ENTRY, OnFocusQuestIndexChanged)
 end
 
-local function BuildTextHelper(questIndex, stepIndex, conditionStep, questStrings)
-    local conditionText, currentCount, maxCount, isFailCondition, isComplete, _, isVisible = CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questIndex, stepIndex, conditionStep)
+local function BuildTextHelper(questId, stepIndex, conditionStep, questStrings)
+    local conditionText, currentCount, maxCount, isFailCondition, isComplete, isVisible = CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questId, stepIndex, conditionStep)
 
     if(isVisible and not isFailCondition and conditionText ~= "") then
         if isComplete then
@@ -43,22 +43,21 @@ local function BuildTextHelper(questIndex, stepIndex, conditionStep, questString
     end
 end
 
-function CustomQuestJournal_Manager:BuildTextForConditions(questIndex, stepIndex, numConditions, questStrings)
+function CustomQuestJournal_Manager:BuildTextForConditions(questId, stepIndex, numConditions, questStrings)
     for i = 1, numConditions do
-        BuildTextHelper(questIndex, stepIndex, i, questStrings)
+        BuildTextHelper(questId, stepIndex, i, questStrings)
     end
 end
 
-function CustomQuestJournal_Manager:BuildTextForTasks(stepOverrideText, questIndex, questStrings)
-    if stepOverrideText and (stepOverrideText ~= "") then
-        BuildTextHelper(questIndex, QUEST_MAIN_STEP_INDEX, nil, questStrings)
-    else
-        local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
-        self:BuildTextForConditions(questIndex, QUEST_MAIN_STEP_INDEX, conditionCount, questStrings)
-    end
+function CustomQuestJournal_Manager:BuildTextForTasks(questId, questStrings)
+    local stage = CUSTOM_QUEST_MANAGER.quests[questId].currentStage
+    local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questId, stage)
+    self:BuildTextForConditions(questId, stage, conditionCount, questStrings)
+    
 end
 
 function CustomQuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
+    LCQ_DBG:Critical("DoesShowMultipleOrSteps not implemented")
     if stepOverrideText and (stepOverrideText ~= "") then
         return false
     else
@@ -72,6 +71,7 @@ function CustomQuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, st
 end
 
 local function CustomQuestJournal_Manager_SortQuestCategories(entry1, entry2)
+    LCQ_DBG:Critical("CustomQuestJournal_Manager_SortQuestCategories not implemented")
     if entry1.type == entry2.type then
         return entry1.name < entry2.name
     else
@@ -80,6 +80,7 @@ local function CustomQuestJournal_Manager_SortQuestCategories(entry1, entry2)
 end
 
 local function CustomQuestJournal_Manager_SortQuestEntries(entry1, entry2)
+    LCQ_DBG:Critical("CustomQuestJournal_Manager_SortQuestEntries not implemented")
     if entry1.categoryType == entry2.categoryType then
         if entry1.categoryName == entry2.categoryName then
             return entry1.name < entry2.name
@@ -102,6 +103,7 @@ end
 -- }
 
 function CustomQuestJournal_Manager:GetQuestCategoryNameAndType(questType, zone)
+    LCQ_DBG:Critical("GetQuestCategoryNameAndType not implemented")
     local categoryName, categoryType
     if ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[questType] then
         categoryName = GetString("SI_QUESTTYPE", questType)
@@ -117,6 +119,7 @@ function CustomQuestJournal_Manager:GetQuestCategoryNameAndType(questType, zone)
 end
 
 function CustomQuestJournal_Manager:AreQuestsInTheSameCategory(quest1Type, quest1Zone, quest2Type, quest2Zone)
+    LCQ_DBG:Critical("AreQuestsInTheSameCategory not implemented")
     local quest1IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest1Type]
     local quest2IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest2Type]
     if quest1IsOtherCategory ~= quest2IsOtherCategory then
@@ -132,6 +135,7 @@ function CustomQuestJournal_Manager:AreQuestsInTheSameCategory(quest1Type, quest
 end
 
 function CustomQuestJournal_Manager:FindQuestWithSameCategoryAsCompletedQuest(questId)
+    LCQ_DBG:Critical("FindQuestWithSameCategoryAsCompletedQuest not implemented")
     local _, completedQuestType = GetCompletedQuestInfo(questId)
     local completedQuestZone = GetCompletedQuestLocationInfo(questId)
     for i = 1, MAX_JOURNAL_QUESTS do
@@ -152,14 +156,13 @@ function CustomQuestJournal_Manager:GetQuestListData()
     local quests = {}
 
     -- Create a table for categories and one for quests
-    local i = 1
-    for questID, questData in pairs(CUSTOM_QUEST_MANAGER:GetAllQuests()) do
-        if IsValidQuestIndex(i) then  
-            local zone = CUSTOM_QUEST_MANAGER:GetQuestLocationInfo(questID)
+    for questID, questData in pairs(CUSTOM_QUEST_MANAGER.quests) do
+        if not questData.completed then
+            local zone = questData.zone
             local questType = CUSTOM_QUEST_MANAGER:GetQuestType(questID)
-            local name = CUSTOM_QUEST_MANAGER:GetQuestName(questID)
-            local level = CUSTOM_QUEST_MANAGER:GetQuestLevel(questID)
-            local instanceDisplayType = CUSTOM_QUEST_MANAGER:GetQuestInstanceDisplayType(questID)
+            local name = questData.name
+            local level = questData.level
+            local instanceDisplayType = questData.instanceDisplayType
             local categoryName, categoryType = self:GetQuestCategoryNameAndType(questType, zone)
 
             if not seenCategories[categoryName] then
@@ -171,18 +174,15 @@ function CustomQuestJournal_Manager:GetQuestListData()
                 name = GetString(SI_QUEST_JOURNAL_UNKNOWN_QUEST_NAME)
             end
 
-            table.insert(quests,
-                {
-                    name = name,
-                    questIndex = questID,
-                    level = level,
-                    categoryName = categoryName,
-                    categoryType = categoryType,
-                    questType = questType,
-                    displayType = instanceDisplayType
-                }
-            )
-            i = i + 1
+            table.insert(quests, {
+                name = name,
+                questIndex = questID,
+                level = level,
+                categoryName = categoryName,
+                categoryType = categoryType,
+                questType = questType,
+                displayType = instanceDisplayType
+            })
         end
     end
 

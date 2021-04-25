@@ -1,6 +1,11 @@
+;This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates.
+;The Elder Scrolls® and related logos are registered trademarks or trademarks of ZeniMax Media Inc. in the United States and/or other countries.
+;All rights reserved.
+;The authors of this Add-on are not responsible in any way for content made with this library nor does content made with this library reflect the authors' views and opinions.
+
 ## Title: LibCustomQuest
 ## Author: MrPikPik, Alianym
-## APIVersion: 100032
+## APIVersion: 100034
 ## AddonVersion: 1
 ## Version: 0.01
 ## IsLibrary: true
@@ -8,12 +13,12 @@
 ## DependsOn: LibMapPins-1.0 LibCustomDialog
 ## Description: Provides functionality to create and show custom quests.
 
-;Example Dialogue File (Can be from LibCustomDialog)
-AlianymExampleDialogue.lua
-
 ;Language files
 lang/en.lua
 lang/$(language).lua
+
+;Debugger
+LCQ_Debugger.lua
 
 ;Globals
 Globals.lua
@@ -21,14 +26,15 @@ Globals.lua
 ;Bindings
 bindings.xml
 
-;Debugger
-LCQ_Debugger.lua
+;Helpers
+CenterScreenAnnounce.lua
 
 ;Classes
 CustomQuest.lua
 
 ;Reticle
-reticle/reticle.lua
+;reticle/reticle.lua
+reticle.lua
 
 ;Quest Manager
 QuestManager/CustomQuest_Manager.lua
@@ -39,12 +45,14 @@ QuestJournal/CustomQuestJournal_Shared.lua
 QuestJournal/keyboard/CustomQuestJournal_Keyboard.lua
 QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
 
-
-
-
-;scene.lua
+;Listeners
+Listeners/ListenerBase.lua
+Listeners/MapCoordinateListener.lua
+Listeners/InteractionListener.lua
+Listeners/NPCListener.lua
 
 ;Startup
 LibCustomQuest.lua
-ExampleQuest.lua
-AlianymExampleDialogue.lua
+
+;Reticle
+Reticle.lua

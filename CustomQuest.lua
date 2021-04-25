@@ -12,80 +12,30 @@ function CustomQuest:New(...)
 end
 
 -- Initializes a CustomQuest object
-function CustomQuest:Initialize(id, name, bgtext, level, type, location, instanceDisplayType, stages, repeatable)
+function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDisplayType, stages, repeatable)
     self.id = id
-    self.name = name or "Unknown Quest"
-    self.text = bgtext or "No text provided"
+    self.name = name or "Unnamed Quest"
+    self.text = bgtext or " --- "
     self.level = level or 50
-    self.type = type or "???" -- TODO!
+    self.type = ZO_ANY_QUEST_TYPE
     self.location = location or "Unknown Zone"
     self.instanceDisplayType = instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
     self.stages = stages or {}
+    self.currentStage = 1 -- TODO: Load progress from SavedVariables!
+    self.completed = false -- TOFO: Load progress from SavedVariables
     self.repeatable = repeatable or false
-    
-    LCQ_DBG:Info("Created quest with id %s", id)
+
+    LCQ_DBG:Debug("TODO: Quest progress is not being loaded yet")
+    LCQ_DBG:Info("Created quest with id <<1>>", id)
 end
 
 function CustomQuest:GetInfo()
-    local currentStep = self.stages.current or 1
     local name = self.name
     local bgText = self.text
-    
-    local stage = self.stages[currentStep] or {}
+    local stage = self.stages[self.currentStage] or {}
     local stepText = stage.text or "No text provided"
-    local stepType = stage.type or "???"
-    local stepOverrideText = stage.overrideText or stepText
-    
-    local completed = false
-    local tracked = false
-    local pushed = false
     local level = self.level
-    local questType = "???"
     local instanceDisplayType = self.instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
-    
-    
-    
-    return name, bgText, stepText, stepType, overrideText, completed, tracked, level, pushed, questType, instanceDisplayType
-end
 
-
-
-function CustomQuest:GetName()
-    return self.name
-end
-
-function CustomQuest:GetType()
-    return self.type
-end
-
-function CustomQuest:GetLocation()
-    return self.location
-end
-
-function CustomQuest:GetLevel()
-    return self.level
-end
-
-function CustomQuest:GetInstanceDisplayType()
-    return self.instanceDisplayType
-end
-
-function CustomQuest:GetNumStages()
-    return #self.stages
-end
-
-function CustomQuest:GetStage(stageIndex)
-    return self.stages[stageIndex]
-end
-
-function CustomQuest:GetNumTasks(stageIndex)
-    return #self.stages[stageIndex].tasks
-end
-
-function CustomQuest:GetTask(stageIndex, taskIndex)
-    return self.stages[stageIndex].tasks[taskIndex]
-end
-
-function CustomQuest:IsRepeatable()
-    return self.repeatable
+    return name, bgText, stepText, level, instanceDisplayType
 end

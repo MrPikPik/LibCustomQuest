@@ -3,7 +3,7 @@
         <Label name="CustomQuestJournalNavigationEntry" inherits="ZO_TooltipIfTruncatedLabel" font="ZoFontHeader" virtual="true" verticalAlignment="CENTER">
             <Dimensions x="220" y="22" />
             <OnInitialized>
-                CustomSelectableLabel_OnInitialized(self, CustomQuestJournalNavigationEntry_GetTextColor)
+                ZO_SelectableLabel_OnInitialized(self, CustomQuestJournalNavigationEntry_GetTextColor)
             </OnInitialized>
 
             <OnMouseUp>

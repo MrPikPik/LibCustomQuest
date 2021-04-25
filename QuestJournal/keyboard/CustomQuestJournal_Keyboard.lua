@@ -30,58 +30,50 @@ function CustomQuestJournal_Keyboard:Initialize(control)
     self:RefreshQuestMasterList()
 
     CustomQuestJournal_Shared.Initialize(self, control)
-            
+
     --Quest tracker depends on this data for finding the next quest to focus.
     self:RefreshQuestList()
 end
 
 function CustomQuestJournal_Keyboard:RegisterIcons()
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_SOLO,             "EsoUI/Art/Journal/journal_Quest_Instance.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_DUNGEON,          "EsoUI/Art/Journal/journal_Quest_Group_Instance.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_GROUP_DELVE,      "EsoUI/Art/Journal/journal_Quest_Group_Delve.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_GROUP_AREA,       "EsoUI/Art/Journal/journal_Quest_Group_Area.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_RAID,             "EsoUI/Art/Journal/journal_Quest_Trial.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_PUBLIC_DUNGEON,   "EsoUI/Art/Journal/journal_Quest_Dungeon.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_DELVE,            "EsoUI/Art/Journal/journal_Quest_Delve.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_HOUSING,          "EsoUI/Art/Journal/journal_Quest_Housing.dds")
-    self:RegisterIconTexture(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_ZONE_STORY,       "EsoUI/Art/Journal/journal_Quest_ZoneStory.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_SOLO,             "EsoUI/Art/Journal/journal_Quest_Instance.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_DUNGEON,          "EsoUI/Art/Journal/journal_Quest_Group_Instance.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_GROUP_DELVE,      "EsoUI/Art/Journal/journal_Quest_Group_Delve.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_GROUP_AREA,       "EsoUI/Art/Journal/journal_Quest_Group_Area.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_RAID,             "EsoUI/Art/Journal/journal_Quest_Trial.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_PUBLIC_DUNGEON,   "EsoUI/Art/Journal/journal_Quest_Dungeon.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_DELVE,            "EsoUI/Art/Journal/journal_Quest_Delve.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_HOUSING,          "EsoUI/Art/Journal/journal_Quest_Housing.dds")
+    self:RegisterIconTexture(INSTANCE_DISPLAY_TYPE_ZONE_STORY,       "EsoUI/Art/Journal/journal_Quest_ZoneStory.dds")
 end
 
 function CustomQuestJournal_Keyboard:RegisterTooltips()
-    local function ZoneStoryParamFunction(questIndex)
-        if questIndex then
-            local zoneId = GetJournalQuestZoneStoryZoneId(questIndex)
-            return GetZoneNameById(zoneId)
-        end
-        return ""
-    end
-
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_SOLO,             SI_QUEST_JOURNAL_SOLO_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_DUNGEON,          SI_QUEST_JOURNAL_DUNGEON_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_RAID,             SI_QUEST_JOURNAL_RAID_TOOLTIP)
-    -- nothing should be marked as GROUP_DELVE, but just in case treat it like GROUP      
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_GROUP_DELVE,      SI_QUEST_JOURNAL_GROUP_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_GROUP_AREA,       SI_QUEST_JOURNAL_GROUP_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_PUBLIC_DUNGEON,   SI_QUEST_JOURNAL_PUBLIC_DUNGEON_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_DELVE,            SI_QUEST_JOURNAL_DELVE_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_HOUSING,          SI_QUEST_JOURNAL_HOUSING_TOOLTIP)
-    self:RegisterTooltipText(ZO_ANY_QUEST_TYPE,     INSTANCE_DISPLAY_TYPE_ZONE_STORY,       SI_QUEST_JOURNAL_ZONE_STORY_TOOLTIP, ZoneStoryParamFunction)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_SOLO,             SI_QUEST_JOURNAL_SOLO_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_DUNGEON,          SI_QUEST_JOURNAL_DUNGEON_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_RAID,             SI_QUEST_JOURNAL_RAID_TOOLTIP)
+    -- nothing should be marked as GROUP_DELVE, but just in case treat it like GROUP
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_GROUP_DELVE,      SI_QUEST_JOURNAL_GROUP_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_GROUP_AREA,       SI_QUEST_JOURNAL_GROUP_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_PUBLIC_DUNGEON,   SI_QUEST_JOURNAL_PUBLIC_DUNGEON_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_DELVE,            SI_QUEST_JOURNAL_DELVE_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_HOUSING,          SI_QUEST_JOURNAL_HOUSING_TOOLTIP)
+    self:RegisterTooltipText(INSTANCE_DISPLAY_TYPE_ZONE_STORY,       SI_QUEST_JOURNAL_ZONE_STORY_TOOLTIP)
 end
 
 function CustomQuestJournal_Keyboard:SetIconTexture(iconControl, iconData, selected)
     local texture = GetControl(iconControl, "Icon")
     texture.selected = selected
-    
+
     if selected then
         texture:SetTexture("EsoUI/Art/Journal/journal_Quest_Selected.dds")
         texture:SetAlpha(1)
         texture:SetHidden(false)
     else
-        local texturePath = self:GetIconTexture(iconData.questType, iconData.displayType)
+        local texturePath = self:GetIconTexture(iconData.displayType)
 
         if texturePath then
             texture:SetTexture(texturePath)
-            texture.tooltipText = self:GetTooltipText(iconData.questType, iconData.displayType, iconData.questIndex)
+            texture.tooltipText = self:GetTooltipText(iconData.displayType, iconData.questIndex)
 
             texture:SetAlpha(0.50)
             texture:SetHidden(false)
@@ -111,7 +103,7 @@ function CustomQuestJournal_Keyboard:InitializeQuestList()
         ZO_IconHeader_UpdateSize(control)
     end
 
-    self.navigationTree:AddTemplate("ZO_QuestJournalHeader", TreeHeaderSetup, nil, nil, nil, 0)
+    self.navigationTree:AddTemplate("CustomQuestJournalHeader", TreeHeaderSetup, nil, nil, nil, 0)
 
     local function TreeEntrySetup(node, control, data, open)
         control:SetText(data.name)
@@ -140,7 +132,7 @@ function CustomQuestJournal_Keyboard:InitializeQuestList()
     local function TreeEntryEquality(left, right)
         return left.name == right.name
     end
-    self.navigationTree:AddTemplate("ZO_QuestJournalNavigationEntry", TreeEntrySetup, TreeEntryOnSelected, TreeEntryEquality)
+    self.navigationTree:AddTemplate("CustomQuestJournalNavigationEntry", TreeEntrySetup, TreeEntryOnSelected, TreeEntryEquality)
 
     self.navigationTree:SetExclusive(true)
     self.navigationTree:SetOpenAnimation("ZO_TreeOpenAnimation")
@@ -176,7 +168,7 @@ end
 
 function CustomQuestJournal_Keyboard:InitializeScenes()
     CUSTOM_QUEST_JOURNAL_SCENE = ZO_Scene:New(self.sceneName, SCENE_MANAGER)
-    
+
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.MOUSE_DRIVEN_UI_WINDOW)
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.FRAME_TARGET_STANDARD_RIGHT_PANEL)
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.PLAYER_PROGRESS_BAR_KEYBOARD_CURRENT)
@@ -186,10 +178,10 @@ function CustomQuestJournal_Keyboard:InitializeScenes()
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(TITLE_FRAGMENT)
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(JOURNAL_TITLE_FRAGMENT)
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(CODEX_WINDOW_SOUNDS)
-    
+
     local CUSTOM_QUEST_JOURNAL_FRAGMENT = ZO_HUDFadeSceneFragment:New(CustomQuestJournal)
     CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(CUSTOM_QUEST_JOURNAL_FRAGMENT)
-    
+
     CUSTOM_QUEST_JOURNAL_SCENE:RegisterCallback("StateChange",
         function(oldState, newState)
             if(newState == SCENE_SHOWING) then
@@ -197,9 +189,9 @@ function CustomQuestJournal_Keyboard:InitializeScenes()
                     self:RefreshQuestCount()
                     self:RefreshQuestList()
                 end
-    
+
                 --self:FocusQuestWithIndex(QUEST_JOURNAL_MANAGER:GetFocusedQuestIndex())
-    
+
                 KEYBIND_STRIP:AddKeybindButtonGroup(self.keybindStripDescriptor)
             elseif(newState == SCENE_HIDDEN) then
                 KEYBIND_STRIP:RemoveKeybindButtonGroup(self.keybindStripDescriptor)
@@ -224,11 +216,11 @@ function CustomQuestJournal_Keyboard:FocusQuestWithIndex(index)
 end
 
 function CustomQuestJournal_Keyboard:RefreshQuestCount()
-    self.questCount:SetText(zo_strformat(SI_QUESTS_CURRENT, CUSTOM_QUEST_MANAGER:GetNumActiveQuests()))
+    self.questCount:SetText(zo_strformat(LCQ_QUESTS_CURRENT, #CUSTOM_QUEST_MANAGER.quests))
 end
 
 function CustomQuestJournal_Keyboard:RefreshQuestMasterList()
-    d("LibCustomQuest] Rebuilding quest masterlist...")
+    LCQ_DBG:Info("Rebuilding quest masterlist...")
     local quests, categories, seenCategories = CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestListData()
     self.questMasterList = {
         quests = quests,
@@ -252,7 +244,7 @@ function CustomQuestJournal_Keyboard:RefreshQuestList()
 
     for i = 1, #categories do
         local categoryInfo = categories[i]
-        categoryNodes[categoryInfo.name] = self.navigationTree:AddNode("ZO_QuestJournalHeader", categoryInfo.name)
+        categoryNodes[categoryInfo.name] = self.navigationTree:AddNode("CustomQuestJournalHeader", categoryInfo.name)
     end
 
     local firstNode
@@ -261,7 +253,7 @@ function CustomQuestJournal_Keyboard:RefreshQuestList()
     for i = 1, #quests do
         local questInfo = quests[i]
         local parent = categoryNodes[questInfo.categoryName]
-        local questNode = self.navigationTree:AddNode("ZO_QuestJournalNavigationEntry", questInfo, parent)
+        local questNode = self.navigationTree:AddNode("CustomQuestJournalNavigationEntry", questInfo, parent)
         firstNode = firstNode or questNode
         self.questIndexToTreeNode[questInfo.questIndex] = questNode
 
@@ -296,11 +288,19 @@ end
 local EMPTY_LIST_Y_OFFSET = 0
 local NON_EMPTY_LIST_Y_OFFSET = 10
 
+
+
+---------
+--  Updates the right part with all the quest info!
+---------
 function CustomQuestJournal_Keyboard:RefreshDetails()
     KEYBIND_STRIP:UpdateKeybindButtonGroup(self.keybindStripDescriptor)
 
     local questData = self:GetSelectedQuestData()
+
+    -- If there is no quest to show (if the player has no active quests) hide everything on the info pane
     if not questData then
+        LCQ_DBG:Warn("No quest selected. Hiding details section")
         self.questInfoContainer:SetHidden(true)
         self.questStepContainer:SetHidden(true)
         self.questIcon:SetHidden(true)
@@ -313,22 +313,28 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
     self.questStepContainer:SetHidden(false)
 
     local questID = questData.questIndex
-    local questName, bgText, stepText, stepType, stepOverrideText, completed, tracked, _, _, questType, instanceDisplayType = CUSTOM_QUEST_MANAGER:GetQuestInfo(questID)
+    local questName, bgText, stepText, level, instanceDisplayType = CUSTOM_QUEST_MANAGER:GetQuestInfo(questID)
     local conColorDef = ZO_ColorDef:New(GetConColor(questData.level))
     local isRepeatable = CUSTOM_QUEST_MANAGER:IsRepeatable(questID)
 
+    -- Quest name
     self.titleText:SetText(zo_strformat(SI_QUEST_JOURNAL_QUEST_NAME_FORMAT, questName))
-    self.levelText:SetText(zo_strformat(SI_QUEST_JOURNAL_QUEST_LEVEL, conColorDef:Colorize(tostring(questData.level))))
 
-    local texturePath = self:GetIconTexture(questType, instanceDisplayType)
+    -- Quest level
+    local lvl = (type(questData.level) == "number") and conColorDef:Colorize(tostring(questData.level)) or questData.level
+    self.levelText:SetText(zo_strformat(SI_QUEST_JOURNAL_QUEST_LEVEL, lvl))
+
+    -- Special icon (e.g. trial, dungeon, arena)
+    local texturePath = self:GetIconTexture(instanceDisplayType)
     if texturePath then
         self.questIcon:SetHidden(false)
-        self.questIcon.tooltipText = self:GetTooltipText(questType, instanceDisplayType, questIndex)
+        self.questIcon.tooltipText = self:GetTooltipText(instanceDisplayType, questIndex)
         self.questIcon:SetTexture(texturePath)
     else
         self.questIcon:SetHidden(true)
     end
 
+    -- Repeatable (dailies, weeklies)
     if isRepeatable then
         self.repeatableText:SetText(GetString(SI_QUEST_JOURNAL_REPEATABLE_TEXT))
         self.repeatableText:SetHidden(false)
@@ -338,6 +344,8 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
         self.repeatableIcon:SetHidden(true)
     end
 
+
+    -- Stage details
     self.conditionTextBulletList:Clear()
     self.optionalStepTextBulletList:Clear()
     self.hintTextBulletList:Clear()
@@ -348,7 +356,7 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
 
     if completed then
         local goalCondition, _, _, _, goalBackgroundText, goalDescription = GetJournalQuestEnding(questIndex)
-       
+
         self.bgText:SetText(goalBackgroundText)
         self.stepText:SetText(goalDescription)
         self.conditionTextOrLabel:SetText("")
@@ -361,34 +369,45 @@ function CustomQuestJournal_Keyboard:RefreshDetails()
         self.bgText:SetText(bgText)
         self.stepText:SetText(stepText)
 
-        self:BuildTextForStepVisibility(questIndex, QUEST_STEP_VISIBILITY_HINT)
-        if self.hintTextLabel then
-            self.hintTextLabel:SetHidden(#questStrings == 0)
-        end
-        for i = 1, #questStrings do
-            self.hintTextBulletList:AddLine(questStrings[i])
+        -- Hints
+        local hint = self:GetHintText(questIndex)
+        if hint then
+            if self.hintTextLabel then
+                self.hintTextLabel:SetHidden(hint ~= "")
+            end
+            self.hintTextBulletList:AddLine(hint)
         end
 
-        local offset = #questStrings > 0 and NON_EMPTY_LIST_Y_OFFSET or EMPTY_LIST_Y_OFFSET
+        --self:BuildTextForStepVisibility(questIndex, QUEST_STEP_VISIBILITY_HINT)
+        --if self.hintTextLabel then
+        --    self.hintTextLabel:SetHidden(#questStrings == 0)
+        --end
+        --for i = 1, #questStrings do
+        --    self.hintTextBulletList:AddLine(questStrings[i])
+        --end
+
+        local offset = hint and NON_EMPTY_LIST_Y_OFFSET or EMPTY_LIST_Y_OFFSET
         UpdateListAnchors(self.conditionTextOrLabel, self.hintTextBulletList.control, offset)
 
         ZO_ClearNumericallyIndexedTable(questStrings)
 
-        local showMultipleOrSteps = CUSTOM_QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
+        -- Tasks
+        local showMultipleOrSteps = CUSTOM_QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepType, questIndex)
         self.conditionTextOrLabel:SetText(showMultipleOrSteps and GetString(SI_QUEST_OR_DESCRIPTION) or "")
-        CUSTOM_QUEST_JOURNAL_MANAGER:BuildTextForTasks(stepOverrideText, questIndex, questStrings)
+        CUSTOM_QUEST_JOURNAL_MANAGER:BuildTextForTasks(questIndex, questStrings)
 
         for i = 1, #questStrings do
             self.conditionTextBulletList:AddLine(questStrings[i].name)
         end
-        ZO_ClearNumericallyIndexedTable(questStrings) 
+        ZO_ClearNumericallyIndexedTable(questStrings)
 
+        -- Optional Tasks
         self:BuildTextForStepVisibility(questIndex, QUEST_STEP_VISIBILITY_OPTIONAL)
         self.optionalStepTextLabel:SetHidden(#questStrings == 0)
         for i = 1, #questStrings do
             self.optionalStepTextBulletList:AddLine(questStrings[i])
         end
-        ZO_ClearNumericallyIndexedTable(questStrings) 
+        ZO_ClearNumericallyIndexedTable(questStrings)
     end
 end
 
@@ -405,7 +424,6 @@ function CustomQuestJournal_Keyboard:GetNextSortedQuestForQuestIndex(questIndex)
 end
 
 --XML Handlers
-
 do
     local function OnMouseEnter(control)
         ZO_SelectableLabel_OnMouseEnter(control.text)
@@ -421,7 +439,7 @@ do
         ZO_TreeHeader_OnMouseUp(control, upInside)
     end
 
-    function ZO_QuestJournalHeader_OnInitialized(self)
+    function CustomQuestJournalHeader_OnInitialized(self)
         self.icon = self:GetNamedChild("Icon")
         self.iconHighlight = self.icon:GetNamedChild("Highlight")
         self.text = self:GetNamedChild("Text")
@@ -449,27 +467,16 @@ function CustomQuestJournalNavigationEntry_OnMouseUp(label, button, upInside)
         if questIndex then
             ClearMenu()
 
-            AddMenuItem(GetString(SI_QUEST_JOURNAL_SHOW_ON_MAP), function() ZO_WorldMap_ShowQuestOnMap(questIndex) end)
+            AddMenuItem(GetString(SI_QUEST_JOURNAL_SHOW_ON_MAP), function()
+                LCQ_DBG:Error("Show on map not implemented yet")
+                --ZO_WorldMap_ShowQuestOnMap(questIndex)
+            end)
 
-            if GetIsQuestSharable(questIndex) and IsUnitGrouped("player") then
-                AddMenuItem(GetString(SI_QUEST_JOURNAL_SHARE), function() QUEST_JOURNAL_MANAGER:ShareQuest(questIndex) end)
-            end
-
-            if(node.data.questType ~= QUEST_TYPE_MAIN_STORY) then
-                AddMenuItem(GetString(SI_QUEST_JOURNAL_ABANDON), function() QUEST_JOURNAL_MANAGER:ConfirmAbandonQuest(questIndex) end)
-            end
-
-            AddMenuItem(GetString(SI_QUEST_JOURNAL_REPORT_QUEST), function()
-                                                                    HELP_CUSTOMER_SUPPORT_KEYBOARD:OpenScreen(HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:GetFragment())
-                                                                    HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:SetDetailsText(node.data.name)
-                                                                end)
 
             ShowMenu(label)
         end
         return
     end
-
-    ZO_ZoneStories_Manager.StopZoneStoryTracking()
 
     ZO_TreeEntry_OnMouseUp(label, upInside)
 end
