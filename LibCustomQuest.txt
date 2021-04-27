@@ -49,7 +49,7 @@ QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
 Listeners/ListenerBase.lua
 Listeners/MapCoordinateListener.lua
 Listeners/InteractionListener.lua
-Listeners/NPCListener.lua
+Listeners/CurrencyListener.lua
 
 ;Startup
 LibCustomQuest.lua
