@@ -36,7 +36,7 @@ end
 
 -- New Objective
 CENTER_SCREEN_EVENT_HANDLERS[CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_ADDED] = function(questId, stage, condition) 
-    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.OBJECTIVE_ACCEPTED)
+    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.QUEST_OBJECTIVE_INCREMENT)
     local conditionText = CUSTOM_QUEST_MANAGER:GetQuestConditionText(questId, stage, condition)
     messageParams:SetText(conditionText)
     messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_OBJECTIVE_COMPLETED)
