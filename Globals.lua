@@ -79,7 +79,7 @@ function GetInteractionTargetName()
 
     if interactionExists and interactableName ~= "" and interactableName ~= nil then
         return interactableName
-    elseif GetUnitName("reticleover") ~= "" and not IsUnitPlayer("reticleover") then -- TODO: Distance check "GetDistanceToReticleOverTarget() < 500"?
+    elseif GetUnitName("reticleover") ~= "" and not IsUnitPlayer("reticleover") and (GetDistanceToReticleOverTarget() < 350) then -- TODO: Distance check "GetDistanceToReticleOverTarget() < 500"?
         LCQ_DBG:Debug("Interaction target has no range check!")
         return GetUnitName("reticleover")
     elseif PLAYER_TO_PLAYER:HasTarget() then
@@ -90,11 +90,26 @@ function GetInteractionTargetName()
 end
 
 function GetDistanceToReticleOverTarget()
-    if not DoesUnitExist("reticleover") then return 9999 end
+    if not DoesUnitExist("reticleover") then return -1 end
     local _, x1, y1, z1 = GetUnitWorldPosition("player")
     local _, x2, y2, z2 = GetUnitWorldPosition("reticleover")
     local dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
-    return math.sqrt(dx*dx + dy*dy + dz*dz)
+    local d = math.sqrt(dx*dx + dy*dy + dz*dz)
+    --LCQ_DBG:Log("Distance to reticleover: <<1>>", LCQ_DBG_ALWAYS_SHOW, tostring(d))
+    return d
+end
+
+function GetDistanceToPoint(x, y, z)
+    if not x and not y then return -1 end
+    local _, x1, y1, z1 = GetUnitWorldPosition("player")
+    if not z then
+        z = y
+        y = y1
+    end
+    local dx, dy, dz = x - x1, y - y1, z - z1
+    local d = math.sqrt(dx*dx + dy*dy + dz*dz)
+    --LCQ_DBG:Log("Distance to point: <<1>>", LCQ_DBG_ALWAYS_SHOW, tostring(d))
+    return d
 end
 
 -- SI_GAMECAMERAACTIONTYPE1     = "Search"

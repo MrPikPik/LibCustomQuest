@@ -9,7 +9,7 @@
 ## AddonVersion: 1
 ## Version: 0.01
 ## IsLibrary: true
-## SavedVaribales: LCQSavedVariables
+## SavedVariables: LCQSavedVariables
 ## DependsOn: LibMapPins-1.0 LibCustomDialog
 ## Description: Provides functionality to create and show custom quests.
 
@@ -51,8 +51,14 @@ Listeners/MapCoordinateListener.lua
 Listeners/InteractionListener.lua
 Listeners/CurrencyListener.lua
 
+;Helper functions
+Helpers.lua
+
 ;Startup
 LibCustomQuest.lua
 
 ;Reticle
 Reticle.lua
+
+QuestMarkerControl.xml
+QuestMarkerManager.lua

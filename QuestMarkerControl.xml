@@ -1,0 +1,7 @@
+<GuiXml>
+    <Controls>
+        <Texture name="LCQ_QuestMarkerControl" virtual="true">
+
+        </Texture>
+    </Controls>
+</GuiXml>

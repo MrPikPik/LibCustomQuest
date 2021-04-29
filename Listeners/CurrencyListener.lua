@@ -20,7 +20,7 @@ function LCQCurrencyListener:Initialize(...)
 end
 
 function LCQCurrencyListener:Update(eventCode, currencyType, currencyLocation, newAmount, oldAmount, reason)
-    -- If the currency update is not the current character, bail
+    -- If the currency update is not on the current character, bail
     if currencyLocation ~= CURRENCY_LOCATION_CHARACTER then return end
 
     -- If the player has lost money, bail
@@ -43,6 +43,8 @@ function LCQCurrencyListener:Update(eventCode, currencyType, currencyLocation, n
 
             if target.amount <= 0 then
                 self:FireCallbacks("OnConditionMet", target)
+            else
+                self:FireCallbacks("OnConditionUpdate", target)
             end
         end
     end

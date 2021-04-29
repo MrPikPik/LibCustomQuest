@@ -98,8 +98,22 @@ function LibCustomQuest.Initialize()
     end)
     LibCustomQuest.listeners[LCQ_INTERACTIONLISTENER.name] = LCQ_INTERACTIONLISTENER
 
+    -- LCQCurrencyListener
+    LCQ_CURRENTYLISTENER = LCQCurrencyListener:New()
+    LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionMet", function(target)
+        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionid, target.questid)
+    end)
+    LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionUpdate", function(target)
+        LCQ_DBG:Warn("Condition update for condition #<<1>> in <<2>>: <<3>> remaining", target.conditionid, target.questid, target.amount)
+    end)
+    LibCustomQuest.listeners[LCQ_CURRENTYLISTENER.name] = LCQ_CURRENTYLISTENER
+
     -- Initialize the reticle hooks
     LibCustomQuest.SetupReticle()
+
+    CUSTOM_QUEST_MARKER_MANAGER = LCQ_QuestMarkerManager:New()
+
+    --/script CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", 41, 379485, 14930, 195040)
 end
 
 function LibCustomQuest.InteractionHandler()
@@ -112,6 +126,12 @@ function LibCustomQuest.DebugBinding()
     d("Target: \"" .. tostring(GetInteractionTargetName()) .. "\"")
     d(GetDistanceToReticleOverTarget())
     d(GetMapPlayerPosition("reticleover"))
+end
+
+function LibCustomQuest.AddQuestMarkerOnPlayer()
+    local zone, x, y, z = GetUnitRawWorldPosition("player")
+    CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_TRACKED", zone, x, y + 350, z)
+    CUSTOM_QUEST_MARKER_MANAGER:OnUpdate()
 end
 
 local function OnLibraryLoaded(event, addonName)
@@ -130,5 +150,9 @@ local function OnLibraryLoaded(event, addonName)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
 
     LibCustomQuest.Initialize()
+
+    SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetPos
+    SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetRadius
+    SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)

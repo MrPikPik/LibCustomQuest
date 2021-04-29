@@ -15,8 +15,10 @@ function LCQMapCoordinateListener:Initialize()
     self.targets = {}
     self.zone = 0
     self.subzone = 0
-    self.x = 0
-    self.y = 0
+    self.x = 0 -- Forward axis
+    self.y = 0 -- Right axis
+    self.z = 0 -- Up/Height axis
+
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_ZONE_CHANGED, function(...) self:OnZoneChange(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED, function() self:OnPlayerActivated() end)
     EVENT_MANAGER:RegisterForUpdate(self.name, LCQ_UPDATE_INTERVAL, function() self:Update() end)
@@ -47,7 +49,7 @@ end
 -- First initialization of the zone id
 function LCQMapCoordinateListener:OnPlayerActivated()
     self.zone = GetZoneId(GetUnitZoneIndex("player"))
-    -- There is no way to get the current subzone id that I can find, except getting the map name qhich would require a lookup table for every map name
+    -- There is no way to get the current subzone id that I can find, except getting the map name which would require a lookup table for every map name
     -- The only way to obtain the subzone id is from the EVENT_ZONE_CHANGED event, which doesn't get triggered on load :(
 end
 
@@ -55,6 +57,8 @@ end
 -- TODO: Maybe implement height check as well?
 function LCQMapCoordinateListener:OnPositionUpdate()
     self.x, self.y = GetMapPlayerPosition("player")
+    local _, _, _, z = GetUnitWorldPosition("player")
+    self.z = z
 end
 
 function LCQMapCoordinateListener:OnZoneChange(eventCode, zoneName, subZoneName, newSubzone, zoneId, subZoneId)

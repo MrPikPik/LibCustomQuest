@@ -13,6 +13,7 @@ end
 function LCQInteractionListener:Initialize(...)
     self.name = "InteractionListener"
     self.targets = {}
+    
     LCQ_DBG:Verbose("Listener: Interaction listener initalized")
 end
 
