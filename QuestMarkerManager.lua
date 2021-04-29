@@ -77,7 +77,7 @@ function LCQ_QuestMarkerManager:CreateUI()
     HUD_SCENE:AddFragment(frag)
 end
 
--- Parts taken from Ody's Suport Icons
+-- Position to screen math taken from Ody's Support Icons
 function LCQ_QuestMarkerManager:OnUpdate()
     local currentZone = GetUnitRawWorldPosition("player")
 
@@ -122,6 +122,11 @@ function LCQ_QuestMarkerManager:OnUpdate()
         if marker.zone == currentZone then
             local wX, wY, wZ = marker.x, marker.y, marker.z
 
+            -- Move the quest marker up based how far the player is away from it
+            -- This makes the quest markers not overlap objects underneath them like NPCs when they get bigger in scale due to distance
+            local offsetY = 100 * zo_clampedPercentBetween(0, 5000, GetDistanceToPoint(marker.x, marker.y, marker.z))
+            wY = wY + offsetY
+
             -- Calculate marker view position
             local pX = wX * i11 + wY * i21 + wZ * i31 + i41
             local pY = wX * i12 + wY * i22 + wZ * i32 + i42
@@ -134,19 +139,13 @@ function LCQ_QuestMarkerManager:OnUpdate()
                 local x, y = pX * uiW / w, -pY * uiH / h
                 -- Update icon position
 
-                --TODO: Make object pool!!!
-                if not self.icoooon then
-                    self.icoooon = WINDOW_MANAGER:CreateControl("LCQ_ControlMarker", self.window, CT_TEXTURE)
-                end
-
                 local icon = self.markerPool:AcquireObject(markerNum)
                 markerNum = markerNum + 1
                 icon:ClearAnchors()
                 icon:SetAnchor(CENTER, self.window, CENTER, x, y) 
 
                 -- Update icon size
-                local scale = 64 * 1000 / pZ -- dist / pZ
-                scale = zo_clamp(scale, 32, 64) -- Icon scaled to be clamped 32 and 64
+                local scale = zo_lerp(40, 30, zo_clampedPercentBetween(1000, 5000, GetDistanceToPoint(marker.x, marker.y, marker.z)))
                 icon:SetDimensions(scale, scale)
 
                 -- Opacity
