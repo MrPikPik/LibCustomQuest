@@ -3,11 +3,8 @@
         <Category name="SI_KEYBINDINGS_CATEGORY_USER_INTERFACE">
             <Action name="TOGGLE_CUSTOM_JOURNAL">
                 <Down>
-                    SYSTEMS:GetObject("mainMenu"):ToggleScene("customQuestJournal")
+                    SCENE_MANAGER:Toggle("customQuestJournal")
                 </Down>
-            </Action>
-            <Action name="LCQ_INTERACT">
-                <Down>LibCustomQuest.InteractionHandler()</Down>
             </Action>
 
             <Action name="LCQ_DBG">
