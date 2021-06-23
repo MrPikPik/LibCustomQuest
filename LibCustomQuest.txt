@@ -7,10 +7,10 @@
 ## Author: MrPikPik, Alianym
 ## APIVersion: 100034
 ## AddonVersion: 1
-## Version: 0.01
+## Version: 0.02
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
-## DependsOn: LibMapPins-1.0 LibCustomDialog LibAlianymInteract
+## DependsOn: LibMapPins-1.0 LibCustomDialog LibAlianym
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
