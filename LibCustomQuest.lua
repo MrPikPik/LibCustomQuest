@@ -45,6 +45,7 @@ function LibCustomQuest.Initialize()
     CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestMasterList()
     CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
     CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
+    CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeKeybindStripDescriptors()
 
 	local function GetButtonData()
 		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)

@@ -29,7 +29,7 @@ function CUSTOM_QUEST_JOURNAL_KEYBOARD:GetHintText(questId)
 end
 
 function CUSTOM_QUEST_JOURNAL_KEYBOARD:ShowOnMap()
-   local selectedQuestIndex = self:GetSelectedQuestIndex()
+   local selectedQuestIndex = self:GetSelectedQuestId()
    if(selectedQuestIndex) then
         LCQ_DBG:Error("Show on map not implemented yet")
         --ZO_WorldMap_ShowQuestOnMap(selectedQuestIndex)
@@ -47,14 +47,14 @@ function CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeKeybindStripDescriptors()
             keybind = "UI_SHORTCUT_SHOW_QUEST_ON_MAP",
 
             callback = function()
-                local selectedQuestIndex = self:GetSelectedQuestIndex()
+                local selectedQuestIndex = self:GetSelectedQuestId()
                 if(selectedQuestIndex) then
                     self:ShowOnMap(selectedQuestIndex)
                 end
             end,
 
             visible = function()
-                local selectedQuestIndex = self:GetSelectedQuestIndex()
+                local selectedQuestIndex = self:GetSelectedQuestId()
                 if(selectedQuestIndex) then
                     return true
                 end
@@ -66,8 +66,10 @@ end
 
 function CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
     local questsCount=0
-    for _ in pairs(CUSTOM_QUEST_MANAGER.quests) do
-        questsCount = questsCount+1
+    for _, quest in pairs(CUSTOM_QUEST_MANAGER.quests) do
+        if not quest.completed then
+            questsCount = questsCount+1
+        end
     end
 
     self.questCount:SetText(zo_strformat(LCQ_QUESTS_CURRENT, questsCount)) --#CUSTOM_QUEST_MANAGER.quests won't work because of the strings as indices
