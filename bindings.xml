@@ -6,9 +6,6 @@
                     SYSTEMS:GetObject("mainMenu"):ToggleScene("customQuestJournal")
                 </Down>
             </Action>
-            <Action name="LCQ_INTERACT">
-                <Down>LibCustomQuest.InteractionHandler()</Down>
-            </Action>
 
             <Action name="LCQ_DBG">
                 <Down>LibCustomQuest.DebugBinding()</Down>
