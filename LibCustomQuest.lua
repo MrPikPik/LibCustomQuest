@@ -41,8 +41,33 @@ function LibCustomQuest.Initialize()
 
     --CUSTOM_QUEST_MANAGER:RegisterQuest(quest4)
 
+    --Might put a function in LibAlianym that you can call to do all this setup in one function call.
+    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestMasterList()
+    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
+    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
 
-    CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()
+	local function GetButtonData()
+		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
+
+		local clickSound = "Click_MenuBar"
+
+		local buttonToQuestLog =
+		{
+            categoryName = LCQ_JOURNAL_CUSTOM_QUEST_MENU_HEADER,
+            descriptor = CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName,
+            normal = "EsoUI/Art/Journal/journal_tabIcon_quest_up.dds",
+            pressed = "EsoUI/Art/Journal/journal_tabIcon_quest_down.dds",
+            highlight = "EsoUI/Art/Journal/journal_tabIcon_quest_over.dds",
+			callback = function(button) PlaySound(clickSound) SCENE_MANAGER:Show(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName) end,
+		}
+
+		return {buttonToQuestLog}
+	end
+
+	local buttonData = GetButtonData() local menuControlName = "LCQButtonMenu"
+	local controlBackground = GetControl("LibCustomQuestBackground")
+	LCQ.buttonJournal = ALCI_Scene_Merge(menuControlName, controlBackground, buttonData, -650, 1)
+    --[[CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()
 
     local sceneGroupInfo = MAIN_MENU_KEYBOARD.sceneGroupInfo["journalSceneGroup"]
 	local iconData = sceneGroupInfo.menuBarIconData
@@ -76,7 +101,7 @@ function LibCustomQuest.Initialize()
             CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
             CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
         end
-    end)
+    end)]]
 
 
     -- Create all the various listener classes
@@ -116,11 +141,11 @@ function LibCustomQuest.Initialize()
     --/script CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", 41, 379485, 14930, 195040)
 end
 
-function LibCustomQuest.InteractionHandler()
+--[[function LibCustomQuest.InteractionHandler()
     local interactionType, interactionTarget = GetInteractionTargetName()
 
     LCQ_INTERACTIONLISTENER:RunInteractionForTarget(GetInteractionTargetName())
-end
+end]]
 
 function LibCustomQuest.DebugBinding() 
     d("Target: \"" .. tostring(GetInteractionTargetName()) .. "\"")

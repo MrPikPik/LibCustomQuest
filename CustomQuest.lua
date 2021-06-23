@@ -34,8 +34,10 @@ function CustomQuest:GetInfo()
     local bgText = self.text
     local stage = self.stages[self.currentStage] or {}
     local stepText = stage.text or "No text provided"
+    local completed = self.completed
+    local type = self.type
     local level = self.level
     local instanceDisplayType = self.instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
 
-    return name, bgText, stepText, level, instanceDisplayType
+    return name, bgText, stepText, _, _, completed, _, type, instanceDisplayType, level
 end

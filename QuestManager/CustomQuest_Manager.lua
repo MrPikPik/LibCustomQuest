@@ -116,7 +116,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
             self:UpdateQuestListeners(questId)
         else
             -- Quest is complete!
-            LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete", questid)
+            LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete", questId)
             self:SetQuestComplete(questId)
             LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_COMPLETE, questId)
         end
@@ -291,7 +291,7 @@ function CustomQuest_Manager:GetQuestTaskInfo(questID, stage, condition)
             local isVisible = not task.invisible or true
             local conditionType = "???"
 
-            return conditionText, currentCount, maxCount, isFailCondition, isComplete, isVisible, conditionType
+            return conditionText, currentCount, maxCount, isFailCondition, isComplete, _, isVisible, conditionType
         end
     end
 end
