@@ -1,62 +1,28 @@
-local QUEST_CAT_ZONE = 1
-local QUEST_CAT_OTHER = 2
-local QUEST_CAT_MISC = 3
+do 
+    local control = CreateControlFromVirtual("CustomQuestJournal", nil, "ALCI_QuestJournal")
+    local sceneName = "customQuestJournal"
+
+    local sceneData = {}
+    sceneData[1] = {type="journal", control=control, bgControl=LCQ.bgControl, sceneName=sceneName, sceneGroupTitle=LCQ_MAIN_MENU_CUSTOM_JOURNAL}
+
+    _, CUSTOM_QUEST_JOURNAL_KEYBOARD = ALCI_Scene_Setup("LibCustomQuest", sceneData)
+    CUSTOM_QUEST_JOURNAL_MANAGER = CUSTOM_QUEST_JOURNAL_KEYBOARD.managerObject
+    
+    SYSTEMS:RegisterKeyboardObject("customQuestJournal", CUSTOM_QUEST_JOURNAL_KEYBOARD)
+end
 
 ----------
 -- CustomQuestJournal_Manager
 ----------
 
-CustomQuestJournal_Manager = ZO_CallbackObject:Subclass()
-
-function CustomQuestJournal_Manager:New(...)
-    local manager = ZO_CallbackObject.New(self)
-    manager:Initialize(...)
-    return manager
-end
-
-function CustomQuestJournal_Manager:Initialize(control)
-    --self:RegisterForEvents()
-end
-
-function CustomQuestJournal_Manager:RegisterForEvents()
-    local function OnFocusQuestIndexChanged(eventCode, questIndex)
-        self.focusedQuestIndex = questIndex
-    end
-
-    EVENT_MANAGER:RegisterForEvent("CustomQuestJournal_Manager", CUSTOM_EVENT_QUEST_SHOW_JOURNAL_ENTRY, OnFocusQuestIndexChanged)
-end
-
-local function BuildTextHelper(questId, stepIndex, conditionStep, questStrings)
-    local conditionText, currentCount, maxCount, isFailCondition, isComplete, isVisible = CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questId, stepIndex, conditionStep)
-
-    if(isVisible and not isFailCondition and conditionText ~= "") then
-        if isComplete then
-            conditionText = ZO_DISABLED_TEXT:Colorize(conditionText)
-        end
-
-        local taskInfo = {
-            name = conditionText,
-            isComplete = isComplete,
-        }
-
-        table.insert(questStrings, taskInfo)
-    end
-end
-
-function CustomQuestJournal_Manager:BuildTextForConditions(questId, stepIndex, numConditions, questStrings)
-    for i = 1, numConditions do
-        BuildTextHelper(questId, stepIndex, i, questStrings)
-    end
-end
-
-function CustomQuestJournal_Manager:BuildTextForTasks(questId, questStrings)
+function CUSTOM_QUEST_JOURNAL_MANAGER:BuildTextForTasks(_, questId, questStrings)
     local stage = CUSTOM_QUEST_MANAGER.quests[questId].currentStage
     local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questId, stage)
     self:BuildTextForConditions(questId, stage, conditionCount, questStrings)
     
 end
 
-function CustomQuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
+function CUSTOM_QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
     LCQ_DBG:Critical("DoesShowMultipleOrSteps not implemented")
     if stepOverrideText and (stepOverrideText ~= "") then
         return false
@@ -70,87 +36,30 @@ function CustomQuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, st
     end
 end
 
-local function CustomQuestJournal_Manager_SortQuestCategories(entry1, entry2)
-    LCQ_DBG:Critical("CustomQuestJournal_Manager_SortQuestCategories not implemented")
-    if entry1.type == entry2.type then
-        return entry1.name < entry2.name
-    else
-        return entry1.type < entry2.type
-    end
+function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestConditionInfo(questId, stepIndex, conditionStep)
+    return CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questId, stepIndex, conditionStep)
 end
 
-local function CustomQuestJournal_Manager_SortQuestEntries(entry1, entry2)
-    LCQ_DBG:Critical("CustomQuestJournal_Manager_SortQuestEntries not implemented")
-    if entry1.categoryType == entry2.categoryType then
-        if entry1.categoryName == entry2.categoryName then
-            return entry1.name < entry2.name
-        end
+function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestIdList()
+    local quests = CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.quests
 
-        return entry1.categoryName < entry2.categoryName
+    local questIdList = {} 
+    for i, _ in ipairs(quests) do
+        table.insert(questIdList, quests[i].questId)
     end
-    return entry1.categoryType < entry2.categoryType
+
+    return questIdList
 end
 
--- ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY =
--- {
---     [QUEST_TYPE_MAIN_STORY] = true,
---     [QUEST_TYPE_GUILD] = true,
---     [QUEST_TYPE_CRAFTING] = true,
---     [QUEST_TYPE_HOLIDAY_EVENT] = true,
---     [QUEST_TYPE_BATTLEGROUND] = true,
---     [QUEST_TYPE_PROLOGUE] = true,
---     [QUEST_TYPE_UNDAUNTED_PLEDGE] = true,
--- }
-
-function CustomQuestJournal_Manager:GetQuestCategoryNameAndType(questType, zone)
-    LCQ_DBG:Critical("GetQuestCategoryNameAndType not implemented")
-    local categoryName, categoryType
-    if ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[questType] then
-        categoryName = GetString("SI_QUESTTYPE", questType)
-        categoryType = QUEST_CAT_OTHER
-    elseif zone ~= "" then
-        categoryName = zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, zone)
-        categoryType = QUEST_CAT_ZONE
-    else
-        categoryName = GetString(SI_QUEST_JOURNAL_GENERAL_CATEGORY)
-        categoryType = QUEST_CAT_MISC
-    end
-    return categoryName, categoryType
+function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestList()
+    return CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.quests
 end
 
-function CustomQuestJournal_Manager:AreQuestsInTheSameCategory(quest1Type, quest1Zone, quest2Type, quest2Zone)
-    LCQ_DBG:Critical("AreQuestsInTheSameCategory not implemented")
-    local quest1IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest1Type]
-    local quest2IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest2Type]
-    if quest1IsOtherCategory ~= quest2IsOtherCategory then
-        return false
-    else
-        if quest1IsOtherCategory then
-            return quest1Type == quest2Type
-        else
-            --true if they have the same zone or if they both have no zone and would end up in the general category
-            return quest1Zone == quest2Zone
-        end
-    end
+function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestCategories()
+    return CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.categories
 end
 
-function CustomQuestJournal_Manager:FindQuestWithSameCategoryAsCompletedQuest(questId)
-    LCQ_DBG:Critical("FindQuestWithSameCategoryAsCompletedQuest not implemented")
-    local _, completedQuestType = GetCompletedQuestInfo(questId)
-    local completedQuestZone = GetCompletedQuestLocationInfo(questId)
-    for i = 1, MAX_JOURNAL_QUESTS do
-        if IsValidQuestIndex(i) then
-            local questType = GetJournalQuestType(i)
-            local zone = GetJournalQuestLocationInfo(i)
-            if self:AreQuestsInTheSameCategory(completedQuestType, completedQuestZone, questType, zone) then
-                return i
-            end
-        end 
-    end
-    return nil
-end
-
-function CustomQuestJournal_Manager:GetQuestListData()
+function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestListData()
     local seenCategories = {}
     local categories = {}
     local quests = {}
@@ -158,7 +67,7 @@ function CustomQuestJournal_Manager:GetQuestListData()
     -- Create a table for categories and one for quests
     for questID, questData in pairs(CUSTOM_QUEST_MANAGER.quests) do
         if not questData.completed then
-            local zone = questData.zone
+            local zone = questData.location
             local questType = CUSTOM_QUEST_MANAGER:GetQuestType(questID)
             local name = questData.name
             local level = questData.level
@@ -176,7 +85,7 @@ function CustomQuestJournal_Manager:GetQuestListData()
 
             table.insert(quests, {
                 name = name,
-                questIndex = questID,
+                questId = questID,
                 level = level,
                 categoryName = categoryName,
                 categoryType = categoryType,
@@ -192,23 +101,3 @@ function CustomQuestJournal_Manager:GetQuestListData()
 
     return quests, categories, seenCategories
 end
-
-function CustomQuestJournal_Manager:UpdateFocusedQuest()
-    local focusedQuestIndex = nil
-    local numTrackedQuests = GetNumTracked()
-    for i=1, numTrackedQuests do
-        local trackType, arg1, arg2 = GetTrackedByIndex(i)
-        if GetTrackedIsAssisted(trackType, arg1, arg2) then
-            focusedQuestIndex = arg1
-            break
-        end
-    end
-
-    self.focusedQuestIndex = focusedQuestIndex
-end
-
-function CustomQuestJournal_Manager:GetFocusedQuestIndex()
-    return self.focusedQuestIndex
-end
-
-CUSTOM_QUEST_JOURNAL_MANAGER = CustomQuestJournal_Manager:New()
