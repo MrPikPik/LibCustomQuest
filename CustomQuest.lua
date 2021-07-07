@@ -12,7 +12,7 @@ function CustomQuest:New(...)
 end
 
 -- Initializes a CustomQuest object
-function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDisplayType, stages, repeatable)
+function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDisplayType, stages, outcome, repeatType)
     self.id = id
     self.name = name or "Unnamed Quest"
     self.text = bgtext or " --- "
@@ -23,13 +23,14 @@ function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDispl
     self.stages = stages or {}
     self.currentStage = 1 -- TODO: Load progress from SavedVariables!
     self.completed = false -- TOFO: Load progress from SavedVariables
-    self.repeatable = repeatable or false
+    self.outcome = outcome
+    self.repeatType = repeatType or QUEST_REPEAT_NOT_REPEATABLE
 
     LCQ_DBG:Debug("TODO: Quest progress is not being loaded yet")
     LCQ_DBG:Info("Created quest with id <<1>>", id)
 end
 
-function CustomQuest:GetInfo()
+--[[function CustomQuest:GetInfo()
     local name = self.name
     local bgText = self.text
     local stage = self.stages[self.currentStage] or {}
@@ -40,4 +41,4 @@ function CustomQuest:GetInfo()
     local instanceDisplayType = self.instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
 
     return name, bgText, stepText, _, _, completed, _, type, instanceDisplayType, level
-end
+end]]

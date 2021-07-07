@@ -44,6 +44,8 @@ QuestJournal/CustomQuestJournal_Manager.lua
 QuestJournal/CustomQuestJournal_Shared.lua
 QuestJournal/keyboard/CustomQuestJournal_Keyboard.lua
 QuestJournal/keyboard/CustomQuestJournal_Keyboard.xml
+QuestJournal/gamepad/CustomQuestJournal_Gamepad.lua
+QuestJournal/gamepad/CustomQuestJournal_Gamepad.xml
 
 ;Listeners
 Listeners/ListenerBase.lua
