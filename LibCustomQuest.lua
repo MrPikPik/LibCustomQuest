@@ -41,12 +41,6 @@ function LibCustomQuest.Initialize()
 
     --CUSTOM_QUEST_MANAGER:RegisterQuest(quest4)
 
-    --Might put a function in LibAlianym that you can call to do all this setup in one function call.
-    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestMasterList()
-    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
-    CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
-    CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeKeybindStripDescriptors()
-
 	local function GetButtonData()
 		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
 
@@ -65,9 +59,6 @@ function LibCustomQuest.Initialize()
 		return {buttonToQuestLog}
 	end
 
-	local buttonData = GetButtonData() local menuControlName = "LCQButtonMenu"
-	local controlBackground = GetControl("LibCustomQuestBackground")
-	LCQ.buttonJournal = ALCI_Scene_Merge(menuControlName, controlBackground, buttonData, -650, 1)
     --[[CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()
 
     local sceneGroupInfo = MAIN_MENU_KEYBOARD.sceneGroupInfo["journalSceneGroup"]
@@ -103,7 +94,6 @@ function LibCustomQuest.Initialize()
             CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
         end
     end)]]
-
 
     -- Create all the various listener classes
     LibCustomQuest.listeners = {}
@@ -182,3 +172,11 @@ local function OnLibraryLoaded(event, addonName)
     SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)
+
+function LCQ.ShowJournal()
+    if IsInGamepadPreferredMode() then
+        SCENE_MANAGER:Toggle("gamepad_customQuestJournal")
+    else
+        SCENE_MANAGER:Toggle("customQuestJournal")
+    end
+end

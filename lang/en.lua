@@ -8,7 +8,6 @@ ZO_CreateStringId("LCQ_MAIN_MENU_CUSTOM_JOURNAL", "Journal II")
 ZO_CreateStringId("LCQ_JOURNAL_CUSTOM_QUEST_MENU_HEADER", "Custom Quests")
 ZO_CreateStringId("LCQ_QUESTS_CURRENT", "Quests: |cffffff<<1>>|r")
 
+ZO_CreateStringId("LCQ_QUEST_COMPLETED_CATEGORY", GetString(SI_ACHIEVEMENTS_TOOLTIP_COMPLETE))
+
 if not LCQ then LCQ = {} end
-if not LCQ.bgControl then 
-    LCQ.bgControl = CreateControlFromVirtual("LibCustomQuestBackground", nil, "ALCI_SharedRightBackground") 
-end
