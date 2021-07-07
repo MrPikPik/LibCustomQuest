@@ -3,7 +3,7 @@
         <Category name="SI_KEYBINDINGS_CATEGORY_USER_INTERFACE">
             <Action name="TOGGLE_CUSTOM_JOURNAL">
                 <Down>
-                    SCENE_MANAGER:Toggle("customQuestJournal")
+                    LCQ.ShowJournal()
                 </Down>
             </Action>
 

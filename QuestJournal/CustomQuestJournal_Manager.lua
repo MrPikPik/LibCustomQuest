@@ -1,103 +1,287 @@
-do 
-    local control = CreateControlFromVirtual("CustomQuestJournal", nil, "ALCI_QuestJournal")
-    local sceneName = "customQuestJournal"
-
-    local sceneData = {}
-    sceneData[1] = {type="journal", control=control, bgControl=LCQ.bgControl, sceneName=sceneName, sceneGroupTitle=LCQ_MAIN_MENU_CUSTOM_JOURNAL}
-
-    _, CUSTOM_QUEST_JOURNAL_KEYBOARD = ALCI_Scene_Setup("LibCustomQuest", sceneData)
-    CUSTOM_QUEST_JOURNAL_MANAGER = CUSTOM_QUEST_JOURNAL_KEYBOARD.managerObject
-    
-    SYSTEMS:RegisterKeyboardObject("customQuestJournal", CUSTOM_QUEST_JOURNAL_KEYBOARD)
-end
+local QUEST_CAT_ZONE = 1
+local QUEST_CAT_OTHER = 2
+local QUEST_CAT_MISC = 3
 
 ----------
--- CustomQuestJournal_Manager
+-- LCQ_QuestJournal_Manager
 ----------
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:BuildTextForTasks(_, questId, questStrings)
-    local stage = CUSTOM_QUEST_MANAGER.quests[questId].currentStage
-    local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questId, stage)
-    self:BuildTextForConditions(questId, stage, conditionCount, questStrings)
-    
+LCQ_QuestJournal_Manager = ZO_CallbackObject:Subclass()
+
+local lang = GetCVar("language.2")
+
+function LCQ_QuestJournal_Manager:New(...)
+	local manager = ZO_CallbackObject.New(self)
+	manager:Initialize(...)
+	return manager
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:DoesShowMultipleOrSteps(stepOverrideText, stepType, questIndex)
-    LCQ_DBG:Critical("DoesShowMultipleOrSteps not implemented")
-    if stepOverrideText and (stepOverrideText ~= "") then
-        return false
-    else
-        local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questIndex, QUEST_MAIN_STEP_INDEX)
-        if(stepType == QUEST_STEP_TYPE_OR and conditionCount > 1) then
-            return true
-        else
-            return false
-        end
-    end
+function LCQ_QuestJournal_Manager:Initialize(control)
+	self.categories = {}
+	self.quests = {}
+
+	self:BuildQuestListData()
+
+	self:RegisterForEvents()
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestConditionInfo(questId, stepIndex, conditionStep)
-    return CUSTOM_QUEST_MANAGER:GetQuestTaskInfo(questId, stepIndex, conditionStep)
+function LCQ_QuestJournal_Manager:RegisterForEvents()
+	local function OnFocusQuestIdChanged(eventCode, questId)
+		self.focusedQuestId = questId
+	end
+
+	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_SHOW_JOURNAL_ENTRY, OnFocusQuestIdChanged)
+
+	local function OnAssistChanged(unassistedData, assistedData)
+		if assistedData and assistedData.arg1 then
+			self.focusedQuestId = assistedData.arg1
+		end
+	end
+
+	--FOCUSED_QUEST_TRACKER:RegisterCallback("QuestTrackerAssistStateChanged", OnAssistChanged)
+
+	local function OnQuestsUpdated()
+		self:BuildQuestListData()
+	end
+
+	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_ADDED, OnQuestsUpdated)
+	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_REMOVED, OnQuestsUpdated)
+	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_LIST_UPDATED, OnQuestsUpdated)
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestIdList()
-    local quests = CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.quests
+local function BuildTextHelper(questId, questStage, conditionStep, questStrings)
+	local conditionText, _, _, isFailCondition, isComplete, _, isVisible = CUSTOM_QUEST_MANAGER:GetCustomQuestConditionInfo(questId, questStage, conditionStep)
 
-    local questIdList = {} 
-    for i, _ in ipairs(quests) do
-        table.insert(questIdList, quests[i].questId)
-    end
+	if isVisible and not isFailCondition and conditionText ~= "" then
+		if isComplete then
+			conditionText = ZO_DISABLED_TEXT:Colorize(conditionText)
+		end
 
-    return questIdList
+		local taskInfo =
+		{
+			name = conditionText,
+			isComplete = isComplete,
+		}
+
+		table.insert(questStrings, taskInfo)
+	end
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestList()
-    return CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.quests
+function LCQ_QuestJournal_Manager:BuildTextForConditions(questId, stepIndex, numConditions, questStrings)
+	local questStage = CUSTOM_QUEST_MANAGER:GetCustomQuestCurrentStage(questId)
+	for i = 1, numConditions do
+		BuildTextHelper(questId, questStage, i, questStrings)
+	end
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestCategories()
-    return CUSTOM_QUEST_JOURNAL_KEYBOARD.questMasterList.categories
+function LCQ_QuestJournal_Manager:BuildTextForTasks(stepOverrideText, questId, questStrings)
+	local questStage = CUSTOM_QUEST_MANAGER:GetCustomQuestCurrentStage(questId)
+
+	if stepOverrideText and (stepOverrideText ~= "") then
+		BuildTextHelper(questId, questStage, nil, questStrings)
+	else
+		local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questId, questStage) --QUEST_MAIN_STEP_INDEX)
+		self:BuildTextForConditions(questId, QUEST_MAIN_STEP_INDEX, conditionCount, questStrings)
+	end
 end
 
-function CUSTOM_QUEST_JOURNAL_MANAGER:GetQuestListData()
-    local seenCategories = {}
-    local categories = {}
-    local quests = {}
-
-    -- Create a table for categories and one for quests
-    for questID, questData in pairs(CUSTOM_QUEST_MANAGER.quests) do
-        if not questData.completed then
-            local zone = questData.location
-            local questType = CUSTOM_QUEST_MANAGER:GetQuestType(questID)
-            local name = questData.name
-            local level = questData.level
-            local instanceDisplayType = questData.instanceDisplayType
-            local categoryName, categoryType = self:GetQuestCategoryNameAndType(questType, zone)
-
-            if not seenCategories[categoryName] then
-                table.insert(categories, {name = categoryName, type = categoryType})
-                seenCategories[categoryName] = true
-            end
-
-            if name == "" then
-                name = GetString(SI_QUEST_JOURNAL_UNKNOWN_QUEST_NAME)
-            end
-
-            table.insert(quests, {
-                name = name,
-                questId = questID,
-                level = level,
-                categoryName = categoryName,
-                categoryType = categoryType,
-                questType = questType,
-                displayType = instanceDisplayType
-            })
-        end
-    end
-
-    -- Sort the tables
-    --table.sort(categories, CustomQuestJournal_Manager_SortQuestCategories)
-    --table.sort(quests, CustomQuestJournal_Manager_SortQuestEntries)
-
-    return quests, categories, seenCategories
+function LCQ_QuestJournal_Manager:DoesShowMultipleOrSteps(stepOverrideText, stepType, questId)
+	if stepOverrideText and (stepOverrideText ~= "") then
+		return false
+	else
+		local questStage = CUSTOM_QUEST_MANAGER:GetCustomQuestCurrentStage(questId)
+		local conditionCount = CUSTOM_QUEST_MANAGER:GetCustomQuestNumConditions(questId, questStage) --QUEST_MAIN_STEP_INDEX)
+		if stepType == QUEST_STEP_TYPE_OR and conditionCount > 1 then
+			return true
+		else
+			return false
+		end
+	end
 end
+
+local function LCQ_QuestJournal_Manager_SortQuestCategories(entry1, entry2)
+	if entry1.type == entry2.type then
+		return entry1.name < entry2.name
+	else
+		return entry1.type < entry2.type
+	end
+end
+
+local function LCQ_QuestJournal_Manager_SortQuestEntries(entry1, entry2)
+	if entry1.categoryType == entry2.categoryType then
+		if entry1.categoryName == entry2.categoryName then
+			return entry1.name < entry2.name
+		end
+
+		return entry1.categoryName < entry2.categoryName
+	end
+	return entry1.categoryType < entry2.categoryType
+end
+
+ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY =
+{
+	[QUEST_TYPE_MAIN_STORY] = true,
+	[QUEST_TYPE_GUILD] = true,
+	[QUEST_TYPE_CRAFTING] = true,
+	[QUEST_TYPE_HOLIDAY_EVENT] = true,
+	[QUEST_TYPE_BATTLEGROUND] = true,
+	[QUEST_TYPE_PROLOGUE] = true,
+	[QUEST_TYPE_UNDAUNTED_PLEDGE] = true,
+	[QUEST_TYPE_COMPANION] = true,
+}
+
+function LCQ_QuestJournal_Manager:GetCustomQuestCategoryNameAndType(questType, zone)
+	local categoryName, categoryType
+	if ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[questType] then
+		categoryName = GetString("SI_QUESTTYPE", questType)
+		categoryType = QUEST_CAT_OTHER
+	elseif zone ~= "" then
+		categoryName = zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, zone)
+		categoryType = QUEST_CAT_ZONE
+	else
+		categoryName = GetString(SI_QUEST_JOURNAL_GENERAL_CATEGORY)
+		categoryType = QUEST_CAT_MISC
+	end
+	return categoryName, categoryType
+end
+
+function LCQ_QuestJournal_Manager:AreQuestsInTheSameCategory(quest1Type, quest1Zone, quest2Type, quest2Zone)
+	local quest1IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest1Type]
+	local quest2IsOtherCategory = ZO_IS_QUEST_TYPE_IN_OTHER_CATEGORY[quest2Type]
+	if quest1IsOtherCategory ~= quest2IsOtherCategory then
+		return false
+	else
+		if quest1IsOtherCategory then
+			return quest1Type == quest2Type
+		else
+			--true if they have the same zone or if they both have no zone and would end up in the general category
+			return quest1Zone == quest2Zone
+		end
+	end
+end
+
+function LCQ_QuestJournal_Manager:FindQuestWithSameCategoryAsCompletedQuest(questId)
+	local _, completedQuestType = GetCompletedQuestInfo(questId)
+	local completedQuestZone = GetCompletedQuestLocationInfo(questId)
+	--for i = 1, MAX_JOURNAL_QUESTS do
+	for id, _ in pairs(CUSTOM_QUEST_MANAGER.quests) do
+		if IsValidCustomQuestId(id) then
+			local questType = CUSTOM_QUEST_MANAGER:GetCustomQuestType(id)
+			local zone = CUSTOM_QUEST_MANAGER:GetCustomQuestLocationInfo(id)
+			if self:AreQuestsInTheSameCategory(completedQuestType, completedQuestZone, questType, zone) then
+				return id
+			end
+		end 
+	end
+	return nil
+end
+
+function LCQ_QuestJournal_Manager:BuildQuestListData()
+	ZO_ClearNumericallyIndexedTable(self.categories)
+	ZO_ClearNumericallyIndexedTable(self.quests)
+
+	local addedCategories = {}
+
+	-- Create a table for categories and one for quests
+	--for i = 1, MAX_JOURNAL_QUESTS do
+	for id, _ in pairs(CUSTOM_QUEST_MANAGER.quests) do
+		if CUSTOM_QUEST_MANAGER:IsValidCustomQuestId(id) then
+			local zone = CUSTOM_QUEST_MANAGER:GetCustomQuestLocationInfo(id)
+			local questType = CUSTOM_QUEST_MANAGER:GetCustomQuestType(id)
+			local categoryName, categoryType = self:GetCustomQuestCategoryNameAndType(questType, zone)
+
+			if CUSTOM_QUEST_MANAGER:IsCustomQuestComplete(id) then
+				categoryName = GetString(LCQ_QUEST_COMPLETED_CATEGORY)
+				categoryType = QUEST_CAT_OTHER
+			end
+
+			if not addedCategories[categoryName] then
+				table.insert(self.categories, {name = categoryName, type = categoryType})
+				addedCategories[categoryName] = true
+			end
+
+			local name = CUSTOM_QUEST_MANAGER:GetCustomQuestName(id)
+			if name == "" then
+				name = GetString(SI_QUEST_JOURNAL_UNKNOWN_QUEST_NAME)
+			end
+
+			local level = CUSTOM_QUEST_MANAGER:GetCustomQuestLevel(id)
+			local instanceDisplayType = CUSTOM_QUEST_MANAGER:GetCustomQuestInstanceDisplayType(id)
+
+			table.insert(self.quests,
+				{
+					name = name,
+					questId = id,
+					level = level,
+					categoryName = categoryName,
+					categoryType = categoryType,
+					questType = questType,
+					displayType = instanceDisplayType
+				}
+			)
+		end
+	end
+
+	-- Sort the tables
+	table.sort(self.categories, LCQ_QuestJournal_Manager_SortQuestCategories)
+	table.sort(self.quests, LCQ_QuestJournal_Manager_SortQuestEntries)
+
+	self:FireCallbacks("QuestListUpdated")
+end
+
+function LCQ_QuestJournal_Manager:GetQuestListData()
+	return self.quests, self.categories
+end
+
+function LCQ_QuestJournal_Manager:GetQuestList()
+	return self.quests
+end
+
+function LCQ_QuestJournal_Manager:GetCustomQuestCategories()
+	return self.categories
+end
+
+function LCQ_QuestJournal_Manager:GetNextSortedQuestForQuestId(questId)
+	for i, quest in ipairs(self.quests) do
+		if quest.questId == questId then
+			local nextQuest = (i == #self.quests) and 1 or (i + 1)
+			return self.quests[nextQuest].questId
+		end
+	end
+end
+
+function LCQ_QuestJournal_Manager:ConfirmAbandonQuest(questId)
+	local questName = CUSTOM_QUEST_MANAGER:GetCustomQuestName(questId)
+	local questLevel = CUSTOM_QUEST_MANAGER:GetCustomQuestLevel(questId)
+	local conColorDef = ZO_ColorDef:New(GetConColor(questLevel))
+	questName = conColorDef:Colorize(questName)
+	d("ConfirmAbandonQuest(questId) not implemented")
+	--ZO_Dialogs_ShowPlatformDialog("ABANDON_QUEST", {questId = questId}, {mainTextParams = {questName}})
+end
+
+function LCQ_QuestJournal_Manager:ShareQuest(questId)
+	d("ShareQuest(questId) not implemented")
+	--ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.QUEST_SHARE_SENT, GetString(SI_QUEST_SHARED))
+	--ShareQuest(questId)
+end
+
+--Not Updated
+--[[function LCQ_QuestJournal_Manager:UpdateFocusedQuest()
+	local focusedQuestId = nil
+	local numTrackedQuests = GetNumTracked()
+	for i=1, numTrackedQuests do
+		local trackType, arg1, arg2 = GetTrackedById(i)
+		if GetTrackedIsAssisted(trackType, arg1, arg2) then
+			focusedQuestId = arg1
+			break
+		end
+	end
+
+	self.focusedQuestId = focusedQuestId
+end
+
+function LCQ_QuestJournal_Manager:GetFocusedQuestId()
+	return self.focusedQuestId
+end]]
+
+LCQ_QUEST_JOURNAL_MANAGER = LCQ_QuestJournal_Manager:New()
