@@ -5,12 +5,12 @@
 
 ## Title: LibCustomQuest
 ## Author: MrPikPik, Alianym
-## APIVersion: 100034
+## APIVersion: 100035
 ## AddonVersion: 1
-## Version: 0.02
+## Version: 0.01
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
-## DependsOn: LibMapPins-1.0 LibCustomDialog LibAlianym
+## DependsOn: LibMapPins-1.0 LibCustomDialog LibAlianym CustomCompassPins
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
@@ -20,11 +20,15 @@ lang/$(language).lua
 ;Debugger
 LCQ_Debugger.lua
 
-;Globals
+;Globals and API
 Globals.lua
+API.lua
 
 ;Bindings
 bindings.xml
+
+;Addon Manager patches
+AddonManager/Patches.lua
 
 ;Helpers
 CenterScreenAnnounce.lua

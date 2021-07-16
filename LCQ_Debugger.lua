@@ -1,8 +1,8 @@
-----------
--- LCQ_Debugger
-----------
+------------------
+-- LCQ_Debugger --
+------------------
 
---debugger version 1.4
+--debugger version 1.4.1
 
 LCQ_DBG_QUIET       = 0
 LCQ_DBG_NORMAL      = 1
@@ -27,6 +27,8 @@ function LCQ_Debugger:Initialize()
     self.showDebug = false
 end
 
+---Sets the current log level
+---@param level number
 function LCQ_Debugger:SetLogLevel(level)
     if level < LCQ_DBG_QUIET then
         self.logLevel = LCQ_DBG_QUIET
@@ -38,14 +40,21 @@ function LCQ_Debugger:SetLogLevel(level)
     end
 end
 
+---Set the debug output enabled or disabled
+---@param enabled boolean
 function LCQ_Debugger:SetDebugOutputEnabled(enabled)
     self.showDebug = enabled
 end
 
+---Gets the current log level
+---@return number currentLogLevel
 function LCQ_Debugger:GetLogLevel()
     return self.logLevel
 end
 
+---Prints a message to chat
+---@param message string Format string used by zo_strformat
+---@param debugLevel number
 function LCQ_Debugger:Log(message, debugLevel, ...)
     if not message then return end
     local level = debugLevel or 1
@@ -68,31 +77,43 @@ function LCQ_Debugger:Log(message, debugLevel, ...)
     end
 end
 
+---Displays a warning in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Warn(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_VERBOSE, ...)
 end
 
+---Displays a info in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Info(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_INFO, ...)
 end
 
+---Displays a verbose message in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Verbose(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_VERBOSE, ...)
 end
 
+---Displays an error in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Error(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_ERROR, ...)
 end
 
+---Displays a critical error in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Critical(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_CRITICAL, ...)
 end
 
+---Displays a debug message in chat
+---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Debug(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_DEBUG, ...)

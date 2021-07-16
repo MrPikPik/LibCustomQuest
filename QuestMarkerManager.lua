@@ -4,20 +4,71 @@
 
 LCQ_QuestMarkerManager = ZO_Object:Subclass()
 
-QUEST_MARKER_TEXTURES = {
+local QUEST_MARKER_TEXTURES = {
     QUEST_MARKER_QUEST_GIVER        = "/esoui/art/floatingmarkers/quest_available_icon.dds",
     QUEST_MARKER_TRACKED            = "/esoui/art/floatingmarkers/quest_icon_assisted.dds",
     QUEST_MARKER_UNTRACKED          = "/esoui/art/floatingmarkers/quest_icon.dds",
     QUEST_MARKER_REPEATABLE         = "/esoui/art/floatingmarkers/repeatablequest_available_icon.dds",
     QUEST_MARKER_INSIDE_TRACKED     = "/esoui/art/floatingmarkers/quest_icon_door_assisted.dds",
-    QUEST_MARKER_INSIDE_UNTRACKED   = "/esoui/art/floatingmarkers/quest_icon.dds",
+    QUEST_MARKER_INSIDE_UNTRACKED   = "/esoui/art/floatingmarkers/quest_icon_door.dds",
 }
 
--- Instantiates a new task object
+local LCQ_COMPASS_PINS_QUEST_GIVER = "LCQ_PinType_QuestGiver"
+local LCQ_COMPASS_PINS_QUEST_MARKER = "LCQ_PinType_QuestMarker"
+local LCQ_COMPASS_PINS_QUEST_INSIDE = "LCQ_PinType_QuestInside"
+local LCQ_COMPASS_PINS_QUEST_REPEATABLE = "LCQ_PinType_QuestRepeatable"
+
+local function UpdatePinCenterLabel(pin, normalizedAngle, distance)
+    --d("UpdatePinCenterLabel")
+    if pin.pinName then
+        if zo_abs(normalizedAngle) < 0.1 then
+            if COMPASS.areaOverrideAnimation:IsPlaying() then
+                COMPASS.centerOverPinLabelAnimation:PlayBackward()
+            elseif not COMPASS.centerOverPinLabelAnimation:IsPlaying() or not COMPASS.centerOverPinLabelAnimation:IsPlayingBackward() then
+                COMPASS.centerOverPinLabel:SetText(pin.pinName)
+                COMPASS.centerOverPinLabelAnimation:PlayForward()
+            end
+        end
+    end
+end
+
+local pinLayouts = {
+    questGiver = {
+        maxDistance = 0.025,
+        maxAngle = 5,
+        texture = "/esoui/art/compass/quest_available_icon.dds",
+        sizeCallback = function(pin, angle, normalizedAngle, distance)
+            local scale = 64
+            normalizedAngle = zo_abs(normalizedAngle)
+            if normalizedAngle >= 0.95 then
+                scale = zo_lerp(64, 48, zo_clampedPercentBetween(0, 0.05, normalizedAngle - 0.95))
+            end
+            pin:SetDimensions(scale, scale)     
+        end,
+        additionalLayout = {
+            [1] = function(pin, angle, normalizedAngle, distance)
+                pin:SetAlpha(1)
+                UpdatePinCenterLabel(pin, normalizedAngle, distance)
+            end,
+            [2] = function(pin)
+                pin:SetHidden(true)
+            end,
+        }
+    },
+    questObjective = {
+        maxDistance = 1,
+        texture = "/esoui/art/compass/quest_icon_assisted.dds",
+    },
+    questObjectiveArea = {
+        maxDistance = 1,
+        texture = "/esoui/art/compass/quest_assistedareapin.dds",
+    },
+}
+
 function LCQ_QuestMarkerManager:New(...)
-    local listener = ZO_Object.New(self)
-    listener:Initialize(...)
-    return listener
+    local manager = ZO_Object.New(self)
+    manager:Initialize(...)
+    return manager
 end
 
 function LCQ_QuestMarkerManager:Initialize()
@@ -35,23 +86,11 @@ function LCQ_QuestMarkerManager:Initialize()
 
     self:CreateUI()
 
+    self:SetupCompassPins()
+
     EVENT_MANAGER:RegisterForUpdate("LCQ_QuestMarkerManager", 0, function() self:OnUpdate() end)
 
     LCQ_DBG:Info("Quest Marker Manager Initialized.")
-end
-
-function LCQ_QuestMarkerManager:AddQuestMarker(type, zone, worldX, worldY, worldZ)
-    local marker = {
-        type = type or "QUEST_MARKER_TRACKED",
-        texture = QUEST_MARKER_TEXTURES[type] or QUEST_MARKER_TEXTURES["QUEST_MARKER_TRACKED"],
-        zone = zone or 0,
-        x = worldX or 0,
-        y = worldY or 0,
-        z = worldZ or 0,
-        id = self.markerId,
-    }
-    self.markerId = self.markerId + 1
-    table.insert(self.markers, marker)
 end
 
 function LCQ_QuestMarkerManager:CreateUI()
@@ -61,23 +100,77 @@ function LCQ_QuestMarkerManager:CreateUI()
 
     -- Create parent window for icons
 	self.window = WINDOW_MANAGER:CreateTopLevelWindow("LCQ_QuestMarkerWindow")
-    self.window:SetClampedToScreen(true)
-    self.window:SetMouseEnabled(false)
-    self.window:SetMovable(false)
 	self.window:ClearAnchors()
 	self.window:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
     self.window:SetDimensions(GuiRoot:GetWidth(), GuiRoot:GetHeight())
 	self.window:SetDrawLayer(0)
 	self.window:SetDrawLevel(0)
 	self.window:SetDrawTier(0)
-
-    -- Create parent window scene fragment
-	local frag = ZO_HUDFadeSceneFragment:New(self.window)
-	HUD_UI_SCENE:AddFragment(frag)
-    HUD_SCENE:AddFragment(frag)
 end
 
--- Position to screen math taken from Ody's Support Icons
+function LCQ_QuestMarkerManager:SetupCompassPins()
+    -- Only the first type need the update function as it handles all pintypes.
+    COMPASS_PINS:AddCustomPin(LCQ_COMPASS_PINS_QUEST_GIVER, function() self:UpdateCompassPins() end, pinLayouts.questGiver)
+    COMPASS_PINS:AddCustomPin(LCQ_COMPASS_PINS_QUEST_MARKER, function() end, pinLayouts.questObjective)
+end
+
+
+function LCQ_QuestMarkerManager:UpdateCompassPins()
+    --Add all pins
+    local currentZone = GetUnitWorldPosition("player")
+    for i, marker in ipairs(self.markers) do
+        if marker.zone == currentZone then
+            local x, y = GetNormalizedWorldPosition(marker.zone, marker.x, marker.y, marker.z)
+            
+            if marker.type == "QUEST_MARKER_QUEST_GIVER" then
+                COMPASS_PINS.pinManager:CreatePin(LCQ_COMPASS_PINS_QUEST_GIVER, "TestPin", x, y, "Testpin")
+            elseif marker.type == "QUEST_MARKER_TRACKED" then
+                COMPASS_PINS.pinManager:CreatePin(LCQ_COMPASS_PINS_QUEST_MARKER, "TestPin", x, y, "Testpin")
+            end
+        end
+    end
+end
+
+function LCQ_QuestMarkerManager:AddQuestMarker(type, text, zone, worldX, worldY, worldZ)
+    local marker = {
+        type = type or "QUEST_MARKER_TRACKED",
+        text = text,
+        texture = QUEST_MARKER_TEXTURES[type] or QUEST_MARKER_TEXTURES["QUEST_MARKER_TRACKED"],
+        zone = zone or 0,
+        x = worldX or 0,
+        y = worldY or 0,
+        z = worldZ or 0,
+        id = self.markerId,
+    }
+    self.markerId = self.markerId + 1
+    table.insert(self.markers, marker)
+    self:UpdateCompassPins()
+
+
+    -- GetNormalizedWorldPosition(integer zoneId, integer worldX, integer worldY, integer worldZ)
+    -- Returns: number normalizedX, number normalizedY
+    -- 
+    -- GetRawNormalizedWorldPosition(integer zoneId, integer worldX, integer worldY, integer worldZ)
+    -- Returns: number normalizedX, number normalizedY
+
+end
+
+function LCQ_QuestMarkerManager:RemoveQuestMarker(questMarker)
+    for i, marker in ipairs(self.markers) do
+        if marker.id == questMarker.id then
+            -- Remove from compass
+            COMPASS_PINS.pinManager:RemovePin(marker.id)
+
+            --Remove from map
+            -- TODO
+
+            --Remove from world
+            table.remove(self.markers, i)
+        end
+    end
+end
+
+-- Position to screen math taken with permission from Ody's Support Icons
 function LCQ_QuestMarkerManager:OnUpdate()
     local currentZone = GetUnitRawWorldPosition("player")
 
@@ -96,18 +189,18 @@ function LCQ_QuestMarkerManager:OnUpdate()
     -- determinant should always be -1
     -- instead of multiplying simply negate
     -- calculate inverse camera matrix
-    local i11 = -( uY * fZ - uZ * fY )
-    local i12 = -( rZ * fY - rY * fZ )
-    local i13 = -( rY * uZ - rZ * uY )
-    local i21 = -( uZ * fX - uX * fZ )
-    local i22 = -( rX * fZ - rZ * fX )
-    local i23 = -( rZ * uX - rX * uZ )
-    local i31 = -( uX * fY - uY * fX )
-    local i32 = -( rY * fX - rX * fY )
-    local i33 = -( rX * uY - rY * uX )
-    local i41 = -( uZ * fY * cX + uY * fX * cZ + uX * fZ * cY - uX * fY * cZ - uY * fZ * cX - uZ * fX * cY )
-    local i42 = -( rX * fY * cZ + rY * fZ * cX + rZ * fX * cY - rZ * fY * cX - rY * fX * cZ - rX * fZ * cY )
-    local i43 = -( rZ * uY * cX + rY * uX * cZ + rX * uZ * cY - rX * uY * cZ - rY * uZ * cX - rZ * uX * cY )
+    local i11 = -(uY * fZ - uZ * fY)
+    local i12 = -(rZ * fY - rY * fZ)
+    local i13 = -(rY * uZ - rZ * uY)
+    local i21 = -(uZ * fX - uX * fZ)
+    local i22 = -(rX * fZ - rZ * fX)
+    local i23 = -(rZ * uX - rX * uZ)
+    local i31 = -(uX * fY - uY * fX)
+    local i32 = -(rY * fX - rX * fY)
+    local i33 = -(rX * uY - rY * uX)
+    local i41 = -(uZ * fY * cX + uY * fX * cZ + uX * fZ * cY - uX * fY * cZ - uY * fZ * cX - uZ * fX * cY)
+    local i42 = -(rX * fY * cZ + rY * fZ * cX + rZ * fX * cY - rZ * fY * cX - rY * fX * cZ - rX * fZ * cY)
+    local i43 = -(rZ * uY * cX + rY * uX * cZ + rX * uZ * cY - rX * uY * cZ - rY * uZ * cX - rZ * uX * cY)
 
     -- Screen dimensions
     local uiW, uiH = GuiRoot:GetDimensions()
@@ -142,7 +235,7 @@ function LCQ_QuestMarkerManager:OnUpdate()
                 local icon = self.markerPool:AcquireObject(markerNum)
                 markerNum = markerNum + 1
                 icon:ClearAnchors()
-                icon:SetAnchor(CENTER, self.window, CENTER, x, y) 
+                icon:SetAnchor(CENTER, self.window, CENTER, x, y)
 
                 -- Update icon size
                 local scale = zo_lerp(40, 30, zo_clampedPercentBetween(1000, 5000, GetDistanceToPoint(marker.x, marker.y, marker.z)))
@@ -163,21 +256,21 @@ function LCQ_QuestMarkerManager:OnUpdate()
                 -- FIXME: zorder buffer should either store icons in tables or
                 -- FIXME: decrease chance for same depth by multiplying pZ before
                 -- FIXME: flooring for additional precision
-                zorder[1 + zo_floor( pZ * 100 )] = icon
+                zorder[1 + zo_floor(pZ*100)] = icon
                 ztotal = ztotal + 1
             end
         end
     end
 
     if ztotal > 0 then
-        local keys = { }
-        for k in pairs( zorder ) do
-            table.insert( keys, k )
+        local keys = {}
+        for k in pairs(zorder) do
+            table.insert(keys, k)
         end
-        table.sort( keys )
+        table.sort(keys)
         -- adjust draw order
         for _, k in ipairs( keys ) do
-            zorder[k]:SetDrawLevel( ztotal )
+            zorder[k]:SetDrawLevel(ztotal)
             ztotal = ztotal - 1
         end
     end

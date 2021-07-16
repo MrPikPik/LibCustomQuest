@@ -150,6 +150,27 @@ function LibCustomQuest.AddQuestMarkerOnPlayer()
     CUSTOM_QUEST_MARKER_MANAGER:OnUpdate()
 end
 
+function LibCustomQuest.AddQuestGiver(quest, questStartData)
+    
+    local target = {
+        name = questStartData.name,
+        type = CUSTOM_INTERACTION_START_QUEST,
+        quest = quest,
+        questId = quest.id
+    }
+
+    LCQ_INTERACTIONLISTENER:Listen(target)
+    CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", questStartData.name, questStartData.zone, questStartData.x, questStartData.y, questStartData.z)
+end
+
+function LibCustomQuest.ShowJournal()
+    if IsInGamepadPreferredMode() then
+        SCENE_MANAGER:Toggle("gamepad_customQuestJournal")
+    else
+        SCENE_MANAGER:Toggle("customQuestJournal")
+    end
+end
+
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
@@ -172,11 +193,3 @@ local function OnLibraryLoaded(event, addonName)
     SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)
-
-function LCQ.ShowJournal()
-    if IsInGamepadPreferredMode() then
-        SCENE_MANAGER:Toggle("gamepad_customQuestJournal")
-    else
-        SCENE_MANAGER:Toggle("customQuestJournal")
-    end
-end
