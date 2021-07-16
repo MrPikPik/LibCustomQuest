@@ -292,7 +292,7 @@ function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage)
     local quest = self:GetCustomQuest(questId)
     if quest.stages[questStage] then
         local stepText = self.quests[questId].stages[questStage].hint or nil
-        local visibility = stepText ~= nil
+        local visibility = quest.stages[questStage].visibility or nil
         local stepType = quest.stages[questStage].type or 0
         local trackerOverrideText = quest.stages[questStage].overrideText or ""
         local numConditions = #quest.stages[questStage].tasks
