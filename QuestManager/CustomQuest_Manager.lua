@@ -25,7 +25,7 @@ function CustomQuest_Manager:RegisterQuest(quest)
         error("Quest ID already in use.")
     else
         -- Instantiate quest object
-        self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.repeatable)
+        self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
 
         self.progress[quest.id] = {stage = 1, conditions = {}}
 
@@ -46,7 +46,7 @@ function CustomQuest_Manager:StartQuest(quest, questId)
         self:RegisterQuest(quest)
     end
 
-    local stage, conditions = self:GetQuestProgress(id)
+    local stage, conditions = self:GetCustomQuestProgress(id)
     local suppressCSA = false --not (stage == 1 and conditions == {})
     if not suppressCSA then
         LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_ADDED, id)
@@ -57,8 +57,8 @@ end
 
 function CustomQuest_Manager:UpdateQuestListeners(questid, suppressCSA)
     local suppressCSA = suppressCSA or false
-    local stage, conditions = self:GetQuestProgress(questid)
-    local _, _, _, _, numConditions = self:GetQuestStepInfo(questid, stage)
+    local stage, conditions = self:GetCustomQuestProgress(questid)
+    local _, _, _, _, numConditions = self:GetCustomQuestStepInfo(questid, stage)
 
     LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks", questid, stage, numConditions)
 
@@ -73,7 +73,7 @@ function CustomQuest_Manager:UpdateQuestListeners(questid, suppressCSA)
             local task = self.quests[questid].stages[stage].tasks[i]
             local type = task.type
             if not type then
-                LCQ_DBG:Critical("Task type is nil! <<1>>", self.GetQuestName(questid))
+                LCQ_DBG:Critical("Task type is nil! <<1>>", self.GetCustomQuestName(questid))
             end
 
             if type == QUEST_CONDITION_TYPE_LOCATION then
@@ -83,8 +83,6 @@ function CustomQuest_Manager:UpdateQuestListeners(questid, suppressCSA)
                 LCQ_INTERACTIONLISTENER:Listen(task.data, questid, i)
                 LCQ_DBG:Verbose("Added ineraction target for <<1>>", task.data.name)
             end
-
-            
         end
     end
 end
@@ -124,20 +122,17 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
 end
 
 -- Get quest data by ID
-function CustomQuest_Manager:GetQuest(questID)
-    if self.quests[questID] ~= nil then
-        return self.quests[questID]
+function CustomQuest_Manager:GetCustomQuest(questId)
+    if self.quests[questId] ~= nil then
+        return self.quests[questId]
     else
         return nil
     end
 end
 
-
-function CustomQuest_Manager:GetQuestConditionText(questId, stage, condition)
+function CustomQuest_Manager:GetCustomQuestConditionText(questId, stage, condition)
     return self.quests[questId].stages[stage].tasks[condition].text
 end
-
-
 
 -----------------------------------------
 -- Quest progress
@@ -157,9 +152,8 @@ end
 --
 -- When progressing a stage, reset the conditions table to match the number of conditions of the new step
 
-
 -- Gets the progress of a specified quest's stage's condition/task
-function CustomQuest_Manager:GetQuestProgress(questID)
+function CustomQuest_Manager:GetCustomQuestProgress(questID)
     local stage = 1
     local conditions = {}
 
@@ -178,11 +172,11 @@ end
 
 function CustomQuest_Manager:IsConditionComplete(questId, conditionIndex)
     if not questId then return false end
-    local _, conditions = self:GetQuestProgress(questId)
+    local _, conditions = self:GetCustomQuestProgress(questId)
     return conditions[conditionIndex]
 end
 
-function CustomQuest_Manager:IsQuestComplete(questId)
+function CustomQuest_Manager:IsCustomQuestComplete(questId)
     return self.progress[questId].completed
 end
 
@@ -210,82 +204,74 @@ end
 -----------------------------------------
 
 -- Gets the zone name of a quest. This is used for grouping in the journal
-function CustomQuest_Manager:GetQuestLocationInfo(questID)
-    local quest = self:GetQuest(questID)
+function CustomQuest_Manager:GetCustomQuestLocationInfo(questId)
+    local quest = self:GetCustomQuest(questId)
     if quest then
         return quest.location
     end
 end
 
 -- Gets the type of the quest
-function CustomQuest_Manager:GetQuestType(questID)
-    local quest = self:GetQuest(questID)
+function CustomQuest_Manager:GetCustomQuestType(questId)
+    local quest = self:GetCustomQuest(questId)
     if quest then
         return quest.type
     end
 end
 
-
 -- Gets the name of the quest
-function CustomQuest_Manager:GetQuestName(questID)
-    local quest = self:GetQuest(questID)
+function CustomQuest_Manager:GetCustomQuestName(questId)
+    local quest = self:GetCustomQuest(questId)
     if quest then
         return quest.name
     end
 end
 
 -- Gets the level requirement/recommendation of the quest
-function CustomQuest_Manager:GetQuestLevel(questID)
-    local quest = self:GetQuest(questID)
+function CustomQuest_Manager:GetCustomQuestLevel(questId)
+    local quest = self:GetCustomQuest(questId)
     if quest then
         return quest.level
     end
 end
 
 -- Gets the instance display type of the quest, e.g. trial, dungeon, etc.
-function CustomQuest_Manager:GetQuestInstanceDisplayType(questID)
-    local quest = self:GetQuest(questID)
+function CustomQuest_Manager:GetCustomQuestInstanceDisplayType(questId)
+    local quest = self:GetCustomQuest(questId)
     if quest then
         return quest.instanceDisplayType
     end
 end
 
--- Gets the number of stages in the quest
-function CustomQuest_Manager:GetQuestNumSteps(questID)
-    local quest = self:GetQuest(questID)
-    return #quest.stages
-end
+-- Gets the quest repeat type (can account for more than just repeatable/not-repeatable)
+function CustomQuest_Manager:GetCustomQuestRepeatType(questId)
+    local quest = self:GetCustomQuest(questId)
 
-function CustomQuest_Manager:GetQuestStepInfo(questID, stepIndex)
-    local quest = self:GetQuest(questID)
-    if quest.stages[stepIndex] then
-        local text = quest.stages[stepIndex].text or "No text provided"
-        local visibility = quest.stages[stepIndex].visibility or nil
-        local type = quest.stages[stepIndex].type or 0
-        local overrideText = quest.stages[stepIndex].overrideText or ""
-        local numConditions = #quest.stages[stepIndex].tasks
-
-        return text, visibility, type, overrideText, numConditions
-    end
-end
-
-function CustomQuest_Manager:GetQuestInfo(questID)
-    local quest = self:GetQuest(questID)
     if quest then
-        return quest:GetInfo()
+        return quest.repeatType
     end
 end
 
-function CustomQuest_Manager:GetQuestTaskInfo(questID, stage, condition)
-    local quest = self:GetQuest(questID)
+-- Gets the number of conditions in the quest stage
+function CustomQuest_Manager:GetCustomQuestNumConditions(questId, questStage) --stepIndex)
+    local quest = self:GetCustomQuest(questId)
+    if quest.stages[questStage] then
+        return #quest.stages[questStage].tasks
+    end
+end
+
+-- Gets the condition info
+function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, condition)
+    local quest = self:GetCustomQuest(questId)
+
     if quest.stages and quest.stages[stage] ~= nil then
         local stage = quest.stages[stage]
         if stage.tasks and stage.tasks[condition] ~= nil then
             local task = stage.tasks[condition]
 
             local conditionText = task.text
-            local currentCount = -1 --self.GetQuestProgress(questID, stage, task)
-            local maxCount = task.max or 0
+            local currentCount = 1 or nil --self.GetCustomQuestProgress(questID, stage, task)
+            local maxCount = #stage.tasks or nil --task.max or 0
             local isFailCondition = false
             local isComplete = task.complete --(currentCount >= maxCount) -- ???
             local isVisible = not task.invisible or true
@@ -296,27 +282,80 @@ function CustomQuest_Manager:GetQuestTaskInfo(questID, stage, condition)
     end
 end
 
--- Gets the numbers of conditions in the current step
-function CustomQuest_Manager:GetCustomQuestNumConditions(questId, step)
-    for id, quest in pairs(self.quests) do
-        if id == questId then
-            local _, _, _, _, s = self:GetQuestStepInfo(questId, step)
-            s = s or "Error"
-            return s
-        end
+-- Gets the number of stages in the quest
+function CustomQuest_Manager:GetCustomQuestNumSteps(journalQuestId)
+    d("GetCustomQuestNumSteps not in use.")
+end
+
+-- Gets the info for the specific step
+function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage) 
+    local quest = self:GetCustomQuest(questId)
+    if quest.stages[questStage] then
+        local stepText = self.quests[questId].stages[questStage].hint or nil
+        local visibility = stepText ~= nil
+        local stepType = quest.stages[questStage].type or 0
+        local trackerOverrideText = quest.stages[questStage].overrideText or ""
+        local numConditions = #quest.stages[questStage].tasks
+
+        return stepText, visibility, stepType, trackerOverrideText, numConditions
     end
 end
 
-function CustomQuest_Manager:GetHintText(questId)
-    local currentStage = self.quests[questId].currentStage
-    return self.quests[questId].stages[currentStage].hint
+function CustomQuest_Manager:GetCustomQuestCurrentStage(questId)
+    return self.quests[questId].currentStage
 end
 
-function CustomQuest_Manager:IsRepeatable(questID)
-    local quest = self:GetQuest(questID)
-    if quest then
-        return quest.repeatable
+function CustomQuest_Manager:GetCustomQuestInfo(questId)
+    local quest = self:GetCustomQuest(questId)
+
+    local questStage = self:GetCustomQuestCurrentStage(questId)
+    local stage = quest.stages[questStage] or {}
+
+    local questName = self:GetCustomQuestName(questId)
+    local bgText = quest.text
+    local activeStepText = stage.text or "No text provided"
+    local activeStepType = nil --
+    local activeStepTrackerOverrideText = "" --
+    local completed = self:IsCustomQuestComplete(questId)
+    local tracked = false --
+    local questLevel = self:GetCustomQuestLevel(questId)
+    local pushed = nil --
+    local questType = self:GetCustomQuestType(questId)
+    local instanceDisplayType = self:GetCustomQuestInstanceDisplayType(questId)
+
+    return questName, bgText, activeStepText, activeStepType, activeStepTrackerOverrideText, completed, tracked, questLevel, _, questType, instanceDisplayType  
+end
+
+--To Do:
+function CustomQuest_Manager:GetCustomQuestEnding(questId)
+    local quest = self:GetCustomQuest(questId)
+
+    local goal = quest.goal or "" --
+    local dialog = quest.dialog or "" --
+    local confirmComplete = quest.confirmComplete or "" --
+    local declineComplete = quest.declineComplete or "" --
+    local backgroundText = quest.outcome or ""
+    local journalStepText = quest.endStepText or "" --
+
+	return goal, dialog, confirmComplete, declineComplete, backgroundText, journalStepText
+end
+
+function CustomQuest_Manager:GetIsCustomQuestSharable(questId)
+    return false
+end
+
+function CustomQuest_Manager:GetNumCustomJournalQuests()
+    local count = 0
+
+    for _, _ in pairs(self.quests) do
+        count=count+1
     end
+
+    return count
+end
+
+function CustomQuest_Manager:IsValidCustomQuestId(questId)
+    return self:GetCustomQuest(questId)
 end
 
 CUSTOM_QUEST_MANAGER = CustomQuest_Manager:New()
