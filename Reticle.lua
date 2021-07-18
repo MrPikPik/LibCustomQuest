@@ -3,9 +3,6 @@ local LibCustomQuest = LibCustomQuest or {}
 local function ReticleOverrides()
     function LCQ_TEST_RETICLE:IsInteractableFoundNotFound(interactionExists)
         local name = GetInteractionTargetName()
-        if (not name or name == "") and not IsUnitPlayer("reticleover") then
-            name = GetUnitName("reticleover")
-        end
 
         if interactionExists and LCQ_INTERACTIONLISTENER:IsTargetRegisteredInteraction(name) then
             local result, name = true, name
