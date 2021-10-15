@@ -98,8 +98,8 @@ function LibCustomQuest.Initialize()
     -- Create all the various listener classes
     LibCustomQuest.listeners = {}
 
-    -- LCQMapCoordinateListener
-    LCQ_COORDINATELISTENER = LCQMapCoordinateListener:New()
+    -- LCQWorldCoordinateListener
+    LCQ_COORDINATELISTENER = LCQWorldCoordinateListener:New()
     LCQ_COORDINATELISTENER:RegisterCallback("OnConditionMet", function(target)
         CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questid, target.conditionid)
         LCQ_COORDINATELISTENER:Remove(target)

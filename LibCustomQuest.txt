@@ -53,7 +53,7 @@ QuestJournal/gamepad/CustomQuestJournal_Gamepad.xml
 
 ;Listeners
 Listeners/ListenerBase.lua
-Listeners/MapCoordinateListener.lua
+Listeners/WorldCoordinateListener.lua
 Listeners/InteractionListener.lua
 Listeners/CurrencyListener.lua
 
