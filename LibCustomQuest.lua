@@ -101,26 +101,26 @@ function LibCustomQuest.Initialize()
     -- LCQWorldCoordinateListener
     LCQ_COORDINATELISTENER = LCQWorldCoordinateListener:New()
     LCQ_COORDINATELISTENER:RegisterCallback("OnConditionMet", function(target)
-        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questid, target.conditionid)
         LCQ_COORDINATELISTENER:Remove(target)
+        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionid)
     end)
     LibCustomQuest.listeners[LCQ_COORDINATELISTENER.name] = LCQ_COORDINATELISTENER
 
     -- LCQInteractionListener
     LCQ_INTERACTIONLISTENER = LCQInteractionListener:New()
     LCQ_INTERACTIONLISTENER:RegisterCallback("OnConditionMet", function(target)
-        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questid, target.conditionid)
         LCQ_INTERACTIONLISTENER:Remove(target)
+        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionid)
     end)
     LibCustomQuest.listeners[LCQ_INTERACTIONLISTENER.name] = LCQ_INTERACTIONLISTENER
 
     -- LCQCurrencyListener
     LCQ_CURRENTYLISTENER = LCQCurrencyListener:New()
     LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionMet", function(target)
-        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionid, target.questid)
+        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionid, target.questId)
     end)
     LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionUpdate", function(target)
-        LCQ_DBG:Warn("Condition update for condition #<<1>> in <<2>>: <<3>> remaining", target.conditionid, target.questid, target.amount)
+        LCQ_DBG:Warn("Condition update for condition #<<1>> in <<2>>: <<3>> remaining", target.conditionid, target.questId, target.amount)
     end)
     LibCustomQuest.listeners[LCQ_CURRENTYLISTENER.name] = LCQ_CURRENTYLISTENER
 
@@ -171,18 +171,23 @@ function LibCustomQuest.ShowJournal()
     end
 end
 
+function LibCustomQuest.OnBookRead(event, bookTitle, _, _, _, bookId)
+    LCQ_INTERACTIONLISTENER:OnBookRead(bookTitle, bookId)
+end
+
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
 
-    -- Debugger Log Level
-    LCQ_DBG:SetLogLevel(LCQ_DBG_CRITICAL)
+    -- Debugger Log Level (Set this to normal so in general use most errors won't show)
+    LCQ_DBG:SetLogLevel(LCQ_DBG_NORMAL)
 
 
     LibCustomQuest.SV = ZO_SavedVars:New("LCQSavedVariables", 1.0, nil, {})
     --CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV
     LCQ_DBG:Debug("No SavedVariables loading or saving!")
 
+    EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_SHOW_BOOK, LibCustomQuest.OnBookRead)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_CLIENT_INTERACT_RESULT, LibCustomQuest.OnPlayerInteract)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
 

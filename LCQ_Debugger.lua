@@ -58,7 +58,8 @@ end
 function LCQ_Debugger:Log(message, debugLevel, ...)
     if not message then return end
     local level = debugLevel or 1
-    if level >= self.logLevel or level == LCQ_DBG_ALWAYS_SHOW then
+
+    if level <= self.logLevel or level == LCQ_DBG_ALWAYS_SHOW then
         local lvlstr = "|cffffff"
         if level == LCQ_DBG_INFO then
             lvlstr = "|c0fb800[Info] "

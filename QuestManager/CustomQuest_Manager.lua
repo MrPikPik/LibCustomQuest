@@ -55,33 +55,37 @@ function CustomQuest_Manager:StartQuest(quest, questId)
     self:UpdateQuestListeners(id, suppressCSA)
 end
 
-function CustomQuest_Manager:UpdateQuestListeners(questid, suppressCSA)
+function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
     local suppressCSA = suppressCSA or false
-    local stage, conditions = self:GetCustomQuestProgress(questid)
-    local _, _, _, _, numConditions = self:GetCustomQuestStepInfo(questid, stage)
+    local stage, conditions = self:GetCustomQuestProgress(questId)
+    local _, _, _, _, numConditions = self:GetCustomQuestStepInfo(questId, stage)
 
-    LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks", questid, stage, numConditions)
+    LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks", questId, stage, numConditions)
 
     for i = 1, numConditions do
         if not conditions[i] then
             -- Announce condition
             if not suppressCSA then
-                LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_ADDED, questid, stage, i)
+                LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_ADDED, questId, stage, i)
             end
 
             -- Start listening for the condition's condition
-            local task = self.quests[questid].stages[stage].tasks[i]
+            local task = self.quests[questId].stages[stage].tasks[i]
             local type = task.type
             if not type then
-                LCQ_DBG:Critical("Task type is nil! <<1>>", self.GetCustomQuestName(questid))
+                LCQ_DBG:Critical("Task type is nil! <<1>>", self.GetCustomQuestName(questId))
             end
 
             if type == QUEST_CONDITION_TYPE_LOCATION then
-                LCQ_COORDINATELISTENER:Listen(task.data, questid, i)
+                LCQ_COORDINATELISTENER:Listen(task.data, questId, i)
                 LCQ_DBG:Verbose("Added coordinate target for <<1>>", task.text)
             elseif type == QUEST_CONDITION_TYPE_TALK then
-                LCQ_INTERACTIONLISTENER:Listen(task.data, questid, i)
-                LCQ_DBG:Verbose("Added ineraction target for <<1>>", task.data.name)
+                LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
+                LCQ_DBG:Verbose("Added dialog target for <<1>>", task.data.name)
+            elseif type == QUEST_CONDITION_TYPE_INTERACT then
+                -- This is added with "read" interaction, but could be similar for all interaction types – (all would use the INTERACTIONLISTENTER?)
+                LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
+                LCQ_DBG:Verbose("Added interaction target for <<1>>", task.data.name)                
             end
         end
     end

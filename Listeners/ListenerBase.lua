@@ -19,7 +19,7 @@ function LCQListener:Initialize()
 end
 
 function LCQListener:Listen(target, questId, conditionId)
-    target.questid = questId
+    target.questId = questId
     target.conditionid = conditionId
     table.insert(self.targets, target)
     LCQ_DBG:Verbose("<<1>>: Added new listening target for quest \"<<2>>\": <<3>>", self.name, questId, target.name or "Unnamed target")
@@ -27,7 +27,7 @@ end
 
 function LCQListener:Remove(target)
     for i, t in ipairs(self.targets) do
-        if t.questid == target.questid then
+        if t.questId == target.questId then
             LCQ_DBG:Verbose("<<1>>: Removed all listening targets for \"<<2>>\": <<3>>", self.name, target.questId, target.name or "Unnamed target")
             table.remove(self.targets, i)
         end
@@ -39,7 +39,7 @@ function LCQListener:RemoveAllForQuestId(questId)
     --2 <= 2 it was comparing 2 <= 1 and exiting the for loop (as an example). There may very well be a better solution, but this works for now.
     local function RemoveAllForQuestIdLoop()
         for i, t in ipairs(self.targets) do
-            if t.questid == questId then
+            if t.questId == questId then
                 table.remove(self.targets, i)
             end
         end

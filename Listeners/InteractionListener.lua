@@ -20,7 +20,10 @@ end
 function LCQInteractionListener:IsTargetRegisteredInteraction(name)
     for _, target in ipairs(self.targets) do
         if target.name == name then
-            return true
+            -- This is so the secondary prompt won't show so we hook into the base game interact instead
+            if target.type ~= CUSTOM_INTERACTION_READ then
+                return true
+            end
         end
     end
     return false
@@ -29,12 +32,15 @@ end
 function LCQInteractionListener:GetTargetInteractionText(name)
     for _, target in ipairs(self.targets) do
         if target.name == name then
-            -- Hard coded cases for interaction that always should use the same interaction promt
+            -- Hard coded cases for interaction that always should use the same interaction prompt
             if target.type == CUSTOM_INTERACTION_TALK then
                 return GetString(SI_GAMECAMERAACTIONTYPE2) -- "Talk"
+            elseif target.type == CUSTOM_INTERACTION_READ then
+                -- Return nil, as at this time we want to just rely on the base-game "READ" interaction
+                --return GetString(SI_GAMECAMERAACTIONTYPE6) -- "Read"
             end
 
-            -- Custom interaction promts, valid for certain cases
+            -- Custom interaction prompts, valid for certain cases
             if target.interactionText then
                 if type(target.interactionText) == "number" then
                     return GetString(target.interactionText)
@@ -59,10 +65,17 @@ function LCQInteractionListener:RunInteractionForTarget(name)
             elseif target.type == CUSTOM_INTERACTION_EMOTE then
                 -- Play an emote and progress
                 self:FireCallbacks("OnConditionMet", target)
+            elseif target.type == CUSTOM_INTERACTION_READ then
+                self:FireCallbacks("OnConditionMet", target)
             elseif target.type == CUSTOM_INTERACTION_START_QUEST then
                 CUSTOM_QUEST_MANAGER:StartQuest(target.quest, target.questId)
                 self:Remove(target)
             end
         end
     end
+end
+
+function LCQInteractionListener:OnBookRead(bookTitle, bookId)
+    -- Pass shown book title (target book) to see if there's interactions
+    self:RunInteractionForTarget(bookTitle)
 end
