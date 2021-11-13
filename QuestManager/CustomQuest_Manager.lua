@@ -58,7 +58,7 @@ end
 function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
     local suppressCSA = suppressCSA or false
     local stage, conditions = self:GetCustomQuestProgress(questId)
-    local _, _, _, _, numConditions = self:GetCustomQuestStepInfo(questId, stage)
+    local numConditions = self:GetCustomQuestNumSteps(questId, stage)
 
     LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks", questId, stage, numConditions)
 
@@ -73,7 +73,7 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
             local task = self.quests[questId].stages[stage].tasks[i]
             local type = task.type
             if not type then
-                LCQ_DBG:Critical("Task type is nil! <<1>>", self.GetCustomQuestName(questId))
+                LCQ_DBG:Critical("Task type is nil! <<1>>", self:GetCustomQuestName(questId))
             end
 
             if type == QUEST_CONDITION_TYPE_LOCATION then
@@ -86,7 +86,10 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
                 -- This is added with "read" interaction, but could be similar for all interaction types – (all would use the INTERACTIONLISTENTER?)
                 LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
                 LCQ_DBG:Verbose("Added interaction target for <<1>>", task.data.name)                
-            end
+            elseif type == QUEST_CONDITION_TYPE_COMBAT then
+                LCQ_COMBATLISTENER:Listen(task.data, questId, i)
+                LCQ_DBG:Verbose("Added combat target for <<1>>", task.data.name)                
+            end    
         end
     end
 end
@@ -102,7 +105,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
     local allComplete = true
     -- Check for incomplete conditions
     for index, task in ipairs(self.quests[questId].stages[stage].tasks) do
-        if not task.complete then
+        if not task.complete and not task.isOptional then
             LCQ_DBG:Verbose("Task with index <<1>> is incomplete", index)
             allComplete = false
         end
@@ -270,7 +273,7 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
 
     if quest.stages and quest.stages[stage] ~= nil then
         local stage = quest.stages[stage]
-        if stage.tasks and stage.tasks[condition] ~= nil then
+        if stage.tasks and stage.tasks[condition] ~= nil and stage.tasks[condition].isOptional ~= QUEST_STEP_VISIBILITY_OPTIONAL then
             local task = stage.tasks[condition]
 
             local conditionText = task.text
@@ -287,16 +290,23 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
 end
 
 -- Gets the number of stages in the quest
-function CustomQuest_Manager:GetCustomQuestNumSteps(journalQuestId)
-    d("GetCustomQuestNumSteps not in use.")
+function CustomQuest_Manager:GetCustomQuestNumSteps(questId, questStage)
+    local numSteps = 0
+    local quest = self:GetCustomQuest(questId)
+    
+    if quest.stages[questStage] then
+        numSteps = #quest.stages[questStage].tasks
+    end
+
+    return numSteps
 end
 
 -- Gets the info for the specific step
-function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage) 
+function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage, condition) 
     local quest = self:GetCustomQuest(questId)
     if quest.stages[questStage] then
-        local stepText = self.quests[questId].stages[questStage].hint or nil
-        local visibility = quest.stages[questStage].visibility or nil
+        local stepText = (condition ~= nil and quest.stages[questStage].tasks[condition].text) or quest.stages[questStage].hint or nil
+        local visibility = (condition ~= nil and quest.stages[questStage].tasks[condition].visibility) or quest.stages[questStage].visibility or  nil
         local stepType = quest.stages[questStage].type or 0
         local trackerOverrideText = quest.stages[questStage].overrideText or ""
         local numConditions = #quest.stages[questStage].tasks

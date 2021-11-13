@@ -129,11 +129,18 @@ function LCQ_QuestJournal_Shared:OnLevelUpdated(unitTag)
 end
 
 function LCQ_QuestJournal_Shared:BuildTextForStepVisibility(questId, visibilityType)
-	--local numSteps = CUSTOM_QUEST_MANAGER:GetCustomQuestNumSteps(questId)
+	local questStage = CUSTOM_QUEST_MANAGER:GetCustomQuestCurrentStage(questId)
+	local numSteps = CUSTOM_QUEST_MANAGER:GetCustomQuestNumSteps(questId, questStage)
+
 	local questStrings = self.questStrings
-	--for stepIndex = 2, numSteps do
-	    local questStage = CUSTOM_QUEST_MANAGER:GetCustomQuestCurrentStage(questId) --
-		local stepJournalText, visibility, _, stepOverrideText, _ = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage)
+	
+	for stepIndex = 1, numSteps do
+		local stepJournalText, visibility, _, stepOverrideText, _ = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage, stepIndex)
+
+		-- Handle completed optional objectives
+		if visibility == QUEST_STEP_VISIBILITY_OPTIONAL and CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, stepIndex) then
+			stepJournalText = ZO_DISABLED_TEXT:Colorize(stepJournalText)
+		end
 
 		if visibility == visibilityType then
 			if stepJournalText ~= "" then
@@ -144,7 +151,7 @@ function LCQ_QuestJournal_Shared:BuildTextForStepVisibility(questId, visibilityT
 				table.insert(questStrings, stepOverrideText)
 			end
 		end
-	--end
+	end
 end
 
 function LCQ_QuestJournal_Shared:GetSelectedQuestId()

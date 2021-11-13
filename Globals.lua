@@ -30,6 +30,12 @@ QUEST_CONDITION_TYPE_GOLD       = "gold"
 QUEST_CONDITION_TYPE_CRAFT      = "craft"
 QUEST_CONDITION_TYPE_ITEM       = "item"
 QUEST_CONDITION_TYPE_KILL       = "kill"
+QUEST_CONDITION_TYPE_COMBAT     = "combat"
+
+----------------------
+-- COMBAT TARGET TYPES --
+----------------------
+COMBAT_TARGET_TYPE_MONSTER_DIFFICULTY   = "monsterDifficulty"
 
 ----------------------
 --Interactions --

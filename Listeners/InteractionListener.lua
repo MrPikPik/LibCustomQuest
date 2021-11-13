@@ -14,6 +14,8 @@ function LCQInteractionListener:Initialize(...)
     self.name = "InteractionListener"
     self.targets = {}
     
+    EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_SHOW_BOOK, function(...) self:OnBookRead(...) end)
+
     LCQ_DBG:Verbose("Listener: Interaction listener initalized")
 end
 
@@ -75,7 +77,7 @@ function LCQInteractionListener:RunInteractionForTarget(name)
     end
 end
 
-function LCQInteractionListener:OnBookRead(bookTitle, bookId)
+function LCQInteractionListener:OnBookRead(event, bookTitle, _, _, _, bookId)
     -- Pass shown book title (target book) to see if there's interactions
     self:RunInteractionForTarget(bookTitle)
 end
