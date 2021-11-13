@@ -273,7 +273,7 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
 
     if quest.stages and quest.stages[stage] ~= nil then
         local stage = quest.stages[stage]
-        if stage.tasks and stage.tasks[condition] ~= nil and stage.tasks[condition].isOptional ~= QUEST_STEP_VISIBILITY_OPTIONAL then
+        if stage.tasks and stage.tasks[condition] ~= nil and not stage.tasks[condition].isOptional then
             local task = stage.tasks[condition]
 
             local conditionText = task.text
