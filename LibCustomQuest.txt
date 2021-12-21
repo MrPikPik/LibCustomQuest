@@ -56,6 +56,7 @@ Listeners/ListenerBase.lua
 Listeners/WorldCoordinateListener.lua
 Listeners/InteractionListener.lua
 Listeners/CurrencyListener.lua
+Listeners/CombatListener.lua
 
 ;Helper functions
 Helpers.lua

@@ -20,14 +20,14 @@ end
 
 function LCQListener:Listen(target, questId, conditionId)
     target.questId = questId
-    target.conditionid = conditionId
+    target.conditionId = conditionId
     table.insert(self.targets, target)
     LCQ_DBG:Verbose("<<1>>: Added new listening target for quest \"<<2>>\": <<3>>", self.name, questId, target.name or "Unnamed target")
 end
 
 function LCQListener:Remove(target)
     for i, t in ipairs(self.targets) do
-        if t.questId == target.questId then
+        if t.questId == target.questId and t.conditionId == target.conditionId then
             LCQ_DBG:Verbose("<<1>>: Removed all listening targets for \"<<2>>\": <<3>>", self.name, target.questId, target.name or "Unnamed target")
             table.remove(self.targets, i)
         end

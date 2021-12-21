@@ -36,6 +36,8 @@ end
 
 -- New Objective
 CENTER_SCREEN_EVENT_HANDLERS[CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_ADDED] = function(questId, stage, condition) 
+    if CUSTOM_QUEST_MANAGER:GetCustomQuestHiddenInfo(questId, stage, condition) then return end
+
     local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.QUEST_OBJECTIVE_INCREMENT)
     local conditionText = CUSTOM_QUEST_MANAGER:GetCustomQuestConditionText(questId, stage, condition)
     messageParams:SetText(conditionText)
@@ -45,7 +47,9 @@ end
 
 -- Objective Complete
 CENTER_SCREEN_EVENT_HANDLERS[CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_COMPLETED] = function(questId, stage, condition) 
-    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.OBJECTIVE_COMPLETED)
+    if CUSTOM_QUEST_MANAGER:GetCustomQuestHiddenInfo(questId, stage, condition) then return end
+
+    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.QUEST_OBJECTIVE_COMPLETE)
     local conditionText = CUSTOM_QUEST_MANAGER:GetCustomQuestConditionText(questId, stage, condition)
     messageParams:SetText(zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_COMPLETE, conditionText))
     messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_OBJECTIVE_COMPLETED)

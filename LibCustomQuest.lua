@@ -102,7 +102,7 @@ function LibCustomQuest.Initialize()
     LCQ_COORDINATELISTENER = LCQWorldCoordinateListener:New()
     LCQ_COORDINATELISTENER:RegisterCallback("OnConditionMet", function(target)
         LCQ_COORDINATELISTENER:Remove(target)
-        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionid)
+        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionId)
     end)
     LibCustomQuest.listeners[LCQ_COORDINATELISTENER.name] = LCQ_COORDINATELISTENER
 
@@ -110,19 +110,28 @@ function LibCustomQuest.Initialize()
     LCQ_INTERACTIONLISTENER = LCQInteractionListener:New()
     LCQ_INTERACTIONLISTENER:RegisterCallback("OnConditionMet", function(target)
         LCQ_INTERACTIONLISTENER:Remove(target)
-        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionid)
+        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionId)
     end)
     LibCustomQuest.listeners[LCQ_INTERACTIONLISTENER.name] = LCQ_INTERACTIONLISTENER
 
     -- LCQCurrencyListener
-    LCQ_CURRENTYLISTENER = LCQCurrencyListener:New()
-    LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionMet", function(target)
-        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionid, target.questId)
+    LCQ_CURRENCYLISTENER = LCQCurrencyListener:New()
+    LCQ_CURRENCYLISTENER:RegisterCallback("OnConditionMet", function(target)
+        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionId, target.questId)
     end)
-    LCQ_CURRENTYLISTENER:RegisterCallback("OnConditionUpdate", function(target)
-        LCQ_DBG:Warn("Condition update for condition #<<1>> in <<2>>: <<3>> remaining", target.conditionid, target.questId, target.amount)
+    LCQ_CURRENCYLISTENER:RegisterCallback("OnConditionUpdate", function(target)
+        LCQ_DBG:Warn("Condition update for condition #<<1>> in <<2>>: <<3>> remaining", target.conditionId, target.questId, target.amount)
     end)
-    LibCustomQuest.listeners[LCQ_CURRENTYLISTENER.name] = LCQ_CURRENTYLISTENER
+    LibCustomQuest.listeners[LCQ_CURRENCYLISTENER.name] = LCQ_CURRENCYLISTENER
+
+    -- LCQCombatListener
+    LCQ_COMBATLISTENER = LCQCombatListener:New()
+    LCQ_COMBATLISTENER:RegisterCallback("OnConditionMet", function(target)
+        LCQ_COMBATLISTENER:Remove(target)
+        CUSTOM_QUEST_MANAGER:OnConditionComplete(target.questId, target.conditionId)
+        LCQ_DBG:Warn("Condition complete for condition #<<1>> in <<2>>", target.conditionId, target.questId)
+    end)
+    LibCustomQuest.listeners[LCQ_COMBATLISTENER.name] = LCQ_COMBATLISTENER
 
     -- Initialize the reticle hooks
     LibCustomQuest.SetupReticle()
@@ -171,10 +180,6 @@ function LibCustomQuest.ShowJournal()
     end
 end
 
-function LibCustomQuest.OnBookRead(event, bookTitle, _, _, _, bookId)
-    LCQ_INTERACTIONLISTENER:OnBookRead(bookTitle, bookId)
-end
-
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
@@ -187,7 +192,6 @@ local function OnLibraryLoaded(event, addonName)
     --CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV
     LCQ_DBG:Debug("No SavedVariables loading or saving!")
 
-    EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_SHOW_BOOK, LibCustomQuest.OnBookRead)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_CLIENT_INTERACT_RESULT, LibCustomQuest.OnPlayerInteract)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
 

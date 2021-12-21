@@ -105,7 +105,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
     local allComplete = true
     -- Check for incomplete conditions
     for index, task in ipairs(self.quests[questId].stages[stage].tasks) do
-        if not task.complete and not task.isOptional then
+        if not task.complete and not (task.visibility or task.isHidden) then
             LCQ_DBG:Verbose("Task with index <<1>> is incomplete", index)
             allComplete = false
         end
@@ -273,7 +273,7 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
 
     if quest.stages and quest.stages[stage] ~= nil then
         local stage = quest.stages[stage]
-        if stage.tasks and stage.tasks[condition] ~= nil and not stage.tasks[condition].isOptional then
+        if stage.tasks and stage.tasks[condition] ~= nil and not (stage.tasks[condition].visibility or stage.tasks[condition].isHidden) then
             local task = stage.tasks[condition]
 
             local conditionText = task.text
@@ -301,17 +301,25 @@ function CustomQuest_Manager:GetCustomQuestNumSteps(questId, questStage)
     return numSteps
 end
 
+function CustomQuest_Manager:GetCustomQuestHiddenInfo(questId, questStage, condition)
+    local quest = self:GetCustomQuest(questId)
+    local isHidden = condition ~= nil and quest.stages[questStage].tasks[condition].isHidden
+
+    return isHidden
+end
+
 -- Gets the info for the specific step
 function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage, condition) 
     local quest = self:GetCustomQuest(questId)
     if quest.stages[questStage] then
-        local stepText = (condition ~= nil and quest.stages[questStage].tasks[condition].text) or quest.stages[questStage].hint or nil
-        local visibility = (condition ~= nil and quest.stages[questStage].tasks[condition].visibility) or quest.stages[questStage].visibility or  nil
+        local stepText = condition ~= nil and quest.stages[questStage].tasks[condition].text
+        local visibility = condition ~= nil and quest.stages[questStage].tasks[condition].visibility
         local stepType = quest.stages[questStage].type or 0
         local trackerOverrideText = quest.stages[questStage].overrideText or ""
         local numConditions = #quest.stages[questStage].tasks
+        local isHidden = condition ~= nil and quest.stages[questStage].tasks[condition].isHidden
 
-        return stepText, visibility, stepType, trackerOverrideText, numConditions
+        return stepText, visibility, stepType, trackerOverrideText, numConditions, isHidden
     end
 end
 

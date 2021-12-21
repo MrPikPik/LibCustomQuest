@@ -33,6 +33,13 @@ QUEST_CONDITION_TYPE_KILL       = "kill"
 QUEST_CONDITION_TYPE_COMBAT     = "combat"
 
 ----------------------
+-- COMBAT EVENT TYPES --
+----------------------
+CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN    = "damageTaken"
+CUSTOM_COMBAT_EVENT_DAMAGE_GIVEN    = "damageGiven"
+CUSTOM_COMBAT_EVENT_ON_DEATH_XP     = "onDeathXp"
+
+----------------------
 -- COMBAT TARGET TYPES --
 ----------------------
 COMBAT_TARGET_TYPE_MONSTER_DIFFICULTY   = "monsterDifficulty"
