@@ -37,7 +37,7 @@ QUEST_CONDITION_TYPE_COMBAT     = "combat"
 ----------------------
 CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN    = "damageTaken"
 CUSTOM_COMBAT_EVENT_DAMAGE_GIVEN    = "damageGiven"
-CUSTOM_COMBAT_EVENT_ON_DEATH_XP     = "onDeathXp"
+CUSTOM_COMBAT_EVENT_ON_DEATH        = "onDeath"
 
 ----------------------
 -- COMBAT TARGET TYPES --

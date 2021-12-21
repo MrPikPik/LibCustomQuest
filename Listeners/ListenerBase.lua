@@ -35,20 +35,10 @@ function LCQListener:Remove(target)
 end
 
 function LCQListener:RemoveAllForQuestId(questId)
-    --The original issue here was that the table was shrinking inside the for loop, which caused the loop to end early because instead of
-    --2 <= 2 it was comparing 2 <= 1 and exiting the for loop (as an example). There may very well be a better solution, but this works for now.
-    local function RemoveAllForQuestIdLoop()
-        for i, t in ipairs(self.targets) do
-            if t.questId == questId then
-                table.remove(self.targets, i)
-            end
+    for i, t in ipairs(self.targets) do
+        if t.questId == questId then
+            table.remove(self.targets, i)
         end
     end
-
-    local numInitialTargets = #self.targets
-    for i=1, numInitialTargets do
-        RemoveAllForQuestIdLoop()
-    end
-
     LCQ_DBG:Verbose("<<1>>: Removed all listening targets for \"<<2>>\"", self.name, questId)
 end

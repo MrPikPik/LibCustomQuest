@@ -114,7 +114,14 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
     -- If all conditions are fulfilled, progress stage
     if allComplete then
         LCQ_DBG:Info("All tasks are complete, progressing stage")
+
+        -- There needs to be a way to run this "RemoveAllForQuestId" for each active Listener with/without targets
+        -- Just adding them manually seems inefficient
+        LCQ_COORDINATELISTENER:RemoveAllForQuestId(questId)
         LCQ_INTERACTIONLISTENER:RemoveAllForQuestId(questId)
+        LCQ_CURRENCYLISTENER:RemoveAllForQuestId(questId)
+        LCQ_COMBATLISTENER:RemoveAllForQuestId(questId)
+
         self:AdvanceQuestStage(questId)
 
         if self.quests[questId].currentStage <= #self.quests[questId].stages then
@@ -312,8 +319,8 @@ end
 function CustomQuest_Manager:GetCustomQuestStepInfo(questId, questStage, condition) 
     local quest = self:GetCustomQuest(questId)
     if quest.stages[questStage] then
-        local stepText = condition ~= nil and quest.stages[questStage].tasks[condition].text
-        local visibility = condition ~= nil and quest.stages[questStage].tasks[condition].visibility
+        local stepText = (condition ~= nil and quest.stages[questStage].tasks[condition].text) or quest.stages[questStage].hint
+        local visibility = (condition ~= nil and quest.stages[questStage].tasks[condition].visibility) or quest.stages[questStage].visibility
         local stepType = quest.stages[questStage].type or 0
         local trackerOverrideText = quest.stages[questStage].overrideText or ""
         local numConditions = #quest.stages[questStage].tasks

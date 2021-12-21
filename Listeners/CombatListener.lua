@@ -13,12 +13,18 @@ end
 function LCQCombatListener:Initialize(...)
     self.name = "CombatListener"
     self.targets = {}
-    
-	EVENT_MANAGER:RegisterForEvent(self.name.."CombatDamage", EVENT_COMBAT_EVENT, function(...) self:OnDamage(...) end)
-	EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDamage", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DAMAGE)
 
-	EVENT_MANAGER:RegisterForEvent(self.name.."CombatDeathXP", EVENT_COMBAT_EVENT, function(...) self:OnDeathXP(...) end)
-	EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDeathXP", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DIED_XP)
+    -- Combat Damage Filters
+	EVENT_MANAGER:RegisterForEvent(self.name.."CombatDamage1", EVENT_COMBAT_EVENT, function(...) self:OnDamage(...) end)
+	EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDamage1", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DAMAGE)
+    EVENT_MANAGER:RegisterForEvent(self.name.."CombatDamage2", EVENT_COMBAT_EVENT, function(...) self:OnDamage(...) end)
+    EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDamage2", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_CRITICAL_DAMAGE)
+
+    -- Combat Death Filters
+	EVENT_MANAGER:RegisterForEvent(self.name.."CombatDeath1", EVENT_COMBAT_EVENT, function(...) self:OnDeath(...) end)
+    EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDeath1", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DIED)
+    EVENT_MANAGER:RegisterForEvent(self.name.."CombatDeath2", EVENT_COMBAT_EVENT, function(...) self:OnDeath(...) end)
+	EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDeath2", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DIED_XP)
 
     LCQ_DBG:Verbose("Listener: Combat listener initalized")
 end
@@ -41,7 +47,7 @@ function LCQCombatListener:OnDamage(event, result, _, abilityName, _, _, sourceN
 end
 
 -- Might need to be rewritten in the future depending on how it's used
-function LCQCombatListener:OnDeathXP(event, result, _, abilityName, _, _, sourceName, sourceType, targetName, targetType, _, powerType, damageType)
+function LCQCombatListener:OnDeath(event, result, _, abilityName, _, _, sourceName, sourceType, targetName, targetType, _, powerType, damageType)
     local sourceName = zo_strformat("<<1>>", sourceName)
     local targetName = zo_strformat("<<1>>", targetName)
 
