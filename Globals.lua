@@ -47,11 +47,12 @@ COMBAT_TARGET_TYPE_MONSTER_DIFFICULTY   = "monsterDifficulty"
 ----------------------
 --Interactions --
 ----------------------
-CUSTOM_INTERACTION_START_QUEST  = "startQuest"
-CUSTOM_INTERACTION_SIMPLE       = "simple"
-CUSTOM_INTERACTION_TALK         = "talk"
-CUSTOM_INTERACTION_EMOTE        = "emote"
-CUSTOM_INTERACTION_READ         = "read"
+CUSTOM_INTERACTION_START_QUEST      = "startQuest"
+CUSTOM_INTERACTION_SIMPLE           = "simple"
+CUSTOM_INTERACTION_TALK             = "talk"
+CUSTOM_INTERACTION_EMOTE            = "emote"
+CUSTOM_INTERACTION_EMOTE_AT_TARGET  = "emoteAtTarget"
+CUSTOM_INTERACTION_READ             = "read"
 
 -- Quest update events
 CUSTOM_EVENT_CUSTOM_QUEST_ADDED = 1000

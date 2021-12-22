@@ -31,7 +31,7 @@ end
 function LCQWorldCoordinateListener:Update()
     for _, target in pairs(self.targets) do
         if target.zone == self.zone then
-            if target.subzone == self.subzone then
+            -- if target.subzone == self.subzone then (do we still need this?)
                 -- Get the player distance to the target position
                 local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, self.x, self.y, self.z))
                 local distM = zo_floor(distCM / 100)
@@ -41,7 +41,7 @@ function LCQWorldCoordinateListener:Update()
                     self:FireCallbacks("OnConditionMet", target)
                 end
             end
-        end
+        --end
     end
 end
 
