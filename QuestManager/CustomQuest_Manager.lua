@@ -100,6 +100,11 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
     self.quests[questId].stages[stage].tasks[conditionId].complete = true
     self:SetQuestConditionComplete(questId, conditionId)
 
+    -- Allow/Handle custom quest author-defined function on condition complete (play an event or subtitle, etc.)
+    if type(self.quests[questId].stages[stage].tasks[conditionId].onComplete) == "function" then
+        self.quests[questId].stages[stage].tasks[conditionId].onComplete()
+    end
+
     LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_COMPLETED, questId, stage, conditionId)
 
     local allComplete = true
