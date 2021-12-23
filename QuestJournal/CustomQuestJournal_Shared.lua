@@ -134,13 +134,25 @@ function LCQ_QuestJournal_Shared:BuildTextForStepVisibility(questId, visibilityT
 
 	local questStrings = self.questStrings
 
+	if visibilityType == QUEST_STEP_VISIBILITY_HINT then
+		stepJournalText, visibility, _, stepOverrideText = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage)
+
+		if visibility == visibilityType then
+			if stepJournalText ~= "" then
+				table.insert(questStrings, zo_strformat(SI_QUEST_JOURNAL_TEXT, stepJournalText))
+			end
+			
+			if stepOverrideText and (stepOverrideText ~= "") then
+				table.insert(questStrings, stepOverrideText)
+			end
+		end
+	end
+
 	for stepIndex = 1, numSteps do
 		local stepJournalText, visibility, stepOverrideText
 
 		if visibilityType == QUEST_STEP_VISIBILITY_OPTIONAL then
 			stepJournalText, visibility, _, stepOverrideText = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage, stepIndex)
-		elseif visibilityType == QUEST_STEP_VISIBILITY_HINT then
-			stepJournalText, visibility, _, stepOverrideText = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage)
 		end
 
 		-- Handle completed optional objectives
