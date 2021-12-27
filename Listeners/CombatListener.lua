@@ -53,7 +53,7 @@ function LCQCombatListener:OnDeath(event, result, _, abilityName, _, _, sourceNa
 
     for _, target in ipairs(self.targets) do
         -- Separate as above, between sourceName deathXP and targetName deathXP?
-        if (target.name == sourceName or target.name == targetName) and target.type == CUSTOM_COMBAT_EVENT_ON_DEATH_XP then
+        if (target.name == sourceName or target.name == targetName) and target.type == CUSTOM_COMBAT_EVENT_ON_DEATH then
             self:RunInteractionForTarget(target)
         end
     end
