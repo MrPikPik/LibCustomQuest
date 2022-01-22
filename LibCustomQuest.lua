@@ -180,6 +180,21 @@ function LibCustomQuest.ShowJournal()
     end
 end
 
+local defaultVars = {
+    ["QuestProgress"] = {   
+    --[[
+        -- Example Format
+        [questId (string)] = {
+            ["currentStage"] = currentStage (num),
+            ["conditions"] = {
+                [condition1 (num)] = incomplete (bool),
+                [condition2 (num)] = complete (bool),
+            },
+        },
+    ]]
+    },
+}
+
 local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
@@ -187,10 +202,9 @@ local function OnLibraryLoaded(event, addonName)
     -- Debugger Log Level (Set this to normal so in general use most errors won't show)
     LCQ_DBG:SetLogLevel(LCQ_DBG_NORMAL)
 
-
-    LibCustomQuest.SV = ZO_SavedVars:New("LCQSavedVariables", 1.0, nil, {})
-    --CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV
-    LCQ_DBG:Debug("No SavedVariables loading or saving!")
+    -- Saved Vars
+    LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.1, nil, defaultVars, GetWorldName())
+    CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV.QuestProgress
 
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_CLIENT_INTERACT_RESULT, LibCustomQuest.OnPlayerInteract)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)

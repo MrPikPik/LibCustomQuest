@@ -21,7 +21,7 @@ function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDispl
     self.location = location or "Unknown Zone"
     self.instanceDisplayType = instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
     self.stages = stages or {}
-    self.currentStage = 1 -- TODO: Load progress from SavedVariables!
+    self.currentStage = (CUSTOM_QUEST_MANAGER.progress[id] and CUSTOM_QUEST_MANAGER.progress[id].stage > 1 and CUSTOM_QUEST_MANAGER.progress[id].stage) or 1
     self.completed = false -- TOFO: Load progress from SavedVariables
     self.outcome = outcome
     self.repeatType = repeatType or QUEST_REPEAT_NOT_REPEATABLE

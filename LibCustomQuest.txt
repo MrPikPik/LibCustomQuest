@@ -6,7 +6,7 @@
 ## Title: LibCustomQuest
 ## Author: MrPikPik, Alianym
 ## APIVersion: 100035
-## AddonVersion: 1
+## AddOnVersion: 1
 ## Version: 0.01
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
@@ -32,6 +32,7 @@ AddonManager/Patches.lua
 
 ;Helpers
 CenterScreenAnnounce.lua
+PopupDialogs.lua
 
 ;Classes
 CustomQuest.lua

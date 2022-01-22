@@ -40,10 +40,6 @@ function LCQ_QuestJournal_Manager:RegisterForEvents()
 
 	--FOCUSED_QUEST_TRACKER:RegisterCallback("QuestTrackerAssistStateChanged", OnAssistChanged)
 
-	local function OnQuestsUpdated()
-		self:BuildQuestListData()
-	end
-
 	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_ADDED, OnQuestsUpdated)
 	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_REMOVED, OnQuestsUpdated)
 	--EVENT_MANAGER:RegisterForEvent("QuestJournal_Manager", EVENT_QUEST_LIST_UPDATED, OnQuestsUpdated)
@@ -165,7 +161,7 @@ function LCQ_QuestJournal_Manager:FindQuestWithSameCategoryAsCompletedQuest(ques
 	local completedQuestZone = GetCompletedQuestLocationInfo(questId)
 	--for i = 1, MAX_JOURNAL_QUESTS do
 	for id, _ in pairs(CUSTOM_QUEST_MANAGER.quests) do
-		if IsValidCustomQuestId(id) then
+		if CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(id) then
 			local questType = CUSTOM_QUEST_MANAGER:GetCustomQuestType(id)
 			local zone = CUSTOM_QUEST_MANAGER:GetCustomQuestLocationInfo(id)
 			if self:AreQuestsInTheSameCategory(completedQuestType, completedQuestZone, questType, zone) then
@@ -185,7 +181,7 @@ function LCQ_QuestJournal_Manager:BuildQuestListData()
 	-- Create a table for categories and one for quests
 	--for i = 1, MAX_JOURNAL_QUESTS do
 	for id, _ in pairs(CUSTOM_QUEST_MANAGER.quests) do
-		if CUSTOM_QUEST_MANAGER:IsValidCustomQuestId(id) then
+		if CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(id) then
 			local zone = CUSTOM_QUEST_MANAGER:GetCustomQuestLocationInfo(id)
 			local questType = CUSTOM_QUEST_MANAGER:GetCustomQuestType(id)
 			local categoryName, categoryType = self:GetCustomQuestCategoryNameAndType(questType, zone)
@@ -255,8 +251,8 @@ function LCQ_QuestJournal_Manager:ConfirmAbandonQuest(questId)
 	local questLevel = CUSTOM_QUEST_MANAGER:GetCustomQuestLevel(questId)
 	local conColorDef = ZO_ColorDef:New(GetConColor(questLevel))
 	questName = conColorDef:Colorize(questName)
-	d("ConfirmAbandonQuest(questId) not implemented")
-	--ZO_Dialogs_ShowPlatformDialog("ABANDON_QUEST", {questId = questId}, {mainTextParams = {questName}})
+
+	ZO_Dialogs_ShowPlatformDialog("ABANDON_CUSTOM_QUEST", {questId = questId}, {mainTextParams = {questName}})
 end
 
 function LCQ_QuestJournal_Manager:ShareQuest(questId)

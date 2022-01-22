@@ -98,7 +98,7 @@ function LCQ_QuestJournal_Gamepad:Initialize(control)
 	{
 		titleText = GetString(SI_QUEST_JOURNAL_MENU_JOURNAL),
 		data1HeaderText = GetString(SI_GAMEPAD_MAIN_MENU_JOURNAL_QUESTS),
-		data1Text = function() return zo_strformat(SI_GAMEPAD_QUEST_JOURNAL_CURRENT_MAX, CUSTOM_QUEST_MANAGER:GetNumCustomJournalQuests(), MAX_JOURNAL_QUESTS) end,
+		data1Text = function() return CUSTOM_QUEST_MANAGER:GetNumCustomJournalQuests() end, --zo_strformat(SI_GAMEPAD_QUEST_JOURNAL_CURRENT_MAX, CUSTOM_QUEST_MANAGER:GetNumCustomJournalQuests(), MAX_JOURNAL_QUESTS) end,
 	}
 
 	ZO_GamepadGenericHeader_Initialize(self.contentHeader, ZO_GAMEPAD_HEADER_TABBAR_DONT_CREATE, ZO_GAMEPAD_HEADER_LAYOUTS.CONTENT_HEADER_DATA_PAIRS_LINKED)

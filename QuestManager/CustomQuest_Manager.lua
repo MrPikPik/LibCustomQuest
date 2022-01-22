@@ -2,11 +2,11 @@
 -- Custom Quest Manager
 -----------------------------------------
 
-CustomQuest_Manager = ZO_Object:Subclass()
+CustomQuest_Manager = ZO_CallbackObject:Subclass()
 
 -- Creates a new instance of the CustomQuest_Manager object
 function CustomQuest_Manager:New()
-    local manager = ZO_Object.New(self)
+    local manager = ZO_CallbackObject.New(self)
     manager:Initialize()
     return manager
 end
@@ -15,6 +15,26 @@ end
 function CustomQuest_Manager:Initialize()
     self.quests = {}
     self.progress = {}
+
+    self:RegisterCallback("OnCustomQuestsUpdated", function(questId)
+        -- There needs to be a way to run this "RemoveAllForQuestId" 
+        -- For each active Listener with/without targets
+        -- Just adding them manually seems inefficient
+        LCQ_INTERACTIONLISTENER:RemoveAllForQuestId(questId)
+        LCQ_COORDINATELISTENER:RemoveAllForQuestId(questId)
+        LCQ_CURRENCYLISTENER:RemoveAllForQuestId(questId)
+        LCQ_COMBATLISTENER:RemoveAllForQuestId(questId)
+
+        LCQ_QUEST_JOURNAL_MANAGER:BuildQuestListData()
+
+        -- Refresh Keyboard Quest Journal
+		CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestCount()
+		CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
+        
+        -- Refresh Gamepad Quest Journal
+        CUSTOM_QUEST_JOURNAL_GAMEPAD:RefreshQuestCount()
+		CUSTOM_QUEST_JOURNAL_GAMEPAD:RefreshQuestList()
+    end)
 end
 
 -- Registers a quest to the CustomQuest_Manager object.
@@ -27,7 +47,10 @@ function CustomQuest_Manager:RegisterQuest(quest)
         -- Instantiate quest object
         self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
 
-        self.progress[quest.id] = {stage = 1, conditions = {}}
+        self.progress[quest.id] = self.progress[quest.id] or {stage = 0, conditions = {}}
+
+        local suppressCSA = true -- We don't want objective notifications coming up unless the quest is started through StartQuest(quest, questId)
+        self:UpdateQuestListeners(quest.id, suppressCSA)
 
         return quest.id
     end
@@ -42,20 +65,39 @@ function CustomQuest_Manager:StartQuest(quest, questId)
     end
     
     if not self.quests[id] then
-        if not quest then return end
-        self:RegisterQuest(quest)
-    end
+        error("Quest has not been registered.")
+        --if not quest then return end
+        --local newStart = true
+        --self:RegisterQuest(quest, newStart)
+    else
+        -- These can always be initialized to default starting positions
+        -- (A new start should be a fresh start!)
+        self.progress[id] = {stage = 1, conditions = {}}
+        self.quests[id].currentStage = 1
 
-    local stage, conditions = self:GetCustomQuestProgress(id)
-    local suppressCSA = false --not (stage == 1 and conditions == {})
-    if not suppressCSA then
-        LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_ADDED, id)
+        local suppressCSA = false
+        if not suppressCSA then
+            LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_ADDED, id)
+        end
+
+        self:UpdateQuestListeners(id, suppressCSA)
     end
+end
+
+function CustomQuest_Manager:AbandonQuest(questId)
+    local quest = self.quests[questId]
+
+    self.progress[questId], self.quests[questId] = nil, nil
     
-    self:UpdateQuestListeners(id, suppressCSA)
+    self:FireCallbacks("OnCustomQuestsUpdated", questId)
+    PlaySound(SOUNDS.QUEST_ABANDONED)
+
+    self:RegisterQuest(quest)
 end
 
 function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
+    self:FireCallbacks("OnCustomQuestsUpdated", questId)
+
     local suppressCSA = suppressCSA or false
     local stage, conditions = self:GetCustomQuestProgress(questId)
     local numConditions = self:GetCustomQuestNumSteps(questId, stage)
@@ -136,6 +178,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
             LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete", questId)
             self:SetQuestComplete(questId)
             LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_COMPLETE, questId)
+            self:FireCallbacks("OnCustomQuestsUpdated", questId)
         end
     end
 end
@@ -172,18 +215,18 @@ end
 -- When progressing a stage, reset the conditions table to match the number of conditions of the new step
 
 -- Gets the progress of a specified quest's stage's condition/task
-function CustomQuest_Manager:GetCustomQuestProgress(questID)
+function CustomQuest_Manager:GetCustomQuestProgress(questId)
     local stage = 1
     local conditions = {}
 
-    if self.progress[questID] then
+    if self.progress[questId] then
         -- Stage
-        if self.progress[questID].stage then
-           stage = self.progress[questID].stage
+        if self.progress[questId].stage then
+           stage = self.progress[questId].stage
         end
         -- Conditions
-        if self.progress[questID].conditions then
-            conditions = self.progress[questID].conditions
+        if self.progress[questId].conditions then
+            conditions = self.progress[questId].conditions
         end
     end
     return stage, conditions
@@ -193,6 +236,11 @@ function CustomQuest_Manager:IsConditionComplete(questId, conditionIndex)
     if not questId then return false end
     local _, conditions = self:GetCustomQuestProgress(questId)
     return conditions[conditionIndex]
+end
+
+function CustomQuest_Manager:IsCustomQuestStarted(questId)
+    local stage, conditions = self:GetCustomQuestProgress(questId)
+    return not (stage < 1 and not (next(conditions)))
 end
 
 function CustomQuest_Manager:IsCustomQuestComplete(questId)
@@ -289,14 +337,14 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
             local task = stage.tasks[condition]
 
             local conditionText = task.text
-            local currentCount = 1 or nil --self.GetCustomQuestProgress(questID, stage, task)
-            local maxCount = #stage.tasks or nil --task.max or 0
+            local currentCount = 1 --self:GetCustomQuestProgress(questId, stage, condition) -- Logic doesn't exist yet
+            local maxCount = 1 --task.max or 0 -- Logic doesn't exist yet
             local isFailCondition = false
             local isComplete = task.complete --(currentCount >= maxCount) -- ???
             local isVisible = not task.invisible or true
             local conditionType = "???"
 
-            return conditionText, currentCount, maxCount, isFailCondition, isComplete, _, isVisible, conditionType
+            return conditionText, _, _, isFailCondition, isComplete, _, isVisible, conditionType
         end
     end
 end
@@ -381,9 +429,11 @@ end
 function CustomQuest_Manager:GetNumCustomJournalQuests()
     local count = 0
 
-    for _, _ in pairs(self.quests) do
-        count=count+1
-    end
+    for questId, _ in pairs(self.quests) do
+        if self:IsCustomQuestStarted(questId) and not self:IsCustomQuestComplete(questId) then
+            count=count+1
+        end
+    end 
 
     return count
 end

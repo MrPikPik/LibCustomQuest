@@ -273,7 +273,7 @@ end
 end]]
 
 function LCQ_QuestJournal_Keyboard:RefreshQuestCount()
-	self.questCount:SetText(zo_strformat(SI_QUEST_CURRENT_MAX, CUSTOM_QUEST_MANAGER:GetNumCustomJournalQuests(), MAX_JOURNAL_QUESTS))
+	self.questCount:SetText(zo_strformat(LCQ_QUESTS_CURRENT, CUSTOM_QUEST_MANAGER:GetNumCustomJournalQuests())) --, MAX_JOURNAL_QUESTS))
 end
 
 function LCQ_QuestJournal_Keyboard:RefreshQuestList()
