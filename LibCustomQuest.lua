@@ -41,7 +41,7 @@ function LibCustomQuest.Initialize()
 
     --CUSTOM_QUEST_MANAGER:RegisterQuest(quest4)
 
-	local function GetButtonData()
+	--[[local function GetButtonData()
 		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
 
 		local clickSound = "Click_MenuBar"
@@ -57,9 +57,10 @@ function LibCustomQuest.Initialize()
 		}
 
 		return {buttonToQuestLog}
-	end
+	end]]
 
-    --[[CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes()
+    local customSceneNameII = "customQuestJournalII"
+    CUSTOM_QUEST_JOURNAL_KEYBOARD:InitializeScenes(customSceneNameII, RIGHT_BG_FRAGMENT)
 
     local sceneGroupInfo = MAIN_MENU_KEYBOARD.sceneGroupInfo["journalSceneGroup"]
 	local iconData = sceneGroupInfo.menuBarIconData
@@ -68,8 +69,8 @@ function LibCustomQuest.Initialize()
         iconData[i + 1] = iconData[i]
         if i == 2 then
             iconData[2] = {
-                categoryName = SI_JOURNAL_CUSTOM_QUEST_MENU_HEADER,
-                descriptor = CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName,
+                categoryName = LCQ_MAIN_MENU_CUSTOM_JOURNAL,
+                descriptor = customSceneNameII,
                 normal = "EsoUI/Art/Journal/journal_tabIcon_quest_up.dds",
                 pressed = "EsoUI/Art/Journal/journal_tabIcon_quest_down.dds",
                 highlight = "EsoUI/Art/Journal/journal_tabIcon_quest_over.dds",
@@ -81,13 +82,11 @@ function LibCustomQuest.Initialize()
 	local sceneGroupBarFragment = sceneGroupInfo.sceneGroupBarFragment
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(sceneGroupBarFragment)
 
-
     local scenegroup = SCENE_MANAGER:GetSceneGroup("journalSceneGroup")
-	scenegroup:AddScene(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
-	MAIN_MENU_KEYBOARD:AddRawScene(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName, MENU_CATEGORY_JOURNAL, MAIN_MENU_KEYBOARD.categoryInfo[MENU_CATEGORY_JOURNAL], "journalSceneGroup")
+	scenegroup:AddScene(customSceneNameII)
+	MAIN_MENU_KEYBOARD:AddRawScene(customSceneNameII, MENU_CATEGORY_JOURNAL, MAIN_MENU_KEYBOARD.categoryInfo[MENU_CATEGORY_JOURNAL], "journalSceneGroup")
 
-
-    CUSTOM_QUEST_JOURNAL_SCENE:RegisterCallback("StateChange", function(old, new)
+    --[[CUSTOM_QUEST_JOURNAL_SCENE:RegisterCallback("StateChange", function(old, new)
         if new == "showing" then
             CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestMasterList()
             CUSTOM_QUEST_JOURNAL_KEYBOARD:RefreshQuestList()

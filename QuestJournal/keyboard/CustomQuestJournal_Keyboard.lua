@@ -217,16 +217,16 @@ function LCQ_QuestJournal_Keyboard:InitializeKeybindStripDescriptors()
 	}
 end
 
-function LCQ_QuestJournal_Keyboard:InitializeScenes()
+function LCQ_QuestJournal_Keyboard:InitializeScenes(sceneName, baseJournalBackgroundFragment)
 	local LCQ_JOURNAL_FRAGMENT = ZO_HUDFadeSceneFragment:New(self.control)
-	CUSTOM_QUEST_JOURNAL_SCENE = ZO_Scene:New(self.sceneName, SCENE_MANAGER)
+	CUSTOM_QUEST_JOURNAL_SCENE = ZO_Scene:New(sceneName or self.sceneName, SCENE_MANAGER)
 
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.PLAYER_PROGRESS_BAR_KEYBOARD_CURRENT)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.FRAME_TARGET_STANDARD_RIGHT_PANEL)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragmentGroup(FRAGMENT_GROUP.MOUSE_DRIVEN_UI_WINDOW)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(FRAME_TARGET_BLUR_STANDARD_RIGHT_PANEL_FRAGMENT)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(FRAME_EMOTE_FRAGMENT_JOURNAL)
-	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(self.bgFragment)
+	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(baseJournalBackgroundFragment or self.bgFragment)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(TITLE_FRAGMENT)
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(ZO_SetTitleFragment:New(self.sceneTitle))
 	CUSTOM_QUEST_JOURNAL_SCENE:AddFragment(TREE_UNDERLAY_FRAGMENT)
