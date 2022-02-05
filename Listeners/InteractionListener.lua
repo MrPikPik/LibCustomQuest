@@ -23,6 +23,24 @@ end
 function LCQInteractionListener:IsTargetRegisteredInteraction(name)
     for _, target in ipairs(self.targets) do
         if target.name == name then
+            -- If the target has location data, use this to determine if we should display a prompt
+            -- Some NPCs or containers may exist in multiple locations
+            if target.zone then
+                local playerLocData = LCQ_COORDINATELISTENER
+                if target.zone == playerLocData.zone then
+                    -- Get the player distance to the target position
+                    local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, playerLocData.x, playerLocData.y, playerLocData.z))
+                    local distM = zo_floor(distCM / 100)
+
+                    -- If player is close enough
+                    if distM <= target.r then
+                        return true
+                    end
+                end
+
+                return
+            end
+
             -- This is so the secondary prompt won't show so we hook into the base game interact instead
             if target.type ~= CUSTOM_INTERACTION_READ then
                 return true
@@ -74,6 +92,10 @@ function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetNa
                 end
             elseif target.type == CUSTOM_INTERACTION_READ then
                 self:FireCallbacks("OnConditionMet", target)
+            elseif target.type == CUSTOM_INTERACTION_LOOT then
+                self:FireCallbacks("OnConditionMet", target)
+            elseif target.type == CUSTOM_INTERACTION_SIMPLE then
+                self:FireCallbacks("OnConditionMet", target)
             elseif target.type == CUSTOM_INTERACTION_START_QUEST then
                 CUSTOM_QUEST_MANAGER:StartQuest(target.quest, target.questId)
                 self:Remove(target)
@@ -90,6 +112,8 @@ end
 
 -- Emotes (could be improved?)
 function LCQInteractionListener:SetupEmotes()
+    --local InteractionListener = self
+
     self.emoteFailed = false
 
     local function OnEmoteFailed()
@@ -97,6 +121,10 @@ function LCQInteractionListener:SetupEmotes()
     end
 
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_EMOTE_FAILED_PLAY, OnEmoteFailed)
+
+    ZO_PreHook("PlayEmoteByIndex", function()
+        self.emoteFailed = false
+    end)
 
     SecurePostHook("PlayEmoteByIndex", function(emoteIndex)
         local function CheckEmoteSuccess()
@@ -107,12 +135,13 @@ function LCQInteractionListener:SetupEmotes()
                 local _, interactableName = GetGameCameraInteractableActionInfo()
                 local reticleName = GetUnitNameHighlightedByReticle()
 
-                self:RunInteractionForTarget(emoteName, interactableName or reticleName)
+                local target = interactableName or reticleName or LCQ_TEST_RETICLE.currentValidFurnitureTarget --LCQ_TEST_RETICLE.contextTarget
+
+                self:RunInteractionForTarget(emoteName, target)
             end
         end
 
-        -- This is delayed so it fires after we know if it failed or not
-        -- Not ideal, but made a request with ZOS API guy for an EMOTE_SUCCESS event
+        -- This is delayed so it fires after we know if it failed or not, but not ideal
         zo_callLater(CheckEmoteSuccess, LCQ_UPDATE_INTERVAL/10)
     end)
 end

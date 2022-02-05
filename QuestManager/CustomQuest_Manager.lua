@@ -158,6 +158,11 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
         end
     end
 
+    -- Check if type is "Complete one", and thus only one condition complete is the same as all Complete
+    if self.quests[questId].stages[stage].type == QUEST_STEP_TYPE_OR then
+        allComplete = true
+    end
+
     -- If all conditions are fulfilled, progress stage
     if allComplete then
         LCQ_DBG:Info("All tasks are complete, progressing stage")
@@ -330,6 +335,7 @@ end
 -- Gets the condition info
 function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, condition)
     local quest = self:GetCustomQuest(questId)
+    local stageIndex = stage
 
     if quest.stages and quest.stages[stage] ~= nil then
         local stage = quest.stages[stage]
@@ -340,7 +346,8 @@ function CustomQuest_Manager:GetCustomQuestConditionInfo(questId, stage, conditi
             local currentCount = 1 --self:GetCustomQuestProgress(questId, stage, condition) -- Logic doesn't exist yet
             local maxCount = 1 --task.max or 0 -- Logic doesn't exist yet
             local isFailCondition = false
-            local isComplete = task.complete --(currentCount >= maxCount) -- ???
+            local currentQuestStage = self:GetCustomQuestProgress(questId)
+            local isComplete = task.complete or currentQuestStage > stageIndex -- task.complete --(currentCount >= maxCount) -- ???
             local isVisible = not task.invisible or true
             local conditionType = "???"
 
@@ -396,7 +403,7 @@ function CustomQuest_Manager:GetCustomQuestInfo(questId)
     local questName = self:GetCustomQuestName(questId)
     local bgText = quest.text
     local activeStepText = stage.text or "No text provided"
-    local activeStepType = nil --
+    local activeStepType = stage.type
     local activeStepTrackerOverrideText = "" --
     local completed = self:IsCustomQuestComplete(questId)
     local tracked = false --

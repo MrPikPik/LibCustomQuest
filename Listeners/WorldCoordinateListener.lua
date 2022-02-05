@@ -38,10 +38,15 @@ function LCQWorldCoordinateListener:Update()
 
                 -- If player is close enough
                 if distM <= target.r then
-                    self:FireCallbacks("OnConditionMet", target)
+                    if target.type == CUSTOM_INTERACTION_START_QUEST then
+                        CUSTOM_QUEST_MANAGER:StartQuest(target.quest, target.questId)
+                        self:Remove(target)
+                    else
+                        self:FireCallbacks("OnConditionMet", target)
+                    end
                 end
-            end
-        --end
+            --end
+        end
     end
 end
 
