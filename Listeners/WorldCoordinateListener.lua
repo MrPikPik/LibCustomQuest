@@ -33,7 +33,10 @@ function LCQWorldCoordinateListener:Update()
         if target.zone == self.zone then
             -- if target.subzone == self.subzone then (do we still need this?)
                 -- Get the player distance to the target position
-                local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, self.x, self.y, self.z))
+                local z1 = target.z or 0
+                local z2 = target.z and self.z or 0
+
+                local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
                 local distM = zo_floor(distCM / 100)
 
                 -- If player is close enough
@@ -57,7 +60,10 @@ function LCQWorldCoordinateListener:IsTargetInRadius(target)
     if target.zone == worldCoordinateListener.zone then
         -- if target.subzone == self.subzone then (do we still need this?)
             -- Get the player distance to the target position
-            local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, self.x, self.y, self.z))
+            local z1 = target.z or 0
+            local z2 = target.z and self.z or 0
+
+            local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
             local distM = zo_floor(distCM / 100)
 
             -- If player is close enough
