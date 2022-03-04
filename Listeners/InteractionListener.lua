@@ -21,29 +21,39 @@ function LCQInteractionListener:Initialize(...)
 end
 
 function LCQInteractionListener:IsTargetRegisteredInteraction(name)
-    for _, target in ipairs(self.targets) do
-        if target.name == name then
-            -- If the target has location data, use this to determine if we should display a prompt
-            -- Some NPCs or containers may exist in multiple locations
-            if target.zone then
-                local playerLocData = LCQ_COORDINATELISTENER
-                if target.zone == playerLocData.zone then
-                    -- Get the player distance to the target position
-                    local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, playerLocData.x, playerLocData.y, playerLocData.z))
-                    local distM = zo_floor(distCM / 100)
+    local function IsTargetRegisteredInteraction(target)
+        if target.type == CUSTOM_INTERACTION_TALK then
+            if GetGameCameraInteractableActionInfo() == GetString(SI_GAMECAMERAACTIONTYPE1) then
+                return false
+            end
+        -- This is so the secondary prompt won't show so we hook into the base game interact instead
+        elseif target.type == CUSTOM_INTERACTION_READ then
+            return false
+        end
 
-                    -- If player is close enough
-                    if distM <= target.r then
+        -- If the target has location data, use this to determine if we should display a prompt
+        -- Some NPCs or containers may exist in multiple locations
+        if target.zone then
+            if LCQ_COORDINATELISTENER:IsTargetInRadius(target) then
+                return true
+            else return end
+        end
+
+        return true
+    end
+
+    for _, target in ipairs(self.targets) do
+        if type(target.name) == "string" and target.name == name then
+            if IsTargetRegisteredInteraction(target) then
+                return true
+            end
+        elseif type(target.name) == "table" then
+            for _, subName in ipairs(target.name) do
+                if subName == name then
+                    if IsTargetRegisteredInteraction(target) then
                         return true
                     end
                 end
-
-                return
-            end
-
-            -- This is so the secondary prompt won't show so we hook into the base game interact instead
-            if target.type ~= CUSTOM_INTERACTION_READ then
-                return true
             end
         end
     end
@@ -51,25 +61,35 @@ function LCQInteractionListener:IsTargetRegisteredInteraction(name)
 end
 
 function LCQInteractionListener:GetTargetInteractionText(name)
-    for _, target in ipairs(self.targets) do
-        if target.name == name then
-            -- Hard coded cases for interaction that always should use the same interaction prompt
-            if target.type == CUSTOM_INTERACTION_TALK then
-                return GetString(SI_GAMECAMERAACTIONTYPE2) -- "Talk"
-            elseif target.type == CUSTOM_INTERACTION_READ then
-                -- Return nil, as at this time we want to just rely on the base-game "READ" interaction
-                --return GetString(SI_GAMECAMERAACTIONTYPE6) -- "Read"
-            end
+    local function GetTargetInteractionText(interacttype, name, interactionText)
+        -- Hard coded cases for interaction that always should use the same interaction prompt
+        if interacttype == CUSTOM_INTERACTION_TALK then
+            return GetString(SI_GAMECAMERAACTIONTYPE2) -- "Talk"
+        elseif interacttype == CUSTOM_INTERACTION_READ then
+            -- Return nil, as at this time we want to just rely on the base-game "READ" interaction
+            --return GetString(SI_GAMECAMERAACTIONTYPE6) -- "Read"
+        end
 
-            -- Custom interaction prompts, valid for certain cases
-            if target.interactionText then
-                if type(target.interactionText) == "number" then
-                    return GetString(target.interactionText)
-                else
-                    return target.interactionText
-                end
+        -- Custom interaction prompts, valid for certain cases
+        if interactionText then
+            if type(interactionText) == "number" then
+                return GetString(interactionText)
             else
-                return GetString(SI_BINDING_NAME_GAMEPAD_GAME_CAMERA_INTERACT) -- "Interact", fallback default value
+                return interactionText
+            end
+        else
+            return GetString(SI_BINDING_NAME_GAMEPAD_GAME_CAMERA_INTERACT) -- "Interact", fallback default value
+        end
+    end
+
+    for _, target in ipairs(self.targets) do
+        if type(target.name) == "string" and target.name == name then
+            return GetTargetInteractionText(target.type, name, target.interactionText)
+        elseif type(target.name) == "table" then
+            for _, subName in ipairs(target.name) do
+                if subName == name then
+                   return GetTargetInteractionText(target.type, name, target.interactionText)
+                end
             end
         end
     end
@@ -77,28 +97,38 @@ function LCQInteractionListener:GetTargetInteractionText(name)
 end
 
 function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetName)
+    local function RunInteractionForTarget(target)
+        -- We have a valid target, now do the interaction linked to its
+        if target.type == CUSTOM_INTERACTION_TALK then
+            LibCustomDialog.ShowDialog(target.dialog)
+            -- Since dialogs should handle the completion of themselves, we won't progress but only show the dialog.
+        elseif target.type == CUSTOM_INTERACTION_EMOTE then
+            -- Play an emote and progress (note: need to play here? The game should handle the playing, I think)
+            self:FireCallbacks("OnConditionMet", target)
+        elseif target.type == CUSTOM_INTERACTION_EMOTE_AT_TARGET then
+            if target.emoteTarget == additionalTargetName then
+                self:FireCallbacks("OnConditionMet", target)
+            end
+        elseif target.type == CUSTOM_INTERACTION_READ then
+            self:FireCallbacks("OnConditionMet", target)
+        elseif target.type == CUSTOM_INTERACTION_LOOT then
+            self:FireCallbacks("OnConditionMet", target)
+        elseif target.type == CUSTOM_INTERACTION_SIMPLE then
+            self:FireCallbacks("OnConditionMet", target)
+        elseif target.type == CUSTOM_INTERACTION_START_QUEST then
+            CUSTOM_QUEST_MANAGER:StartQuest(target.quest, target.questId)
+            self:Remove(target)
+        end
+    end
+
     for _, target in ipairs(self.targets) do
-        if target.name == name then
-            -- We have a valid target, now do the interaction linked to its
-            if target.type == CUSTOM_INTERACTION_TALK then
-                LibCustomDialog.ShowDialog(target.dialog)
-                -- Since dialogs should handle the completion of themselves, we won't progress but only show the dialog.
-            elseif target.type == CUSTOM_INTERACTION_EMOTE then
-                -- Play an emote and progress (note: need to play here? The game should handle the playing, I think)
-                self:FireCallbacks("OnConditionMet", target)
-            elseif target.type == CUSTOM_INTERACTION_EMOTE_AT_TARGET then
-                if target.emoteTarget == additionalTargetName then
-                    self:FireCallbacks("OnConditionMet", target)
+        if type(target.name) == "string" and target.name == name then
+            RunInteractionForTarget(target)
+        elseif type(target.name) == "table" then
+            for _, subName in ipairs(target.name) do
+                if subName == name then
+                    RunInteractionForTarget(target)
                 end
-            elseif target.type == CUSTOM_INTERACTION_READ then
-                self:FireCallbacks("OnConditionMet", target)
-            elseif target.type == CUSTOM_INTERACTION_LOOT then
-                self:FireCallbacks("OnConditionMet", target)
-            elseif target.type == CUSTOM_INTERACTION_SIMPLE then
-                self:FireCallbacks("OnConditionMet", target)
-            elseif target.type == CUSTOM_INTERACTION_START_QUEST then
-                CUSTOM_QUEST_MANAGER:StartQuest(target.quest, target.questId)
-                self:Remove(target)
             end
         end
     end

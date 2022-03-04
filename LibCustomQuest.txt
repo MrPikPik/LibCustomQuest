@@ -24,6 +24,9 @@ LCQ_Debugger.lua
 Globals.lua
 API.lua
 
+;Custom ZO Dialogs
+CustomZODialogs.lua
+
 ;Bindings
 bindings.xml
 
@@ -36,6 +39,7 @@ PopupDialogs.lua
 
 ;Classes
 CustomQuest.lua
+CustomMail.lua
 
 ;Reticle
 ;reticle/reticle.lua

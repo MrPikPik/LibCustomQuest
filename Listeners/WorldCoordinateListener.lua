@@ -50,6 +50,24 @@ function LCQWorldCoordinateListener:Update()
     end
 end
 
+-- Function other listeners can use to determine if their target a) have location data and if so b) are within the set radius
+function LCQWorldCoordinateListener:IsTargetInRadius(target)
+    local worldCoordinateListener = self
+
+    if target.zone == worldCoordinateListener.zone then
+        -- if target.subzone == self.subzone then (do we still need this?)
+            -- Get the player distance to the target position
+            local distCM = zo_floor(zo_distance3D(target.x, target.y, target.z, self.x, self.y, self.z))
+            local distM = zo_floor(distCM / 100)
+
+            -- If player is close enough
+            if distM <= target.r then
+                return true
+            end
+        --end
+    end
+end
+
 -- First initialization of the zone id
 function LCQWorldCoordinateListener:OnPlayerActivated()
     self.zone = GetZoneId(GetUnitZoneIndex("player"))

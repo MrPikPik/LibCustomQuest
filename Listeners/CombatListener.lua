@@ -38,10 +38,20 @@ function LCQCombatListener:OnDamage(event, result, _, abilityName, _, _, sourceN
     local targetName = zo_strformat("<<1>>", targetName)
 
     for _, target in ipairs(self.targets) do
-        if targetName == GetUnitName("player") and target.name == sourceName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN then
-            self:RunInteractionForTarget(target)
-        elseif sourceName == GetUnitName("player") and target.name == targetName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_GIVEN then
-            self:RunInteractionForTarget(target)
+        if target.zone then
+            if LCQ_COORDINATELISTENER:IsTargetInRadius(target) then
+                if targetName == GetUnitName("player") and target.name == sourceName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN then
+                    self:RunInteractionForTarget(target)
+                elseif sourceName == GetUnitName("player") and target.name == targetName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_GIVEN then
+                    self:RunInteractionForTarget(target)
+                end
+            end
+        else
+            if targetName == GetUnitName("player") and target.name == sourceName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN then
+                self:RunInteractionForTarget(target)
+            elseif sourceName == GetUnitName("player") and target.name == targetName and target.type == CUSTOM_COMBAT_EVENT_DAMAGE_GIVEN then
+                self:RunInteractionForTarget(target)
+            end
         end
     end
 end
@@ -52,9 +62,17 @@ function LCQCombatListener:OnDeath(event, result, _, abilityName, _, _, sourceNa
     local targetName = zo_strformat("<<1>>", targetName)
 
     for _, target in ipairs(self.targets) do
-        -- Separate as above, between sourceName deathXP and targetName deathXP?
-        if (target.name == sourceName or target.name == targetName) and target.type == CUSTOM_COMBAT_EVENT_ON_DEATH then
-            self:RunInteractionForTarget(target)
+        if target.zone then
+            if LCQ_COORDINATELISTENER:IsTargetInRadius(target) then    
+                -- Separate as above, between sourceName deathXP and targetName deathXP?
+                if (target.name == sourceName or target.name == targetName) and target.type == CUSTOM_COMBAT_EVENT_ON_DEATH then
+                    self:RunInteractionForTarget(target)
+                end
+            end
+        else
+            if (target.name == sourceName or target.name == targetName) and target.type == CUSTOM_COMBAT_EVENT_ON_DEATH then
+                self:RunInteractionForTarget(target)
+            end
         end
     end
 end
