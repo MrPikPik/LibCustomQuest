@@ -42,6 +42,7 @@ end
 function CustomQuest_Manager:RegisterQuest(quest)
     assert(quest and quest.id, "No quest given or no ID found.")
     if self.quests[quest.id] ~= nil then
+        LCQ_DBG:Critical("Quest ID \"<<1>>\" already in use.", quest.id)
         error("Quest ID already in use.")
     else
         -- Instantiate quest object
@@ -120,17 +121,17 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
 
             if type == QUEST_CONDITION_TYPE_LOCATION then
                 LCQ_COORDINATELISTENER:Listen(task.data, questId, i)
-                LCQ_DBG:Verbose("Added coordinate target for <<1>>", task.text)
+                LCQ_DBG:Verbose("Added coordinate target for \"<<1>>\"", task.text)
             elseif type == QUEST_CONDITION_TYPE_TALK then
                 LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
-                LCQ_DBG:Verbose("Added dialog target for <<1>>", task.data.name)
+                LCQ_DBG:Verbose("Added dialog target for \"<<1>>\"", task.data.name)
             elseif type == QUEST_CONDITION_TYPE_INTERACT then
-                -- This is added with "read" interaction, but could be similar for all interaction types – (all would use the INTERACTIONLISTENTER?)
+                -- This is added with "read" interaction, but could be similar for all interaction types ï¿½ (all would use the INTERACTIONLISTENTER?)
                 LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
-                LCQ_DBG:Verbose("Added interaction target for <<1>>", task.data.name)                
+                LCQ_DBG:Verbose("Added interaction target for \"<<1>>\"", task.data.name)                
             elseif type == QUEST_CONDITION_TYPE_COMBAT then
                 LCQ_COMBATLISTENER:Listen(task.data, questId, i)
-                LCQ_DBG:Verbose("Added combat target for <<1>>", task.data.name)                
+                LCQ_DBG:Verbose("Added combat target for \"<<1>>\"", task.data.name)                
             end    
         end
     end

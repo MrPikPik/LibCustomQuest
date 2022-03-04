@@ -59,7 +59,7 @@ end
 -- Objective Update (i.e. "Collect Item: 2/10")
 CENTER_SCREEN_EVENT_HANDLERS[CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_UPDATED] = function(questId, stage, condition, current, max) 
     local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.QUEST_OBJECTIVE_INCREMENT)
-    local conditionText = CUSTOM_QUEST_MANAGER:GetQuestConditionText(questId, stage, condition)
+    local conditionText = CUSTOM_QUEST_MANAGER:GetCustomQuestConditionText(questId, stage, condition)
     messageParams:SetText(zo_strformat(SI_ALERTTEXT_QUEST_CONDITION_UPDATE, conditionText, current, max))
     messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_OBJECTIVE_COMPLETED)
     return messageParams
@@ -67,6 +67,6 @@ end
 
 function LibCustomQuest.CenterAnnounce(event, ...)
     if not CENTER_SCREEN_EVENT_HANDLERS[event] then return end
-    LCQ_DBG:Verbose("Showing CSA for event <<1>>, questId <<2>>", event, ...)
+    LCQ_DBG:Verbose("Showing CSA for QuestId <<2>>, stage <<3>> condition <<4>>", ...)
     CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(CENTER_SCREEN_EVENT_HANDLERS[event](...))
 end
