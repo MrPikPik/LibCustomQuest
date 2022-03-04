@@ -10,7 +10,7 @@
 ## Version: 0.01
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
-## DependsOn: LibMapPins-1.0 LibCustomDialog LibAlianym CustomCompassPins
+## DependsOn: LibMapPins-1.0 LibCustomDialog>=4 LibAlianym>=3 CustomCompassPins
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
