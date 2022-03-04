@@ -198,8 +198,8 @@ local function OnLibraryLoaded(event, addonName)
     if addonName ~= LibCustomQuest.name then return end
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
 
-    -- Debugger Log Level (Set this to normal so in general use most errors won't show)
-    LCQ_DBG:SetLogLevel(LCQ_DBG_NORMAL)
+    -- Debugger Log Level (Set this to LCQ_DBG_NORMAL so in general use most errors won't show)
+    LCQ_DBG:SetLogLevel(LCQ_DBG_DEBUG)
 
     -- Saved Vars
     LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.1, nil, defaultVars, GetWorldName())

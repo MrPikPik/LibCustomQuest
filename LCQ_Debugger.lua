@@ -2,16 +2,17 @@
 -- LCQ_Debugger --
 ------------------
 
---debugger version 1.4.1
+--debugger version 1.5
 
-LCQ_DBG_QUIET       = 0
-LCQ_DBG_NORMAL      = 1
-LCQ_DBG_INFO        = 2
-LCQ_DBG_VERBOSE     = 3
-LCQ_DBG_ERROR       = 4
-LCQ_DBG_CRITICAL    = 5
-LCQ_DBG_ALWAYS_SHOW = 6
-LCQ_DBG_DEBUG       = 7
+LCQ_DBG_ALWAYS_SHOW = 0
+LCQ_DBG_QUIET       = 1
+LCQ_DBG_CRITICAL    = 2
+LCQ_DBG_ERROR       = 3
+LCQ_DBG_NORMAL      = 4
+LCQ_DBG_WARNING     = 5
+LCQ_DBG_INFO        = 6
+LCQ_DBG_VERBOSE     = 7
+LCQ_DBG_DEBUG       = 8
 
 
 LCQ_Debugger = ZO_Object:Subclass()
@@ -23,7 +24,7 @@ function LCQ_Debugger:New()
 end
 
 function LCQ_Debugger:Initialize()
-    self.logLevel = LCQ_DBG_NORMAL
+    self.logLevel = LCQ_DBG_NORMAL or LCQ_DBG_QUIET
     self.showDebug = false
 end
 
@@ -60,22 +61,21 @@ function LCQ_Debugger:Log(message, debugLevel, ...)
     local level = debugLevel or 1
 
     if level <= self.logLevel or level == LCQ_DBG_ALWAYS_SHOW then
-        local lvlstr = "|cffffff"
-        if level == LCQ_DBG_INFO then
-            lvlstr = "|c0fb800[Info] "
-        elseif level == LCQ_DBG_VERBOSE then
-            lvlstr = "|cff9d00[Warning] "
-        elseif level == LCQ_DBG_ERROR then
-            lvlstr = "|cc40000[Error] "
-        elseif level == LCQ_DBG_CRITICAL then
-            lvlstr = "|cff0000[Critical] "
-        elseif level == LCQ_DBG_DEBUG then
-            lvlstr = "|c0081b8[Debug] "
-        end
-        
         if level == LCQ_DBG_DEBUG and not self.showDebug then return end
-        d("[LCQ Debug] " .. lvlstr .. zo_strformat(message, ...) .. "|r")
+        d(zo_strformat(LCQ_DBG_FORMAT, GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...)))
     end
+end
+
+function LCQ_Debugger:TestLevels()
+    self:Log("Debugger Test: Always Show",  LCQ_DBG_ALWAYS_SHOW)
+    self:Log("Debugger Test: Quiet",        LCQ_DBG_QUIET)
+    self:Log("Debugger Test: Critical",     LCQ_DBG_CRITICAL)
+    self:Log("Debugger Test: Error",        LCQ_DBG_ERROR)
+    self:Log("Debugger Test: Normal",       LCQ_DBG_NORMAL)
+    self:Log("Debugger Test: Warning",      LCQ_DBG_WARNING)
+    self:Log("Debugger Test: Info",         LCQ_DBG_INFO)
+    self:Log("Debugger Test: Verbose",      LCQ_DBG_VERBOSE)
+    self:Log("Debugger Test: Debug",        LCQ_DBG_DEBUG)
 end
 
 ---Displays a warning in chat
