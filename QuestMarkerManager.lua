@@ -76,7 +76,6 @@ function LCQ_QuestMarkerManager:Initialize()
 
     local function markerFarctory(pool, id)
         LCQ_DBG:Info("QuestMarkerFactory: Creating new marker with id <<1>>", id)
-        d(zo_strformat("QuestMarkerFactory: Creating new marker with id <<1>>", id))
         local control = WINDOW_MANAGER:CreateControl("LCQ_QuestMarker" .. id, self.window, CT_TEXTURE)
         return control
     end

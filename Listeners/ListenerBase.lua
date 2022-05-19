@@ -15,7 +15,7 @@ function LCQListener:Initialize()
     -- To be overridden
     self.targets = {}
 
-    LCQ_DBG:Critical("Listener: Base listener class has been initialized as object!")
+    LCQ_DBG:Warning("Listener: Base listener class has been initialized as object!")
 end
 
 function LCQListener:Listen(target, questId, conditionId)
