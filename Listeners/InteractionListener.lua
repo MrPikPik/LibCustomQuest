@@ -96,7 +96,7 @@ function LCQInteractionListener:GetTargetInteractionText(name)
     return ""
 end
 
-function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetName)
+function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetName, isInteractable)
     local function RunInteractionForTarget(target)
         -- We have a valid target, now do the interaction linked to its
         if target.type == CUSTOM_INTERACTION_TALK then
@@ -106,7 +106,7 @@ function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetNa
             -- Play an emote and progress (note: need to play here? The game should handle the playing, I think)
             self:FireCallbacks("OnConditionMet", target)
         elseif target.type == CUSTOM_INTERACTION_EMOTE_AT_TARGET then
-            if target.emoteTarget == additionalTargetName then
+            if target.emoteTarget == additionalTargetName and ((target.isInteractable == true and isInteractable) or not target.isInteractable) then
                 self:FireCallbacks("OnConditionMet", target)
             end
         elseif target.type == CUSTOM_INTERACTION_READ then
@@ -122,7 +122,12 @@ function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetNa
     end
 
     for _, target in ipairs(self.targets) do
-        if type(target.name) == "string" and target.name == name then
+        if target.zone then
+            if not LCQ_COORDINATELISTENER:IsTargetInRadius(target) then
+                return end
+        end
+
+        if type(target.name) == "string" and (target.name == name or name:match(target.name)) then
             RunInteractionForTarget(target)
         elseif type(target.name) == "table" then
             for _, subName in ipairs(target.name) do
@@ -163,11 +168,12 @@ function LCQInteractionListener:SetupEmotes()
                 local emoteName = slashName:sub(2)
 
                 local _, interactableName = GetGameCameraInteractableActionInfo()
+                local interactionPossible = GetGameCameraInteractableInfo()
                 local reticleName = GetUnitNameHighlightedByReticle()
 
                 local target = interactableName or reticleName or LCQ_TEST_RETICLE.currentValidFurnitureTarget --LCQ_TEST_RETICLE.contextTarget
 
-                self:RunInteractionForTarget(emoteName, target)
+                self:RunInteractionForTarget(emoteName, target, interactionPossible)
             end
         end
 

@@ -67,6 +67,6 @@ end
 
 function LibCustomQuest.CenterAnnounce(event, ...)
     if not CENTER_SCREEN_EVENT_HANDLERS[event] then return end
-    LCQ_DBG:Verbose("Showing CSA for QuestId <<2>>, stage <<3>> condition <<4>>", ...)
+    LCQ_DBG:Verbose("Showing CSA for QuestId <<1>>, stage <<2>> condition <<3>>", ...)
     CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(CENTER_SCREEN_EVENT_HANDLERS[event](...))
 end

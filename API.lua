@@ -1,7 +1,12 @@
 function ProgressCustomQuestCondition(questId, stageIndex, conditionIndex)
     LCQ_DBG:Info("Received completion request for quest <<1>> at stage <<2>>, condition <<3>>", questId, stageIndex, conditionIndex)
-    if not CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, conditionIndex) then
-        CUSTOM_QUEST_MANAGER:OnConditionComplete(questId, conditionIndex)
+    local stage, conditions = CUSTOM_QUEST_MANAGER:GetCustomQuestProgress(questId)
+    if stage ~= stageIndex then 
+        LCQ_DBG:Info("<<1>> is at stage <<2>>. Request aborted", questId, stage)
+    else
+        if not CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, stageIndex, conditionIndex) then
+            CUSTOM_QUEST_MANAGER:OnConditionComplete(questId, conditionIndex)
+        end
     end
 end
 

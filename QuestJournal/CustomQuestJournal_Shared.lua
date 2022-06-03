@@ -156,7 +156,7 @@ function LCQ_QuestJournal_Shared:BuildTextForStepVisibility(questId, visibilityT
 		end
 
 		-- Handle completed optional objectives
-		if visibility == QUEST_STEP_VISIBILITY_OPTIONAL and CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, stepIndex) then
+		if visibility == QUEST_STEP_VISIBILITY_OPTIONAL and CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, questStage, stepIndex) then
 			stepJournalText = ZO_DISABLED_TEXT:Colorize(stepJournalText)
 		end
 
