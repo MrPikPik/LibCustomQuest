@@ -22,11 +22,10 @@ function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDispl
     self.instanceDisplayType = instanceDisplayType or INSTANCE_DISPLAY_TYPE_NONE
     self.stages = stages or {}
     self.currentStage = (CUSTOM_QUEST_MANAGER.progress[id] and CUSTOM_QUEST_MANAGER.progress[id].stage > 1 and CUSTOM_QUEST_MANAGER.progress[id].stage) or 1
-    self.completed = false -- TOFO: Load progress from SavedVariables
+    self.completed = (CUSTOM_QUEST_MANAGER.progress[id] and CUSTOM_QUEST_MANAGER.progress[id].stage > #stages) --false -- TODO: Load progress from SavedVariables (Handled by .currentStage)
     self.outcome = outcome
     self.repeatType = repeatType or QUEST_REPEAT_NOT_REPEATABLE
 
-    LCQ_DBG:Debug("TODO: Quest progress is not being loaded yet")
     LCQ_DBG:Info("Created quest with id <<1>>", id)
 end
 

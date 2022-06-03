@@ -184,10 +184,20 @@ local defaultVars = {
     --[[
         -- Example Format
         [questId (string)] = {
-            ["currentStage"] = currentStage (num),
-            ["conditions"] = {
-                [condition1 (num)] = incomplete (bool),
-                [condition2 (num)] = complete (bool),
+            ["stage"] = currentStage (num),
+            ["stages"] = {  
+                [stage1 (num)] = {
+                    ["conditions"] = {
+                        [condition1 (num)] = incomplete (bool),
+                        [condition2 (num)] = incomplete (bool),
+                    },
+                },
+                [stage2 (num)] = {
+                    ["conditions"] = {
+                        [condition1 (num)] = incomplete (bool),
+                        [condition2 (num)] = incomplete (bool),
+                    },
+                },
             },
         },
     ]]
@@ -202,7 +212,7 @@ local function OnLibraryLoaded(event, addonName)
     LCQ_DBG:SetLogLevel(LCQ_DBG_DEBUG)
 
     -- Saved Vars
-    LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.1, nil, defaultVars, GetWorldName())
+    LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.2, nil, defaultVars, GetWorldName())
     CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV.QuestProgress
 
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_CLIENT_INTERACT_RESULT, LibCustomQuest.OnPlayerInteract)
@@ -213,5 +223,6 @@ local function OnLibraryLoaded(event, addonName)
     SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetPos
     SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetRadius
     SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos
+    SLASH_COMMANDS["/lcqsetlocmarker"] = LibCustomQuest.Helpers.SetLocMarker
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)

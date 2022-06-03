@@ -48,7 +48,7 @@ function CustomQuest_Manager:RegisterQuest(quest)
 		-- Instantiate quest object
 		self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
 
-		self.progress[quest.id] = self.progress[quest.id] or {stage = 0, conditions = {}}
+		self.progress[quest.id] = self.progress[quest.id] or {stage = 0, stages = {}}
 
 		local suppressCSA = true -- We don't want objective notifications coming up unless the quest is started through StartQuest(quest, questId)
 		self:UpdateQuestListeners(quest.id, suppressCSA)
@@ -73,7 +73,7 @@ function CustomQuest_Manager:StartQuest(quest, questId)
 	else
 		-- These can always be initialized to default starting positions
 		-- (A new start should be a fresh start!)
-		self.progress[id] = {stage = 1, conditions = {}}
+		self.progress[id] = {stage = 1, stages = {[1] = {conditions = {}}}}
 		self.quests[id].currentStage = 1
 
 		local suppressCSA = false
@@ -141,7 +141,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
 	LCQ_DBG:Verbose("Condition complete for QuestID <<1>>", questId)
 	local stage = self.quests[questId].currentStage -- Should this be pulled from current stage, or add stage incoming parameter?
 	self.quests[questId].stages[stage].tasks[conditionId].complete = true
-	self:SetQuestConditionComplete(questId, conditionId)
+	self:SetQuestConditionComplete(questId, stage, conditionId)
 
 	LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_OBJECTIVE_COMPLETED, questId, stage, conditionId)
 
@@ -231,8 +231,8 @@ function CustomQuest_Manager:GetCustomQuestProgress(questId)
 		   stage = self.progress[questId].stage
 		end
 		-- Conditions
-		if self.progress[questId].conditions then
-			conditions = self.progress[questId].conditions
+		if stage > 0 and self.progress[questId].stages[stage].conditions then
+			conditions = self.progress[questId].stages[stage].conditions
 		end
 	end
 	return stage, conditions
@@ -242,11 +242,14 @@ function CustomQuest_Manager:IsConditionComplete(questId, stageIndex, conditionI
 	if not questId then return false end
 	local stage, conditions = self:GetCustomQuestProgress(questId)
 	
-	if stage ~= stageIndex then 
-		return false
-	else
-		return conditions[conditionIndex]
-	end
+	--if stage ~= stageIndex then 
+	--	return false
+	--else
+		--return conditions[conditionIndex]
+	--end
+
+	LCQ_DBG:Info("Received IsConditionComplete request for quest <<1>> at stage <<2>>, condition <<3>>", questId, stageIndex, conditionIndex)
+	return self.progress[questId].stages[stageIndex].conditions[conditionIndex]
 end
 
 function CustomQuest_Manager:IsCustomQuestStarted(questId)
@@ -262,14 +265,15 @@ function CustomQuest_Manager:AdvanceQuestStage(questId)
 	local stage = self.quests[questId].currentStage
 	self.quests[questId].currentStage = stage + 1
 	self.progress[questId].stage = stage + 1
-	self.progress[questId].conditions = {}
+	self.progress[questId].stages[stage+1] = {}
+	self.progress[questId].stages[stage+1].conditions = {}
 end
 
-function CustomQuest_Manager:SetQuestConditionComplete(questId, conditionIndex)
-	if not self.progress[questId].conditions then
-		self.progress[questId].conditions = {}
+function CustomQuest_Manager:SetQuestConditionComplete(questId, stage, conditionIndex)
+	if not self.progress[questId].stages[stage].conditions then
+		self.progress[questId].stages[stage].conditions = {}
 	end
-	self.progress[questId].conditions[conditionIndex] = true
+	self.progress[questId].stages[stage].conditions[conditionIndex] = true
 end
 
 function CustomQuest_Manager:SetQuestComplete(questId)
