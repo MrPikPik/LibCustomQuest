@@ -105,7 +105,7 @@ local function AddAddonTypeSection(self, isLibrary, sectionTitleText)
         table.sort(addonEntries, self.sortCallback)
 
         local scrollData = ZO_ScrollList_GetDataList(self.list)
-        scrollData[#scrollData + 1] = ZO_ScrollList_CreateDataEntry(SECTION_HEADER_DATA, { text = sectionTitleText })
+        scrollData[#scrollData + 1] = ZO_ScrollList_CreateDataEntry(SECTION_HEADER_DATA, { isLibrary = IS_QUESTPACK, text = sectionTitleText })
         for _, entryData in ipairs(addonEntries) do
             if entryData.expandable and expandedAddons[entryData.index] then
                 entryData.expanded = true
@@ -121,6 +121,16 @@ local function AddAddonTypeSection(self, isLibrary, sectionTitleText)
         end
     else
         _AddAddonTypeSection(self, isLibrary, sectionTitleText)
+    end
+end
+
+local _SetupSectionHeaderRow = ADD_ON_MANAGER.SetupSectionHeaderRow
+local function SetupSectionHeaderRow(self, control, data)
+    if data.isLibrary == IS_QUESTPACK then
+        control.textControl:SetText(data.text)
+        control.checkboxControl:SetHidden(true)
+    else
+        _SetupSectionHeaderRow(self, control, data)
     end
 end
 
@@ -159,5 +169,6 @@ end
 
 ADD_ON_MANAGER.BuildMasterList = BuildMasterList
 ADD_ON_MANAGER.AddAddonTypeSection = AddAddonTypeSection
+ADD_ON_MANAGER.SetupSectionHeaderRow = SetupSectionHeaderRow
 ADD_ON_MANAGER.SortScrollList = SortScrollList
 ADD_ON_MANAGER.OnExpandButtonClicked = OnExpandButtonClicked

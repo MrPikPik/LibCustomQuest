@@ -30,8 +30,8 @@ CustomZODialogs.lua
 ;Bindings
 bindings.xml
 
-;Addon Manager patches
-AddonManager/Patches.lua
+;Patches
+Patches/AddonManager.lua
 
 ;Helpers
 CenterScreenAnnounce.lua
