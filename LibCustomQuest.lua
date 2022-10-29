@@ -188,14 +188,14 @@ local defaultVars = {
             ["stages"] = {  
                 [stage1 (num)] = {
                     ["conditions"] = {
-                        [condition1 (num)] = incomplete (bool),
+                        [condition1 (num)] = complete (bool),
                         [condition2 (num)] = incomplete (bool),
                     },
                 },
                 [stage2 (num)] = {
                     ["conditions"] = {
                         [condition1 (num)] = incomplete (bool),
-                        [condition2 (num)] = incomplete (bool),
+                        [condition2 (num)] = complete (bool),
                     },
                 },
             },
@@ -209,7 +209,7 @@ local function OnLibraryLoaded(event, addonName)
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
 
     -- Debugger Log Level (Set this to LCQ_DBG_NORMAL so in general use most errors won't show)
-    LCQ_DBG:SetLogLevel(LCQ_DBG_DEBUG)
+    LCQ_DBG:SetLogLevel(LCQ_DBG_ALWAYS_SHOW)
 
     -- Saved Vars
     LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.2, nil, defaultVars, GetWorldName())

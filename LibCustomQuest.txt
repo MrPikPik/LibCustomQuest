@@ -5,12 +5,13 @@
 
 ## Title: LibCustomQuest
 ## Author: MrPikPik, Alianym
-## APIVersion: 100035
-## AddOnVersion: 1
+## APIVersion: 101035 101036
+## AddOnVersion: 000001
 ## Version: 0.01
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
-## DependsOn: LibMapPins-1.0 LibCustomDialog>=4 LibAlianym>=3 CustomCompassPins
+## DependsOn: LibCustomDialog>=4 LibAlianym>=3
+## OptionalDependsOn: CustomCompassPins
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files

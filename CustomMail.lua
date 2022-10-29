@@ -254,7 +254,7 @@ function CustomQuestMail:RegisterMail(addOnName, mailDataIn)
 end
 
 function CustomQuestMail:UnregisterMail(customMailId)
-	local key = Id64ToString(customMailId)
+	local key = tostring(HashString(customMailId))
 	self.customMailData[key] = nil
 end
 
