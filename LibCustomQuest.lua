@@ -220,6 +220,8 @@ local function OnLibraryLoaded(event, addonName)
 
     LibCustomQuest.Initialize()
 
+    if LibDataShare then LibCustomQuestShare.Initialize() end
+
     SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetPos
     SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetRadius
     SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos

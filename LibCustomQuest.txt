@@ -11,7 +11,7 @@
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
 ## DependsOn: LibCustomDialog>=4 LibAlianym>=3
-## OptionalDependsOn: CustomCompassPins
+## OptionalDependsOn: CustomCompassPins LibDataShare>=1
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
@@ -33,6 +33,9 @@ bindings.xml
 
 ;Patches
 Patches/AddonManager.lua
+
+;Integrations
+ShareQuestData.lua
 
 ;Helpers
 CenterScreenAnnounce.lua

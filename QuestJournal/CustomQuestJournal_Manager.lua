@@ -256,9 +256,10 @@ function LCQ_QuestJournal_Manager:ConfirmAbandonQuest(questId)
 end
 
 function LCQ_QuestJournal_Manager:ShareQuest(questId)
-	d("ShareQuest(questId) not implemented")
-	--ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.QUEST_SHARE_SENT, GetString(SI_QUEST_SHARED))
-	--ShareQuest(questId)
+	ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.QUEST_SHARE_SENT, GetString(SI_QUEST_SHARED))
+	LibCustomQuestShare.shareCQData:QueueData(tonumber(questId), function()
+		CUSTOM_QUEST_MANAGER:StartQuest(_, questId)
+	end)
 end
 
 --Not Updated

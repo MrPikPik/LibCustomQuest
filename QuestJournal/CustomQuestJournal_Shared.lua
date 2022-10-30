@@ -187,7 +187,7 @@ end
 
 function LCQ_QuestJournal_Shared:CanShareQuest()
 	local selectedQuestId = self:GetSelectedQuestId()
-	if selectedQuestId then
+	if selectedQuestId and LibDataShare then -- Need LibDataShare to share quest info
 		return CUSTOM_QUEST_MANAGER:GetIsCustomQuestSharable(selectedQuestId) and IsUnitGrouped("player")
 	end
 	return false

@@ -41,6 +41,8 @@ end
 -- Ensure you call with a well formed quest object
 function CustomQuest_Manager:RegisterQuest(quest)
 	assert(quest and quest.id, "No quest given or no ID found.")
+
+	quest.id = tostring(HashString(quest.id))
 	if self.quests[quest.id] ~= nil then
 		LCQ_DBG:Critical("Quest ID \"<<1>>\" already in use.", quest.id)
 		error("Quest ID already in use.")
@@ -64,13 +66,17 @@ function CustomQuest_Manager:StartQuest(quest, questId)
 	else
 		id = quest.id
 	end
+
+	if tonumber(questId) == nil then
+		id = tostring(HashString(id))
+	else id = tostring(id) end
 	
 	if not self.quests[id] then
 		error("Quest has not been registered.")
 		--if not quest then return end
 		--local newStart = true
 		--self:RegisterQuest(quest, newStart)
-	else
+	elseif not CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(id) then
 		-- These can always be initialized to default starting positions
 		-- (A new start should be a fresh start!)
 		self.progress[id] = {stage = 1, stages = {[1] = {conditions = {}}}}
@@ -258,7 +264,7 @@ function CustomQuest_Manager:IsCustomQuestStarted(questId)
 end
 
 function CustomQuest_Manager:IsCustomQuestComplete(questId)
-	return self.progress[questId].completed
+	return self.progress[questId] and self.progress[questId].completed
 end
 
 function CustomQuest_Manager:AdvanceQuestStage(questId)
@@ -440,7 +446,7 @@ function CustomQuest_Manager:GetCustomQuestEnding(questId)
 end
 
 function CustomQuest_Manager:GetIsCustomQuestSharable(questId)
-	return false
+	return tonumber(questId) ~= nil
 end
 
 function CustomQuest_Manager:GetNumCustomJournalQuests()
