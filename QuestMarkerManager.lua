@@ -74,13 +74,13 @@ end
 function LCQ_QuestMarkerManager:Initialize()
 	self.markers = {}
 
-	local function markerFarctory(pool, id)
+	local function markerFactory(pool, id)
 		LCQ_DBG:Info("QuestMarkerFactory: Creating new marker with id <<1>>", id)
 		local control = WINDOW_MANAGER:CreateControl("LCQ_QuestMarker" .. id, self.window, CT_TEXTURE)
 		return control
 	end
 
-	self.markerPool = ZO_ObjectPool:New(markerFarctory)
+	self.markerPool = ZO_ObjectPool:New(markerFactory)
 	self.markerId = 1
 
 	self:CreateUI()

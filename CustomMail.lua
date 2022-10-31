@@ -253,8 +253,10 @@ function CustomQuestMail:RegisterMail(addOnName, mailDataIn)
 	end
 end
 
-function CustomQuestMail:UnregisterMail(customMailId)
-	local key = tostring(HashString(customMailId))
+function CustomQuestMail:UnregisterMail(customMailId, isDelete)
+	local key = tostring(type(customMailId) == "number" or type(customMailId) == "string" and HashString(customMailId))
+	if isDelete then key = Id64ToString(customMailId) end
+
 	self.customMailData[key] = nil
 end
 
@@ -335,7 +337,7 @@ ZO_PreHook(MAIL_INBOX, "Delete", function(mailInboxOb)
 	if not CUSTOM_QUEST_MAIL:IsCustomMail(mailId) then return end
 
 	local function ConfirmDelete(mailId)
-		CUSTOM_QUEST_MAIL:UnregisterMail(mailId)
+		CUSTOM_QUEST_MAIL:UnregisterMail(mailId, true)
 		PlaySound(SOUNDS.MAIL_ITEM_DELETED) 
 
 		MAIL_INBOX:OnMailRemoved(mailId)
