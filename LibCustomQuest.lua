@@ -209,7 +209,8 @@ local function OnLibraryLoaded(event, addonName)
     EVENT_MANAGER:UnregisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED)
 
     -- Debugger Log Level (Set this to LCQ_DBG_NORMAL so in general use most errors won't show)
-    LCQ_DBG:SetLogLevel(LCQ_DBG_ALWAYS_SHOW)
+    LCQ_DBG:SetLogLevel(LCQ_DBG_DEBUG)
+    LCQ_DBG:SetDebugOutputEnabled(true)
 
     -- Saved Vars
     LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.2, nil, defaultVars, GetWorldName())
@@ -222,9 +223,12 @@ local function OnLibraryLoaded(event, addonName)
 
     if LibDataShare then LibCustomQuestShare.Initialize() end
 
-    SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetPos
-    SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetRadius
-    SLASH_COMMANDS["/lcqgetworldpos"] = LibCustomQuest.Helpers.GetWorldPos
+    SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetWorldPos
+    SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetWorldRadius
     SLASH_COMMANDS["/lcqsetlocmarker"] = LibCustomQuest.Helpers.SetLocMarker
+
+    SLASH_COMMANDS["/lcqnuke"] = function() LibCustomQuest.SV.QuestProgress = {} end
+
+    LCQ = LibCustomQuest
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)
