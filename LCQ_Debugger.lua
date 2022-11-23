@@ -2,7 +2,7 @@
 -- LCQ_Debugger --
 ------------------
 
---debugger version 1.5
+--debugger version 1.6
 
 LCQ_DBG_ALWAYS_SHOW = 0
 LCQ_DBG_QUIET       = 1
@@ -13,7 +13,6 @@ LCQ_DBG_WARNING     = 5
 LCQ_DBG_INFO        = 6
 LCQ_DBG_VERBOSE     = 7
 LCQ_DBG_DEBUG       = 8
-
 
 LCQ_Debugger = ZO_Object:Subclass()
 
@@ -118,6 +117,21 @@ end
 function LCQ_Debugger:Debug(message, ...)
     if not message then return end
     self:Log(message, LCQ_DBG_DEBUG, ...)
+end
+
+---Throws a Lua error
+---@param message string Format string used by zo_strformat
+function LCQ_Debugger:LuaError(message, ...)
+    message = message or "No message"
+    error(zo_strformat(GetString(LCQ_DBG_FORMAT_3) .. message .. "|r", ...))
+end
+
+---Throws a Lua assertion
+---@param condition bool Condition for assertion
+---@param message string Format string used by zo_strformat
+function LCQ_Debugger:LuaAssert(condition, message, ...)
+    message = message or "No message"
+    assert(condition, zo_strformat(GetString(LCQ_DBG_FORMAT_9) .. message .. "|r", ...))
 end
 
 LCQ_DBG = LCQ_Debugger:New()

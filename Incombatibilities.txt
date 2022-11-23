@@ -1,0 +1,4 @@
+- AddonCategory
+    Unable to assign custom quest packs to a custom category
+    Will break LibCustomQuest's custom addon category
+    @CONSIDER: Add code that detects AddonCategory and prevents LCQs patch from being taking active
