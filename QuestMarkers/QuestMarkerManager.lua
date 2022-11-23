@@ -18,16 +18,32 @@ local LCQ_COMPASS_PINS_QUEST_MARKER = "LCQ_PinType_QuestMarker"
 local LCQ_COMPASS_PINS_QUEST_INSIDE = "LCQ_PinType_QuestInside"
 local LCQ_COMPASS_PINS_QUEST_REPEATABLE = "LCQ_PinType_QuestRepeatable"
 
+
+local TIME_BETWEEN_LABEL_UPDATES_MS = 250
+local nextLabelUpdateTime = 0
+
+local function IsAboveUpdateThreshold()
+	return GetFrameTimeMilliseconds() > nextLabelUpdateTime + TIME_BETWEEN_LABEL_UPDATES_MS
+end
+
+
+
 local function UpdatePinCenterLabel(pin, normalizedAngle, distance)
-	--d("UpdatePinCenterLabel")
+	local now = GetFrameTimeMilliseconds()
+	if now < nextLabelUpdateTime then
+		return
+	end
+
 	if pin.pinName then
+		local name = pin.pinName
 		if zo_abs(normalizedAngle) < 0.1 then
 			if COMPASS.areaOverrideAnimation:IsPlaying() then
 				COMPASS.centerOverPinLabelAnimation:PlayBackward()
 			elseif not COMPASS.centerOverPinLabelAnimation:IsPlaying() or not COMPASS.centerOverPinLabelAnimation:IsPlayingBackward() then
-				COMPASS.centerOverPinLabel:SetText(pin.pinName)
+				COMPASS.centerOverPinLabel:SetText(tostring(pin.pinName))
 				COMPASS.centerOverPinLabelAnimation:PlayForward()
 			end
+			nextLabelUpdateTime = now + TIME_BETWEEN_LABEL_UPDATES_MS
 		end
 	end
 end
@@ -57,13 +73,16 @@ local pinLayouts = {
 	},
 	questObjective = {
 		maxDistance = 1,
+		FOV = math.pi,
 		texture = "/esoui/art/compass/quest_icon_assisted.dds",
 	},
 	questObjectiveArea = {
 		maxDistance = 1,
+		FOV = math.pi,
 		texture = "/esoui/art/compass/quest_assistedareapin.dds",
 	},
 }
+
 
 function LCQ_QuestMarkerManager:New(...)
 	local manager = ZO_Object.New(self)
@@ -90,7 +109,6 @@ function LCQ_QuestMarkerManager:Initialize()
 	end
 
 	EVENT_MANAGER:RegisterForUpdate("LCQ_QuestMarkerManager", 0, function() self:OnUpdate() end)
-
 	LCQ_DBG:Info("Quest Marker Manager Initialized.")
 end
 
@@ -113,6 +131,10 @@ function LCQ_QuestMarkerManager:SetupCompassPins()
 	-- Only the first type need the update function as it handles all pintypes.
 	COMPASS_PINS:AddCustomPin(LCQ_COMPASS_PINS_QUEST_GIVER, function() self:UpdateCompassPins() end, pinLayouts.questGiver)
 	COMPASS_PINS:AddCustomPin(LCQ_COMPASS_PINS_QUEST_MARKER, function() end, pinLayouts.questObjective)
+
+	ZO_PreHook(COMPASS, "OnUpdate", function()
+		return GetFrameTimeMilliseconds() <= nextLabelUpdateTime + TIME_BETWEEN_LABEL_UPDATES_MS
+	end)
 end
 
 
@@ -124,7 +146,7 @@ function LCQ_QuestMarkerManager:UpdateCompassPins()
 			local x, y = GetNormalizedWorldPosition(marker.zone, marker.x, marker.y, marker.z)
 			
 			if marker.type == "QUEST_MARKER_QUEST_GIVER" then
-				COMPASS_PINS.pinManager:CreatePin(LCQ_COMPASS_PINS_QUEST_GIVER, "TestPin", x, y, "Testpin")
+				COMPASS_PINS.pinManager:CreatePin(LCQ_COMPASS_PINS_QUEST_GIVER, "QuestGiverPin", x, y, marker.shortText and marker.shortText or marker.text)
 			elseif marker.type == "QUEST_MARKER_TRACKED" then
 				COMPASS_PINS.pinManager:CreatePin(LCQ_COMPASS_PINS_QUEST_MARKER, "TestPin", x, y, "Testpin")
 			end
@@ -132,10 +154,11 @@ function LCQ_QuestMarkerManager:UpdateCompassPins()
 	end
 end
 
-function LCQ_QuestMarkerManager:AddQuestMarker(type, text, zone, worldX, worldY, worldZ)
+function LCQ_QuestMarkerManager:AddQuestMarker(type, text, zone, worldX, worldY, worldZ, shortText)
 	local marker = {
 		type = type or "QUEST_MARKER_TRACKED",
 		text = text,
+		shortText = shortText,
 		texture = QUEST_MARKER_TEXTURES[type] or QUEST_MARKER_TEXTURES["QUEST_MARKER_TRACKED"],
 		zone = zone or 0,
 		x = worldX or 0,
@@ -157,6 +180,7 @@ function LCQ_QuestMarkerManager:AddQuestMarker(type, text, zone, worldX, worldY,
 	-- GetRawNormalizedWorldPosition(integer zoneId, integer worldX, integer worldY, integer worldZ)
 	-- Returns: number normalizedX, number normalizedY
 
+	return marker.id
 end
 
 function LCQ_QuestMarkerManager:RemoveQuestMarker(questMarker)
@@ -229,6 +253,9 @@ function LCQ_QuestMarkerManager:OnUpdate()
 			local pY = wX * i12 + wY * i22 + wZ * i32 + i42
 			local pZ = wX * i13 + wY * i23 + wZ * i33 + i43
 
+			local icon = self.markerPool:AcquireObject(markerNum)
+			markerNum = markerNum + 1
+
 			-- If marker is in front
 			if pZ > 0 then
 				-- Calculate unit screen position
@@ -236,8 +263,6 @@ function LCQ_QuestMarkerManager:OnUpdate()
 				local x, y = pX * uiW / w, -pY * uiH / h
 				-- Update icon position
 
-				local icon = self.markerPool:AcquireObject(markerNum)
-				markerNum = markerNum + 1
 				icon:ClearAnchors()
 				icon:SetAnchor(CENTER, self.window, CENTER, x, y)
 
@@ -262,6 +287,8 @@ function LCQ_QuestMarkerManager:OnUpdate()
 				-- FIXME: flooring for additional precision
 				zorder[1 + zo_floor(pZ*100)] = icon
 				ztotal = ztotal + 1
+			else
+				icon:SetHidden(true)
 			end
 		end
 	end

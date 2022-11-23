@@ -10,8 +10,8 @@
 ## Version: 0.01
 ## IsLibrary: true
 ## SavedVariables: LCQSavedVariables
-## DependsOn: LibCustomDialog>=4 LibAlianym>=3
-## OptionalDependsOn: CustomCompassPins LibDataShare>=1
+## DependsOn: LibCustomDialog>=4 LibAlianym>=3 CustomCompassPins>=32
+## OptionalDependsOn: LibDataShare>=1
 ## Description: Provides functionality to create and show custom quests.
 
 ;Language files
@@ -76,5 +76,6 @@ LibCustomQuest.lua
 ;Reticle
 Reticle.lua
 
-QuestMarkerControl.xml
-QuestMarkerManager.lua
+;Quest Markers
+QuestMarkers/QuestMarkerControl.xml
+QuestMarkers/QuestMarkerManager.lua
