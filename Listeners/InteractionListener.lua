@@ -122,17 +122,20 @@ function LCQInteractionListener:RunInteractionForTarget(name, additionalTargetNa
     end
 
     for _, target in ipairs(self.targets) do
+        local inRadius = true
         if target.zone then
             if not LCQ_COORDINATELISTENER:IsTargetInRadius(target) then
-                return end
+                inRadius = false end
         end
 
-        if type(target.name) == "string" and (target.name == name or name:match(target.name)) then
-            RunInteractionForTarget(target)
-        elseif type(target.name) == "table" then
-            for _, subName in ipairs(target.name) do
-                if subName == name then
-                    RunInteractionForTarget(target)
+        if inRadius then
+            if type(target.name) == "string" and (target.name == name or name:match(target.name)) then
+                RunInteractionForTarget(target)
+            elseif type(target.name) == "table" then
+                for _, subName in ipairs(target.name) do
+                    if subName == name then
+                        RunInteractionForTarget(target)
+                    end
                 end
             end
         end

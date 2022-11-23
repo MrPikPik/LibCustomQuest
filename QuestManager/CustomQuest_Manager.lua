@@ -42,7 +42,10 @@ end
 function CustomQuest_Manager:RegisterQuest(quest)
 	assert(quest and quest.id, "No quest given or no ID found.")
 
-	quest.id = tostring(HashString(quest.id))
+	if tonumber(quest.id) == nil then
+		quest.id = tostring(HashString(quest.id))
+	else quest.id = tostring(quest.id) end
+
 	if self.quests[quest.id] ~= nil then
 		LCQ_DBG:Critical("Quest ID \"<<1>>\" already in use.", quest.id)
 		error("Quest ID already in use.")
@@ -51,6 +54,16 @@ function CustomQuest_Manager:RegisterQuest(quest)
 		self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
 
 		self.progress[quest.id] = self.progress[quest.id] or {stage = 0, stages = {}}
+
+		local questStage = self:GetCustomQuestCurrentStage(quest.id)
+		local nextStageData = self.quests[quest.id].stages[questStage]
+		if type(nextStageData) == "function" then
+			self.quests[quest.id].stages[questStage] = nextStageData()
+			self.quests[quest.id].stages[questStage].func = nextStageData
+		elseif nextStageData and nextStageData.func then
+			self.quests[quest.id].stages[questStage] = nextStageData.func()
+			self.quests[quest.id].stages[questStage].func = nextStageData.func
+		end
 
 		local suppressCSA = true -- We don't want objective notifications coming up unless the quest is started through StartQuest(quest, questId)
 		self:UpdateQuestListeners(quest.id, suppressCSA)
@@ -67,16 +80,16 @@ function CustomQuest_Manager:StartQuest(quest, questId)
 		id = quest.id
 	end
 
-	if tonumber(questId) == nil then
+	if tonumber(id) == nil then
 		id = tostring(HashString(id))
 	else id = tostring(id) end
-	
+
 	if not self.quests[id] then
 		error("Quest has not been registered.")
 		--if not quest then return end
 		--local newStart = true
 		--self:RegisterQuest(quest, newStart)
-	elseif not CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(id) then
+	elseif not self:IsCustomQuestStarted(id) then
 		-- These can always be initialized to default starting positions
 		-- (A new start should be a fresh start!)
 		self.progress[id] = {stage = 1, stages = {[1] = {conditions = {}}}}
@@ -98,6 +111,8 @@ function CustomQuest_Manager:AbandonQuest(questId)
 	
 	self:FireCallbacks("OnCustomQuestsUpdated", questId)
 	PlaySound(SOUNDS.QUEST_ABANDONED)
+
+	LCQ_DBG:Info("Quest <<1>> has been abandoned", questId)
 
 	self:RegisterQuest(quest)
 end
@@ -143,7 +158,7 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
 	end
 end
 
-function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
+function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 	LCQ_DBG:Verbose("Condition complete for QuestID <<1>>", questId)
 	local stage = self.quests[questId].currentStage -- Should this be pulled from current stage, or add stage incoming parameter?
 	self.quests[questId].stages[stage].tasks[conditionId].complete = true
@@ -187,6 +202,11 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId)
 			LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_COMPLETE, questId)
 			self:FireCallbacks("OnCustomQuestsUpdated", questId)
 		end
+	end
+
+	if LibDataShare and (not noShare) then
+		local progressData = zo_strformat("<<1>><<2>><<3>>", stage, conditionId, questId)
+		LibCustomQuestShare.shareCustomQuestProgress:QueueData(tonumber(progressData))
 	end
 
 	-- Allow/Handle custom quest author-defined function on condition complete (play an event or subtitle, etc.)
@@ -246,6 +266,11 @@ end
 
 function CustomQuest_Manager:IsConditionComplete(questId, stageIndex, conditionIndex)
 	if not questId then return false end
+
+	if tonumber(questId) == nil then
+		questId = tostring(HashString(questId))
+	else questId = tostring(questId) end
+
 	local stage, conditions = self:GetCustomQuestProgress(questId)
 	
 	--if stage ~= stageIndex then 
@@ -273,6 +298,15 @@ function CustomQuest_Manager:AdvanceQuestStage(questId)
 	self.progress[questId].stage = stage + 1
 	self.progress[questId].stages[stage+1] = {}
 	self.progress[questId].stages[stage+1].conditions = {}
+
+	local nextStageData = self.quests[questId].stages[stage+1]
+	if type(nextStageData) == "function" then
+		self.quests[questId].stages[stage+1] = nextStageData()
+		self.quests[questId].stages[stage+1].func = nextStageData
+	elseif nextStageData and nextStageData.func then
+		self.quests[questId].stages[stage+1] = nextStageData.func()
+		self.quests[questId].stages[stage+1].func = nextStageData.func
+	end
 end
 
 function CustomQuest_Manager:SetQuestConditionComplete(questId, stage, conditionIndex)
@@ -376,7 +410,7 @@ end
 function CustomQuest_Manager:GetCustomQuestNumSteps(questId, questStage)
 	local numSteps = 0
 	local quest = self:GetCustomQuest(questId)
-	
+
 	if quest.stages[questStage] then
 		numSteps = #quest.stages[questStage].tasks
 	end
@@ -446,7 +480,7 @@ function CustomQuest_Manager:GetCustomQuestEnding(questId)
 end
 
 function CustomQuest_Manager:GetIsCustomQuestSharable(questId)
-	return tonumber(questId) ~= nil
+	return LibDataShare ~= nil and tonumber(questId) ~= nil
 end
 
 function CustomQuest_Manager:GetNumCustomJournalQuests()

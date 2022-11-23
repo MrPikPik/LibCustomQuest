@@ -39,6 +39,8 @@ function LCQWorldCoordinateListener:Update()
                 local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
                 local distM = zo_floor(distCM / 100)
 
+                LCQ_DBG:Verbose("<<3>>::<<4>>: distM=<<1>>, target.r=<<2>>", distM, target.r, target.questId, target.conditionId)
+                
                 -- If player is close enough
                 if distM <= target.r then
                     if target.type == CUSTOM_INTERACTION_START_QUEST then
