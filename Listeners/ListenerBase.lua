@@ -7,7 +7,7 @@ LCQListener = ZO_CallbackObject:Subclass()
 -- Instantiates a new task object
 function LCQListener:New(...)
     local listener = ZO_CallbackObject.New(self)
-    listener:Initialize(...)
+    --listener:Initialize(...)
     return listener
 end
 
