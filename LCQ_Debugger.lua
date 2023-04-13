@@ -127,7 +127,7 @@ function LCQ_Debugger:LuaError(message, ...)
 end
 
 ---Throws a Lua assertion
----@param condition bool Condition for assertion
+---@param condition boolean Condition for assertion
 ---@param message string Format string used by zo_strformat
 function LCQ_Debugger:LuaAssert(condition, message, ...)
     message = message or "No message"

@@ -26,7 +26,7 @@ local function HandleShareQuest(tag, questId)
 			function()
 				-- Close Prompt
 			end,
-			function()
+			function(self)
 				self:RemoveFromIncomingQueue(INTERACT_TYPE_QUEST_SHARE, characterName, displayName)
 			end)
 		data.questId = questId
@@ -50,7 +50,7 @@ local function HandleShareProgress(tag, progressData)
 	local conditionIndex = tonumber(progressData:sub(2,2))
 
 	local questName = CUSTOM_QUEST_MANAGER:GetCustomQuestName(questId)
-	LCQ_DBG:Info("Sharing Update of <<1>>, Stage <<2>>, Condition <<3>>", questName, stage, numConditions)
+	LCQ_DBG:Info("Sharing Update of <<1>>, Stage <<2>>, Condition <<3>>", questName, stageIndex, conditionIndex)
 	ProgressCustomQuestCondition(questId, stageIndex, conditionIndex, noShare)
 end
 

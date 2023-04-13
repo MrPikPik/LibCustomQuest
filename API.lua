@@ -44,7 +44,7 @@ end
 function CompleteCustomQuest(questId)
 	questId = GetFormattedCustomQuestId(questId)
 
-	LCQ_DBG:Info("Received completion request for quest <<1>>", questId, stageIndex, conditionIndex)
+	LCQ_DBG:Info("Received completion request for quest <<1>>", questId)
 
 	-- Quest is complete!
 	LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete", questId)

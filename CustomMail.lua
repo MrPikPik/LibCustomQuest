@@ -69,10 +69,12 @@ local function GetCustomMailItemInfo(customMailId)
 	local senderCharacterName = mailData.senderName
 	local subject = mailData.subject
 	--local icon = ".dds"
+	local icon = ""
 	local unread = mailData.unread
 	local onRead = mailData.onRead
 	--local numAttachments = 0
 	--local expiresInDays = 99
+	local expiresInDays = 30
 	local secsSinceReceived = 1
 
 	return senderDisplayName, senderCharacterName, subject, icon, unread, onRead, expiresInDays, secsSinceReceived
@@ -412,7 +414,7 @@ SecurePostHook(MAIL_INBOX, "RefreshData", function(mailInboxObj)
 
 		-- Add header nodes
 		customMailNodeData.text = (numCustomMails > 0) and zo_strformat(LCQ_MAIL_CUSTOM_MAIL_HEADER, numCustomMails) or GetString(LCQ_MAIL_NO_CUSTOM_MAIL_HEADER)
-		customMailNode = tree:AddNode("ZO_MailInboxHeader", customMailNodeData)
+		local customMailNode = tree:AddNode("ZO_MailInboxHeader", customMailNodeData)
 		
 		local autoSelectNode = nil
 

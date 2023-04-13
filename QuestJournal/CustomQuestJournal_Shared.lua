@@ -21,7 +21,7 @@ function LCQ_QuestJournal_Shared:Initialize(control)
 	self:RegisterIcons()
 	self:RegisterTooltips()
 
-	self:InitializeQuestList(control)
+	self:InitializeQuestList()
 	self:InitializeKeybindStripDescriptors()
 	self:RefreshQuestList()
 	self:RefreshQuestCount()
@@ -135,7 +135,7 @@ function LCQ_QuestJournal_Shared:BuildTextForStepVisibility(questId, visibilityT
 	local questStrings = self.questStrings
 
 	if visibilityType == QUEST_STEP_VISIBILITY_HINT then
-		stepJournalText, visibility, _, stepOverrideText = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage)
+		local stepJournalText, visibility, _, stepOverrideText = CUSTOM_QUEST_MANAGER:GetCustomQuestStepInfo(questId, questStage)
 
 		if visibility == visibilityType then
 			if stepJournalText ~= "" then
