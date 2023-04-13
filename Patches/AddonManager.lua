@@ -68,7 +68,13 @@ local function BuildMasterList(self)
             
             -- Mark it as a quest pack
             if dependencyName == "LibCustomQuest" then
-                entryData.isCustomQuestPack = true
+                if name == "LibCustomQuest - Debugger" then
+                    -- Skip the debugger being grouped to quest packs
+                    entryData.isCustomQuestPack = false
+                else
+                    entryData.isCustomQuestPack = true
+                end
+               
             end
             
             

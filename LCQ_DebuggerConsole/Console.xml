@@ -1,0 +1,61 @@
+<GuiXml>
+	<Font name="ConsoleRoboto" font="$(LCQ_ROBOTO_MONO)|$(KB_14)|soft-shadow-thin" />
+
+    <Controls>
+        <TopLevelControl name="LCQ_DebugConsoleWindow" clampedToScreen="true" mouseEnabled="true" movable="true" hidden="true">
+            <Dimensions x="930" y="500" />
+            <Anchor point="CENTER" />
+            <OnInitialized>
+                LCQ_DebugConsole_Init(self)
+            </OnInitialized>
+			
+			<OnMouseWheel>
+                LCQ_DebugConsole_OnMouseWheel(self, -delta, ctrl, alt, shift)
+            </OnMouseWheel>
+			
+            <Controls>
+                <Label name="$(parent)Title" inherits="ZO_WindowTitle" text="LibCustomQuest Debug Console" />
+              
+                <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" />
+
+                <Button name="$(parent)Close" inherits="ZO_CloseButton">
+                    <Anchor point="TOPRIGHT" offsetY="3" />
+                    <OnClicked>
+                        LCQ_DebugConsole_Close()
+                    </OnClicked>
+                </Button>
+
+				<TextBuffer name="$(parent)Output" font="ConsoleRoboto" maxHistoryLines="200" mouseEnabled="true" linkEnabled="true">
+					<Anchor point="TOPLEFT" offsetY="30"/>
+					<Anchor point="BOTTOMRIGHT" offsetX="-2" offsetY="-24"/>
+				</TextBuffer>
+
+				<Backdrop name="$(parent)Edit" inherits="ZO_SingleLineEditBackdrop_Keyboard">
+					<Anchor point="BOTTOMLEFT"/>
+					<Anchor point="BOTTOMRIGHT" />
+					<Controls>
+						<EditBox name="$(parent)Box" override="true" font="ConsoleRoboto" mouseEnabled="true">
+							<Anchor point="TOPLEFT" offsetX="4" offsetY="0"/>
+							<Anchor point="BOTTOMRIGHT" offsetX="-6" offsetY="0"/>
+							
+							<OnMouseDown>
+								self:TakeFocus()
+							</OnMouseDown>
+							
+							<OnEscape>
+								self:LoseFocus()
+							</OnEscape>
+							
+							<OnEnter>
+								if self:GetText() ~= "" then
+									LCQ_DebugConsole_ExecFromInput()
+									self:Clear()
+								end
+							</OnEnter>
+						</EditBox>
+					</Controls>
+				</Backdrop>
+            </Controls>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>
