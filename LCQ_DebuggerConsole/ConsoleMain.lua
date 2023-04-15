@@ -11,6 +11,7 @@ function LCQ_DebugConsole:Initialize(control)
 		
 	self.commands = {}
 	self.mirrorToChat = true
+	self.chatLogLevel = LCQ_DBG_WARNING
 	
 	-- TODO: Buffer messages for later filtering.
 	--self.messageBuffer = ZO_CircularBuffer:New(500)
@@ -31,13 +32,14 @@ function LCQ_DebugConsole:Initialize(control)
 			local logText = zo_strformat("[<<1>>]<<2>> <<3>>|r", currentTime ,GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...))
 			self:Write(logText)
 			if self.mirrorToChat then
-				d(logText)
+				if level <= self.chatLogLevel or level == LCQ_DBG_ALWAYS_SHOW then
+					d(logText)
+				end
 			end
 		end
 	end
 
 	LCQ_DBG.Log = Log
-
 end
 
 

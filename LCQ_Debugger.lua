@@ -81,7 +81,7 @@ end
 ---@param message string Format string used by zo_strformat
 function LCQ_Debugger:Warn(message, ...)
     if not message then return end
-    self:Log(message, LCQ_DBG_VERBOSE, ...)
+    self:Log(message, LCQ_DBG_WARNING, ...)
 end
 
 ---Displays a info in chat
