@@ -10,7 +10,11 @@ function LCQ_DebugConsole:Initialize(control)
 	self.control = control
 		
 	self.commands = {}
+	self.mirrorToChat = true
 	
+	-- TODO: Buffer messages for later filtering.
+	--self.messageBuffer = ZO_CircularBuffer:New(500)
+
 	self.output = control:GetNamedChild("Output")
 	self.input = control:GetNamedChild("EditBox")
 
@@ -23,7 +27,12 @@ function LCQ_DebugConsole:Initialize(control)
 		if level <= debugger:GetLogLevel() or level == LCQ_DBG_ALWAYS_SHOW then
 			if level == LCQ_DBG_DEBUG and not debugger.showDebug then return end
 			local currentTime = GetTimeString()
-			self:Write(zo_strformat("[<<1>>]<<2>> <<3>>|r", currentTime ,GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...)))
+
+			local logText = zo_strformat("[<<1>>]<<2>> <<3>>|r", currentTime ,GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...))
+			self:Write(logText)
+			if self.mirrorToChat then
+				d(logText)
+			end
 		end
 	end
 
@@ -67,7 +76,7 @@ end
 function LCQ_DebugConsole_Toggle()
 	if LCQ_DEBUG_CONSOLE.control:IsHidden() then
 		LCQ_DEBUG_CONSOLE.control:SetHidden(false)
-		LCQ_DEBUG_CONSOLE.input:TakeFocus()
+		--LCQ_DEBUG_CONSOLE.input:TakeFocus()
 	else
 		LCQ_DEBUG_CONSOLE.control:SetHidden(true)
 	end

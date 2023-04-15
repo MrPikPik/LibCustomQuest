@@ -35,8 +35,9 @@
 					<Anchor point="BOTTOMRIGHT" />
 					<Controls>
 						<EditBox name="$(parent)Box" override="true" font="ConsoleRoboto" mouseEnabled="true">
+							<Dimensions y="24" />
 							<Anchor point="TOPLEFT" offsetX="4" offsetY="0"/>
-							<Anchor point="BOTTOMRIGHT" offsetX="-6" offsetY="0"/>
+							<Anchor point="BOTTOMRIGHT" offsetX="-4" offsetY="0"/>
 							
 							<OnMouseDown>
 								self:TakeFocus()

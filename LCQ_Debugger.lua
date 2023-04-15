@@ -123,6 +123,7 @@ end
 ---@param message string Format string used by zo_strformat
 function LCQ_Debugger:LuaError(message, ...)
     message = message or "No message"
+    self:Log(message, LCQ_DBG_CRITICAL, ...)
     error(zo_strformat(GetString(LCQ_DBG_FORMAT_3) .. message .. "|r", ...))
 end
 
@@ -131,6 +132,7 @@ end
 ---@param message string Format string used by zo_strformat
 function LCQ_Debugger:LuaAssert(condition, message, ...)
     message = message or "No message"
+    self:Log(message, LCQ_DBG_CRITICAL, ...)
     assert(condition, zo_strformat(GetString(LCQ_DBG_FORMAT_9) .. message .. "|r", ...))
 end
 
