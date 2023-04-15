@@ -16,7 +16,7 @@ function LCQInventoryListener:Initialize(...)
 
    
 
-    LCQ_DBG:Verbose("Listener: Inventory listener initalized")
+    LCQ_DBG:Verbose("Listener: Inventory listener initalized.")
 end
 
 function LCQInteractionListener.HasItemInInventory(item, amount)

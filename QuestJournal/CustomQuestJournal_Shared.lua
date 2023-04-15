@@ -227,7 +227,7 @@ end
 function LCQ_QuestJournal_Shared:ShowOnMap()
    local selectedQuestId = self:GetSelectedQuestId()
    if selectedQuestId then
-   		d("ShowOnMap() not implemented")
+   		LCQ_DBG:Warn("ShowOnMap() not implemented!")
 		--ZO_WorldMap_ShowQuestOnMap(selectedQuestId)
 	end
 end

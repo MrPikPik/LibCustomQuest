@@ -5,7 +5,7 @@
 
 ## Title: LibCustomQuest
 ## Author: MrPikPik, Alianym
-## APIVersion: 101035 101036
+## APIVersion: 101037
 ## AddOnVersion: 000001
 ## Version: 0.01
 ## IsLibrary: true

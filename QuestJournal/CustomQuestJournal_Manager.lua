@@ -8,8 +8,6 @@ local QUEST_CAT_MISC = 3
 
 LCQ_QuestJournal_Manager = ZO_CallbackObject:Subclass()
 
-local lang = GetCVar("language.2")
-
 function LCQ_QuestJournal_Manager:New(...)
 	local manager = ZO_CallbackObject.New(self)
 	manager:Initialize(...)
@@ -257,7 +255,7 @@ end
 
 function LCQ_QuestJournal_Manager:ShareQuest(questId)
 	ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.QUEST_SHARE_SENT, GetString(SI_QUEST_SHARED))
-	LibCustomQuestShare.shareCustomQuest:QueueData(tonumber(questId))
+	LibCustomQuestShare.shareCustomQuest:QueueData(CUSTOM_QUEST_MANAGER:GetQuestHash(questId))
 end
 
 --Not Updated

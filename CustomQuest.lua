@@ -26,7 +26,7 @@ function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDispl
     self.outcome = outcome
     self.repeatType = repeatType or QUEST_REPEAT_NOT_REPEATABLE
 
-    LCQ_DBG:Info("Created quest with id <<1>>", id)
+    LCQ_DBG:Info("Created quest object with id '<<1>>'.", id)
 end
 
 --[[function CustomQuest:GetInfo()

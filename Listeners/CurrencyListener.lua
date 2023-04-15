@@ -16,7 +16,7 @@ function LCQCurrencyListener:Initialize(...)
 
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_CURRENCY_UPDATE, function(...) self:Update(...) end)
 
-    LCQ_DBG:Verbose("Listener: Currency listener initalized")
+    LCQ_DBG:Verbose("Listener: Currency listener initalized.")
 end
 
 function LCQCurrencyListener:Update(eventCode, currencyType, currencyLocation, newAmount, oldAmount, reason)

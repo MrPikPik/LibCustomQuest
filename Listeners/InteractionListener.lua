@@ -17,7 +17,7 @@ function LCQInteractionListener:Initialize(...)
     self:SetupEmotes() -- Initialize Emote Hooks
     EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_SHOW_BOOK, function(...) self:OnBookRead(...) end)
 
-    LCQ_DBG:Verbose("Listener: Interaction listener initalized")
+    LCQ_DBG:Verbose("Listener: Interaction listener initalized.")
 end
 
 function LCQInteractionListener:IsTargetRegisteredInteraction(name)

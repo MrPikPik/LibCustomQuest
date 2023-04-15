@@ -1,30 +1,17 @@
-local function GetFormattedCustomQuestId(questId)
-	if tonumber(questId) == nil then
-		return tostring(HashString(questId))
-	else return tostring(questId) end
-
-	return questId
-end
-
 function StartCustomQuest(quest, questId)
 	questId = quest ~= nil and quest.id or questId
-	questId = GetFormattedCustomQuestId(questId)
 	CUSTOM_QUEST_MANAGER:StartQuest(_, questId)
 end
 
 function IsCustomQuestStarted(questId)
-	questId = GetFormattedCustomQuestId(questId)	
 	return CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(questId)
 end
 
 function IsCustomQuestConditionComplete(questId, stageIndex, conditionIndex)
-	questId = GetFormattedCustomQuestId(questId)
 	return CUSTOM_QUEST_MANAGER:IsConditionComplete(questId, stageIndex, conditionIndex)
 end
 
 function ProgressCustomQuestCondition(questId, stageIndex, conditionIndex, noShare)
-	questId = GetFormattedCustomQuestId(questId)
-
 	LCQ_DBG:Info("Received condition completion request for quest <<1>> at stage <<2>>, condition <<3>>", questId, stageIndex, conditionIndex)
 	local stage, conditions = CUSTOM_QUEST_MANAGER:GetCustomQuestProgress(questId)
 	if stage ~= stageIndex then 
@@ -37,13 +24,10 @@ function ProgressCustomQuestCondition(questId, stageIndex, conditionIndex, noSha
 end
 
 function IsCustomQuestComplete(questId)
-	questId = GetFormattedCustomQuestId(questId)
 	return CUSTOM_QUEST_MANAGER:IsCustomQuestComplete(questId)
 end
 
 function CompleteCustomQuest(questId)
-	questId = GetFormattedCustomQuestId(questId)
-
 	LCQ_DBG:Info("Received completion request for quest <<1>>", questId)
 
 	-- Quest is complete!

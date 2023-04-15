@@ -26,7 +26,7 @@ function LCQCombatListener:Initialize(...)
     EVENT_MANAGER:RegisterForEvent(self.name.."CombatDeath2", EVENT_COMBAT_EVENT, function(...) self:OnDeath(...) end)
 	EVENT_MANAGER:AddFilterForEvent(self.name.."CombatDeath2", EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_DIED_XP)
 
-    LCQ_DBG:Verbose("Listener: Combat listener initalized")
+    LCQ_DBG:Verbose("Listener: Combat listener initalized.")
 end
 
 function LCQCombatListener:RunInteractionForTarget(target)

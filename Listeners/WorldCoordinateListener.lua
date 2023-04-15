@@ -24,7 +24,7 @@ function LCQWorldCoordinateListener:Initialize()
     EVENT_MANAGER:RegisterForUpdate(self.name, LCQ_UPDATE_INTERVAL, function() self:Update() end)
     EVENT_MANAGER:RegisterForUpdate(self.name .. "Pos", 0, function() self:OnPositionUpdate() end)
 
-    LCQ_DBG:Verbose("Listener: World coordinate listener initalized")
+    LCQ_DBG:Verbose("Listener: World coordinate listener initalized.")
 end
 
 -- Update function that checks if the player is in range of any active objective

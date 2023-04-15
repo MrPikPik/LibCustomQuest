@@ -15,6 +15,7 @@ end
 function CustomQuest_Manager:Initialize()
 	self.quests = {}
 	self.progress = {}
+	self.questHashes = {}
 
 	self:RegisterCallback("OnCustomQuestsUpdated", function(questId)
 		-- There needs to be a way to run this "RemoveAllForQuestId" 
@@ -35,20 +36,17 @@ function CustomQuest_Manager:Initialize()
 		CUSTOM_QUEST_JOURNAL_GAMEPAD:RefreshQuestCount()
 		CUSTOM_QUEST_JOURNAL_GAMEPAD:RefreshQuestList()
 	end)
+
+	LCQ_DBG:Info("CustomQuestManager: Initialized CustomQuestManager.")
 end
 
 -- Registers a quest to the CustomQuest_Manager object.
 -- Ensure you call with a well formed quest object
 function CustomQuest_Manager:RegisterQuest(quest)
-	assert(quest and quest.id, "No quest given or no ID found.")
-
-	if tonumber(quest.id) == nil then
-		quest.id = tostring(HashString(quest.id))
-	else quest.id = tostring(quest.id) end
+	LCQ_DBG:LuaAssert(quest and quest.id, "No quest given or no ID found.")
 
 	if self.quests[quest.id] ~= nil then
-		LCQ_DBG:Critical("Quest ID \"<<1>>\" already in use.", quest.id)
-		error("Quest ID already in use.")
+		LCQ_DBG:LuaError("Quest ID \"<<1>>\" already in use.", quest.id)
 	else
 		-- Instantiate quest object
 		self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
@@ -80,12 +78,8 @@ function CustomQuest_Manager:StartQuest(quest, questId)
 		id = quest.id
 	end
 
-	if tonumber(id) == nil then
-		id = tostring(HashString(id))
-	else id = tostring(id) end
-
 	if not self.quests[id] then
-		error("Quest has not been registered.")
+		LCQ_DBG:LuaError("Quest has not been registered.")
 		--if not quest then return end
 		--local newStart = true
 		--self:RegisterQuest(quest, newStart)
@@ -124,7 +118,7 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
 	local stage, conditions = self:GetCustomQuestProgress(questId)
 	local numConditions = self:GetCustomQuestNumSteps(questId, stage)
 
-	LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks", questId, stage, numConditions)
+	LCQ_DBG:Info("<<1>>: Stage <<2>> with <<3>> tasks.", questId, stage, numConditions)
 
 	for i = 1, numConditions do
 		if not conditions[i] then
@@ -142,24 +136,24 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
 
 			if type == QUEST_CONDITION_TYPE_LOCATION then
 				LCQ_COORDINATELISTENER:Listen(task.data, questId, i)
-				LCQ_DBG:Verbose("Added coordinate target for \"<<1>>\"", task.text)
+				LCQ_DBG:Verbose("Added coordinate target for \"<<1>>\".", task.text)
 			elseif type == QUEST_CONDITION_TYPE_TALK then
 				LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
-				LCQ_DBG:Verbose("Added dialog target for \"<<1>>\"", task.data.name)
+				LCQ_DBG:Verbose("Added dialog target for \"<<1>>\".", task.data.name)
 			elseif type == QUEST_CONDITION_TYPE_INTERACT then
 				-- This is added with "read" interaction, but could be similar for all interaction types � (all would use the INTERACTIONLISTENTER?)
 				LCQ_INTERACTIONLISTENER:Listen(task.data, questId, i)
-				LCQ_DBG:Verbose("Added interaction target for \"<<1>>\"", task.data.name)                
+				LCQ_DBG:Verbose("Added interaction target for \"<<1>>\".", task.data.name)                
 			elseif type == QUEST_CONDITION_TYPE_COMBAT then
 				LCQ_COMBATLISTENER:Listen(task.data, questId, i)
-				LCQ_DBG:Verbose("Added combat target for \"<<1>>\"", task.data.name)                
+				LCQ_DBG:Verbose("Added combat target for \"<<1>>\".", task.data.name)                
 			end    
 		end
 	end
 end
 
 function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
-	LCQ_DBG:Verbose("Condition complete for QuestID <<1>>", questId)
+	LCQ_DBG:Verbose("Condition complete for QuestID <<1>>.", questId)
 	local stage = self.quests[questId].currentStage -- Should this be pulled from current stage, or add stage incoming parameter?
 	self.quests[questId].stages[stage].tasks[conditionId].complete = true
 	self:SetQuestConditionComplete(questId, stage, conditionId)
@@ -170,7 +164,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 	-- Check for incomplete conditions
 	for index, task in ipairs(self.quests[questId].stages[stage].tasks) do
 		if not task.complete and not (task.visibility or task.isHidden) then
-			LCQ_DBG:Verbose("Task with index <<1>> is incomplete", index)
+			LCQ_DBG:Verbose("Task with index <<1>> is incomplete.", index)
 			allComplete = false
 		end
 	end
@@ -182,7 +176,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 
 	-- If all conditions are fulfilled, progress stage
 	if allComplete then
-		LCQ_DBG:Info("All tasks are complete, progressing stage")
+		LCQ_DBG:Info("All tasks are complete, progressing stage.")
 
 		-- There needs to be a way to run this "RemoveAllForQuestId" for each active Listener with/without targets
 		-- Just adding them manually seems inefficient
@@ -197,7 +191,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 			self:UpdateQuestListeners(questId)
 		else
 			-- Quest is complete!
-			LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete", questId)
+			LCQ_DBG:Info("Custom Quest with id \"<<1>>\" complete.", questId)
 			self:SetQuestComplete(questId)
 			LibCustomQuest.CenterAnnounce(CUSTOM_EVENT_CUSTOM_QUEST_COMPLETE, questId)
 			self:FireCallbacks("OnCustomQuestsUpdated", questId)
@@ -206,7 +200,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 
 	if LibDataShare and (not noShare) then
 		local progressData = zo_strformat("<<1>><<2>><<3>>", stage, conditionId, questId)
-		LibCustomQuestShare.shareCustomQuestProgress:QueueData(tonumber(progressData))
+		--LibCustomQuestShare.shareCustomQuestProgress:QueueData(tonumber(progressData))
 	end
 
 	-- Allow/Handle custom quest author-defined function on condition complete (play an event or subtitle, etc.)
@@ -266,10 +260,6 @@ end
 
 function CustomQuest_Manager:IsConditionComplete(questId, stageIndex, conditionIndex)
 	if not questId then return false end
-
-	if tonumber(questId) == nil then
-		questId = tostring(HashString(questId))
-	else questId = tostring(questId) end
 
 	local stage, conditions = self:GetCustomQuestProgress(questId)
 	
@@ -480,7 +470,8 @@ function CustomQuest_Manager:GetCustomQuestEnding(questId)
 end
 
 function CustomQuest_Manager:GetIsCustomQuestSharable(questId)
-	return LibDataShare ~= nil and tonumber(questId) ~= nil
+	--return LibDataShare ~= nil and tonumber(questId) ~= nil
+	return questId and LibCustomQuestShare.isEnabled
 end
 
 function CustomQuest_Manager:GetNumCustomJournalQuests()
@@ -497,6 +488,35 @@ end
 
 function CustomQuest_Manager:IsValidCustomQuestId(questId)
 	return self:GetCustomQuest(questId)
+end
+
+-- Gets the questId for a given hash. If no registered quest matches the hash, this function returns nil
+function CustomQuest_Manager:GetQuestIdFromHash(questHash)
+	for questId, hash in pairs(self.questHashes) do
+		if hash == questHash then
+			return questId
+		end
+	end
+	
+	-- If it hasn't been registered yet, get hashes until we find it or we run out of quests.
+	for id, _ in ipairs(self.quests) do
+		if questHash == self:GetHashFromQuestId(id) then
+			return self.questHashes[id]
+		end
+	end
+end
+
+-- Gets the hash for a given questId. Returns nil, if the given questId is not registered.
+function CustomQuest_Manager:GetHashFromQuestId(questId)
+	if not self.quests[questId] then
+		LCQ_DBG:Warn("Tried to get hash for quest '<<1>>', but it has not been registered (yet)!", questId)
+		return
+	end
+
+	if not self.questHashes[questId] then
+		self.questHashes[questId] = HashString(tostring(questId))
+	end
+	return self.questHashes[questId]
 end
 
 CUSTOM_QUEST_MANAGER = CustomQuest_Manager:New()

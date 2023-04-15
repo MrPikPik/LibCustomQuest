@@ -351,10 +351,12 @@
         "LCQ_DBG_FORMAT",
         "LCQ_DBG_FORMAT_3",
         "LCQ_DBG_FORMAT_9",
-        "GetTimeString"
+        "GetTimeString",
+        "ZO_CircularBuffer"
     ],
     "Lua.diagnostics.disable": [
         "unused-function",
-        "deprecated"
+        "deprecated",
+        "need-check-nil"
     ],
 }

@@ -230,14 +230,14 @@ function CustomQuestMail:RequestReadCustomMail(customMailId)
 end
 
 function CustomQuestMail:RegisterMail(addOnName, mailDataIn)
-	assert(addOnName and mailDataIn, "Missing parameter! :RegisterMail(addOnName, mailDataIn)")
+	LCQ_DBG:LuaAssert(addOnName and mailDataIn, "Missing parameter! :RegisterMail(addOnName, mailDataIn)")
 	
 	local numUnread = 0
 	for _, mailData in pairs(mailDataIn) do
 		local mailIdType = type(mailData.id)
 		local mailId = mailIdType == "number" and mailData.id or mailIdType == "string" and HashString(mailData.id)
 
-		assert(not self.customMailData[tostring(mailId)], "A custom mail with that ID already exists!")
+		LCQ_DBG:LuaAssert(not self.customMailData[tostring(mailId)], "A custom mail with that ID already exists!")
 
 		self.customMailData[tostring(mailId)] = 
 		{

@@ -6,41 +6,6 @@ LibCustomQuest.version = 1.0
 function LibCustomQuest.Initialize()
     LibCustomQuest.manager = CUSTOM_QUEST_MANAGER
 
-    local quest4 = {
-        id = "TESTQUEST4",
-        location = "Stonefalls",
-        type = "None",
-        name = "Master Clothier",
-        level = 50,
-        instanceDisplayType = INSTANCE_DISPLAY_TYPE_NONE,
-        text = "To become a better crafter, I must talk to the local master craftsmen.",
-        stages = {
-            [1] = {
-                text = "I better talk to Voldsea Arvel in Davon's Watch.",
-                tasks = {
-                    [1] = {
-                        text = "Talk to Voldsea Arvel",
-                        type = QUEST_CONDITION_TYPE_TALK,
-                        data = {
-                            target = "Voldsea Arvel",
-                            dialog = {},
-                        }
-                    },
-                },
-            },
-            [2] = {
-                text = "I talked to Voldsea Arvel in Davon's Watch.\nShe asked me to make some clothing at the crafting station nearby.",
-                tasks = {
-                    [1] = {
-                        text = "Craft a robe",
-                    },
-                },
-            },
-        },
-    }
-
-    --CUSTOM_QUEST_MANAGER:RegisterQuest(quest4)
-
 	--[[local function GetButtonData()
 		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
 
@@ -95,6 +60,7 @@ function LibCustomQuest.Initialize()
     end)]]
 
     -- Create all the various listener classes
+    LCQ_DBG:Verbose("Creating Listeners...")
     LibCustomQuest.listeners = {}
 
     -- LCQWorldCoordinateListener
@@ -133,11 +99,15 @@ function LibCustomQuest.Initialize()
     LibCustomQuest.listeners[LCQ_COMBATLISTENER.name] = LCQ_COMBATLISTENER
 
     -- Initialize the reticle hooks
+    LCQ_DBG:Verbose("Setting up reticle...")
     LibCustomQuest.SetupReticle()
 
+    LCQ_DBG:Verbose("Setting up QuestMarkerManager...")
     CUSTOM_QUEST_MARKER_MANAGER = LCQ_QuestMarkerManager:New()
 
     --/script CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", 41, 379485, 14930, 195040)
+
+    LCQ_DBG:Info("LibCustomQuest: Base initialization done.")
 end
 
 --[[function LibCustomQuest.InteractionHandler()
@@ -212,7 +182,10 @@ local function OnLibraryLoaded(event, addonName)
     LCQ_DBG:SetLogLevel(LCQ_DBG_DEBUG)
     LCQ_DBG:SetDebugOutputEnabled(true)
 
+    LCQ_DBG:Log("Initializing LibCustomQuest...", LCQ_DBG_ALWAYS_SHOW)
+
     -- Saved Vars
+    LCQ_DBG:Verbose("Loading SavedVars and syncing progress...")
     LibCustomQuest.SV = ZO_SavedVars:NewCharacterIdSettings("LCQSavedVariables", 1.2, nil, defaultVars, GetWorldName())
     CUSTOM_QUEST_MANAGER.progress = LibCustomQuest.SV.QuestProgress
 
@@ -221,14 +194,23 @@ local function OnLibraryLoaded(event, addonName)
 
     LibCustomQuest.Initialize()
 
-    if LibDataShare then LibCustomQuestShare.Initialize() end
+    if LibDataShare then
+        LCQ_DBG:Info("LibCustomQuestShare: LibDataShare found.")
+        LibCustomQuestShare.Initialize()
+        LibCustomQuestShare.SetEnabled(true)
+    else
+        LCQ_DBG:Info("LibCustomQuestShare: LibDataShare not found. Quest sharing will be disabled.")
+        LibCustomQuestShare.SetEnabled(false)
+    end
 
+    LCQ_DBG:Verbose("Registering slash commands...")
     SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetWorldPos
     SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetWorldRadius
     SLASH_COMMANDS["/lcqsetlocmarker"] = LibCustomQuest.Helpers.SetLocMarker
-
-    SLASH_COMMANDS["/lcqnuke"] = function() LibCustomQuest.SV.QuestProgress = {} end
+    SLASH_COMMANDS["/lcqnuke"] = function() LibCustomQuest.SV.QuestProgress = {} end -- Nukes all saved quest progress
 
     LCQ = LibCustomQuest
+
+    LCQ_DBG:Log("Finished initializing LibCustomQuest. Happy questing!", LCQ_DBG_ALWAYS_SHOW)
 end
 EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_ADD_ON_LOADED, OnLibraryLoaded)

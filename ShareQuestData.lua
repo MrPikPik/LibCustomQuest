@@ -1,14 +1,9 @@
-LibCustomQuestShare = {name = "LibCustomQuestShare"}
+LibCustomQuestShare = { name = "LibCustomQuestShare" }
 
 local LCQS = LibCustomQuestShare
-local name = LibCustomQuestShare.name
 
-local CR = CHAT_ROUTER
-local zoStr = zo_strformat
-local chatLibPrefix = "<".. "LCQ" ..">"
-
-local function HandleShareQuest(tag, questId)
-	local questId = tostring(questId)
+local function HandleShareQuest(tag, sharedQuestId)
+	local questId = CUSTOM_QUEST_MANAGER:GetQuestIdFromHash(sharedQuestId)
 	local msgText
 
 	if CUSTOM_QUEST_MANAGER:IsValidCustomQuestId(questId) and (not CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(questId)) then	
@@ -19,7 +14,7 @@ local function HandleShareQuest(tag, questId)
 		local characterName, displayName = GetUnitName(tag), GetUnitDisplayName(tag)
 		local name = ZO_GetPrimaryPlayerNameWithSecondary(displayName, characterName)
 
-		local data = PLAYER_TO_PLAYER:AddPromptToIncomingQueue(INTERACT_TYPE_QUEST_SHARE, characterName, displayName, zo_strformat(SI_PLAYER_TO_PLAYER_INCOMING_QUEST_SHARE, ZO_SELECTED_TEXT:Colorize(chatLibPrefix.. " " ..name), questName),
+		local data = PLAYER_TO_PLAYER:AddPromptToIncomingQueue(INTERACT_TYPE_QUEST_SHARE, characterName, displayName, zo_strformat(SI_PLAYER_TO_PLAYER_INCOMING_QUEST_SHARE, ZO_SELECTED_TEXT:Colorize("[LibCustomQuest] " .. name), questName),
 			function()
 				CUSTOM_QUEST_MANAGER:StartQuest(_, questId)
 			end,
@@ -36,8 +31,7 @@ local function HandleShareQuest(tag, questId)
 		}
 
 	else
-		msgText = zoStr("<<1>> attempted to share a quest with you.", GetUnitDisplayName(tag))
-		CR:AddSystemMessage(chatLibPrefix .. msgText)
+		LCQ_DBG:Log("<<1>> attempted to share a quest with you.", LCQ_DBG_INFO, GetUnitDisplayName(tag))
 	end
 end
 
@@ -45,7 +39,7 @@ local function HandleShareProgress(tag, progressData)
 	local noShare = true
 	progressData = tostring(progressData)
 
-	local questId = tonumber(progressData:sub(3))
+	local questId = CUSTOM_QUEST_MANAGER:GetQuestIdFromHash(tonumber(progressData:sub(3)))
 	local stageIndex = tonumber(progressData:sub(1, 1))
 	local conditionIndex = tonumber(progressData:sub(2,2))
 
@@ -55,7 +49,14 @@ local function HandleShareProgress(tag, progressData)
 end
 
 function LibCustomQuestShare.Initialize()
+	LCQ_DBG:Verbose("LibCustomQuestShare: Initializing...")
 	-- Register Small Map for Custom Quest Share, Big Map for Custom Quest Progress Share
 	LCQS.shareCustomQuest = LibDataShare:RegisterMap("LibCustomQuest-ShareQuest", 28, HandleShareQuest)
 	LCQS.shareCustomQuestProgress = LibDataShare:RegisterMap("LibCustomQuest-ShareProgress", 8, HandleShareProgress)
+
+	LCQS.SetEnabled(true)
+end
+
+function LibCustomQuestShare.SetEnabled(enabled)
+	LCQS.isEnabled = enabled or false
 end

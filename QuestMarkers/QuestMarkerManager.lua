@@ -26,8 +26,6 @@ local function IsAboveUpdateThreshold()
 	return GetFrameTimeMilliseconds() > nextLabelUpdateTime + TIME_BETWEEN_LABEL_UPDATES_MS
 end
 
-
-
 local function UpdatePinCenterLabel(pin, normalizedAngle, distance)
 	local now = GetFrameTimeMilliseconds()
 	if now < nextLabelUpdateTime then
@@ -94,7 +92,7 @@ function LCQ_QuestMarkerManager:Initialize()
 	self.markers = {}
 
 	local function markerFactory(pool, id)
-		LCQ_DBG:Info("QuestMarkerFactory: Creating new marker with id <<1>>", id)
+		LCQ_DBG:Info("QuestMarkerFactory: Creating new marker with id <<1>>.", id)
 		local control = WINDOW_MANAGER:CreateControl("LCQ_QuestMarker" .. id, self.window, CT_TEXTURE)
 		return control
 	end
@@ -102,6 +100,7 @@ function LCQ_QuestMarkerManager:Initialize()
 	self.markerPool = ZO_ObjectPool:New(markerFactory)
 	self.markerId = 1
 
+	LCQ_DBG:Verbose("QuestMarkerManager: Initializing UI...")
 	self:CreateUI()
 
 	if COMPASS_PINS then
@@ -109,7 +108,7 @@ function LCQ_QuestMarkerManager:Initialize()
 	end
 
 	EVENT_MANAGER:RegisterForUpdate("LCQ_QuestMarkerManager", 0, function() self:OnUpdate() end)
-	LCQ_DBG:Info("Quest Marker Manager Initialized.")
+	LCQ_DBG:Info("QuestMarkerManager: Initialized.")
 end
 
 function LCQ_QuestMarkerManager:CreateUI()
@@ -125,6 +124,8 @@ function LCQ_QuestMarkerManager:CreateUI()
 	self.window:SetDrawLayer(0)
 	self.window:SetDrawLevel(0)
 	self.window:SetDrawTier(0)
+
+	LCQ_DBG:Verbose("QuestMarkerManager: UI initialized.")
 end
 
 function LCQ_QuestMarkerManager:SetupCompassPins()
