@@ -131,6 +131,47 @@ function LibCustomQuest.AddQuestMarkerOnPlayer()
     CUSTOM_QUEST_MARKER_MANAGER:OnUpdate()
 end
 
+function LibCustomQuest.AddQuest(questdata)
+    CUSTOM_QUEST_MANAGER:RegisterQuest(questdata)
+end
+
+function LibCustomQuest.AddQuestStart(questId, questStartData)
+    if not questId then
+        LCQ_DBG:Error("Can't add quest starter for questId '<<1>>': Not found.", questId)
+        return
+    end
+    if not questStartData then
+        LCQ_DBG:Warn("Missing quest start data for questId '<<1>>'. Assuming immediate start was requested.")
+        CUSTOM_QUEST_MANAGER:StartQuest(questId)
+        return
+    end
+
+    if questStartData.type == QUEST_START_TYPE_IMMEDIATE then
+        CUSTOM_QUEST_MANAGER:StartQuest(questId)
+        return
+    elseif questStartData.type == QUEST_START_TYPE_INTERACTION then
+        local target = {
+            name = questStartData.name,
+            type = CUSTOM_INTERACTION_START_QUEST,
+            interactionText = questStartData.interactionText or "Start Quest",
+            quest = CUSTOM_QUEST_MANAGER:GetCustomQuest(questId),
+            questId = questId
+        }
+        LCQ_INTERACTIONLISTENER:Listen(target, questId)
+        CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", questStartData.name, questStartData.zone, questStartData.x, questStartData.y, questStartData.z)
+    elseif questStartData.type == QUEST_START_TYPE_DIALOGUE then
+        LCQ_DBG:Debug("QuestStarter: QUEST_START_TYPE_DIALOGUE not yet implemented.")
+        -- TODO: Add interaction target that shows a given dialogue object with a manual quest start in it.
+    elseif questStartData.type == QUEST_START_TYPE_BOOK then
+        LCQ_DBG:Debug("QuestStarter: QUEST_START_TYPE_BOOK not yet implemented.")
+        -- TODO: Add an interaction target that shows a given book object and start the quest when interacting.
+    else
+        LCQ_DBG:Warn("Invalid start type '<<2>>' for quest with id '<<1>>'", questId, tostring(questStartData.type))
+        return
+    end
+    
+end
+
 function LibCustomQuest.AddQuestGiver(quest, questStartData)
     
     local target = {
@@ -201,8 +242,14 @@ local function OnLibraryLoaded(event, addonName)
     SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetWorldPos
     SLASH_COMMANDS["/lcqgetradius"] = LibCustomQuest.Helpers.GetWorldRadius
     SLASH_COMMANDS["/lcqsetlocmarker"] = LibCustomQuest.Helpers.SetLocMarker
-    SLASH_COMMANDS["/lcqnuke"] = function() LibCustomQuest.SV.QuestProgress = {} end -- Nukes all saved quest progress
 
+     -- Nukes all saved quest progress
+    SLASH_COMMANDS["/lcqnuke"] = function()
+        LCQ_DBG:Warn("Nuking all saved progress, aka hard wipe!")
+        LibCustomQuest.SV.QuestProgress = {}
+    end
+
+    
     LCQ = LibCustomQuest
 
     LCQ_DBG:Log("Finished initializing LibCustomQuest. Happy questing!", LCQ_DBG_ALWAYS_SHOW)

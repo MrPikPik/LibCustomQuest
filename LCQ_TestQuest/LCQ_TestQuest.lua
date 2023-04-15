@@ -108,19 +108,16 @@ local function OnAddonLoaded(event, addonName)
     EVENT_MANAGER:UnregisterForEvent("LCQ_TestQuest", EVENT_ADD_ON_LOADED)
 
     local questStartData = {
+        type = QUEST_START_TYPE_INTERACTION,
         name = "Philius Dormier",
         zone = 41,
         x = 379485,
         y = 14920,
         z = 195040,
     }
-	
-    --LibCustomQuest.AddQuestGiver(LCQTQ.quest, questStartData)
-    
-	CUSTOM_QUEST_MANAGER:RegisterQuest(LCQTQ.quest)
-	
-    LCQ_INTERACTIONLISTENER:Listen({name = "Philius Dormier", type = CUSTOM_INTERACTION_START_QUEST, interactionText = "Start Quest", quest = LCQTQ.quest, questId = "LCQ_TESTQUEST"}, "LCQ_TESTQUEST")
-    CUSTOM_QUEST_MARKER_MANAGER:AddQuestMarker("QUEST_MARKER_QUEST_GIVER", "Philius Dormier", 41, 379485, 14920, 195040)
+
+    LibCustomQuest.AddQuest(LCQTQ.quest)
+    LibCustomQuest.AddQuestStart(LCQTQ.quest.id, questStartData)
 end
 EVENT_MANAGER:RegisterForEvent("LCQ_TestQuest", EVENT_ADD_ON_LOADED, OnAddonLoaded)
 

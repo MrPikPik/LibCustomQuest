@@ -33,6 +33,14 @@ QUEST_CONDITION_TYPE_KILL       = "kill"
 QUEST_CONDITION_TYPE_COMBAT     = "combat"
 
 ----------------------
+-- Quest Start Type --
+----------------------
+QUEST_START_TYPE_IMMEDIATE      = "immediatly"
+QUEST_START_TYPE_DIALOGUE       = "dialogue"
+QUEST_START_TYPE_BOOK           = "book"
+QUEST_START_TYPE_INTERACTION    = "interaction"
+
+----------------------
 -- COMBAT EVENT TYPES --
 ----------------------
 CUSTOM_COMBAT_EVENT_DAMAGE_TAKEN    = "damageTaken"
