@@ -25,14 +25,14 @@ function LCQ_DebugConsole:Initialize(control)
 		if not message then return end
 		local level = debugLevel or 1
 
-		if level <= debugger:GetLogLevel() or level == LCQ_DBG_ALWAYS_SHOW then
+		if level <= debugger:GetLogLevel() or level == LCQ_DBG_ALWAYS_SHOW or level == LCQ_DBG_ASSERT then
 			if level == LCQ_DBG_DEBUG and not debugger.showDebug then return end
 			local currentTime = GetTimeString()
 
 			local logText = zo_strformat("[<<1>>]<<2>> <<3>>|r", currentTime ,GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...))
 			self:Write(logText)
 			if self.mirrorToChat then
-				if level <= self.chatLogLevel or level == LCQ_DBG_ALWAYS_SHOW then
+				if level <= self.chatLogLevel or level == LCQ_DBG_ALWAYS_SHOW  or level == LCQ_DBG_ASSERT then
 					d(logText)
 				end
 			end

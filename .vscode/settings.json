@@ -353,7 +353,8 @@
         "LCQ_DBG_FORMAT_9",
         "GetTimeString",
         "ZO_CircularBuffer",
-        "LCQ_QUEST_SHARING_DISABLED"
+        "LCQ_QUEST_SHARING_DISABLED",
+        "LCQ_DBG_FORMAT_2"
     ],
     "Lua.diagnostics.disable": [
         "unused-function",

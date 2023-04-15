@@ -14,7 +14,7 @@ ZO_CreateStringId("LCQ_DBG_FORMAT_5", "|cff9d00 [Warning]")
 ZO_CreateStringId("LCQ_DBG_FORMAT_6", "|c0fb800 [Info]")
 ZO_CreateStringId("LCQ_DBG_FORMAT_7", "|c00b5b5 [Verbose]")
 ZO_CreateStringId("LCQ_DBG_FORMAT_8", "|c0081b8 [Debug]")
-ZO_CreateStringId("LCQ_DBG_FORMAT_9", "|cff1c1c [Assert]")
+ZO_CreateStringId("LCQ_DBG_FORMAT_9", "|cff1c1c [Assert] Assertion failed:")
 
 -- Journal
 ZO_CreateStringId("LCQ_MAIN_MENU_CUSTOM_JOURNAL", "Journal II")

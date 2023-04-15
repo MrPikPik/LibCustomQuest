@@ -13,6 +13,7 @@ LCQ_DBG_WARNING     = 5
 LCQ_DBG_INFO        = 6
 LCQ_DBG_VERBOSE     = 7
 LCQ_DBG_DEBUG       = 8
+LCQ_DBG_ASSERT      = 9
 
 LCQ_Debugger = ZO_Object:Subclass()
 
@@ -59,7 +60,7 @@ function LCQ_Debugger:Log(message, debugLevel, ...)
     if not message then return end
     local level = debugLevel or 1
 
-    if level <= self.logLevel or level == LCQ_DBG_ALWAYS_SHOW then
+    if level <= self.logLevel or level == LCQ_DBG_ALWAYS_SHOW  or level == LCQ_DBG_ASSERT then
         if level == LCQ_DBG_DEBUG and not self.showDebug then return end
         d(zo_strformat(LCQ_DBG_FORMAT, GetString("LCQ_DBG_FORMAT_", level), zo_strformat(message, ...)))
     end
@@ -124,7 +125,7 @@ end
 function LCQ_Debugger:LuaError(message, ...)
     message = message or "No message"
     self:Log(message, LCQ_DBG_CRITICAL, ...)
-    error(zo_strformat(GetString(LCQ_DBG_FORMAT_3) .. message .. "|r", ...))
+    error(zo_strformat(GetString(LCQ_DBG_FORMAT_2) .. " " .. message .. "|r", ...))
 end
 
 ---Throws a Lua assertion
@@ -132,8 +133,10 @@ end
 ---@param message string Format string used by zo_strformat
 function LCQ_Debugger:LuaAssert(condition, message, ...)
     message = message or "No message"
-    self:Log(message, LCQ_DBG_CRITICAL, ...)
-    assert(condition, zo_strformat(GetString(LCQ_DBG_FORMAT_9) .. message .. "|r", ...))
+    if not condition then
+        self:Log(message, LCQ_DBG_ASSERT, ...)
+    end
+    assert(condition, zo_strformat(GetString(LCQ_DBG_FORMAT_9) .. " " .. message .. "|r", ...))
 end
 
 LCQ_DBG = LCQ_Debugger:New()
