@@ -35,7 +35,7 @@ bindings.xml
 Patches/AddonManager.lua
 
 ;Integrations
-ShareQuestData.lua
+QuestSharer.lua
 
 ;Helpers
 CenterScreenAnnounce.lua

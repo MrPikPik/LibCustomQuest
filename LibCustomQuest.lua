@@ -6,6 +6,9 @@ LibCustomQuest.version = 1.0
 function LibCustomQuest.Initialize()
     LibCustomQuest.manager = CUSTOM_QUEST_MANAGER
 
+    LCQ_QUEST_SHARER = LCQ_QuestSharer:New()
+    LibCustomQuest.questSharer = LCQ_QUEST_SHARER
+
 	--[[local function GetButtonData()
 		ZO_SceneGroup:New(CUSTOM_QUEST_JOURNAL_KEYBOARD.sceneName)
 
@@ -193,15 +196,6 @@ local function OnLibraryLoaded(event, addonName)
     --EVENT_MANAGER:RegisterForEvent(LibCustomQuest.name, EVENT_PLAYER_ACTIVATED, LibCustomQuest.OnPlayerActivated)
 
     LibCustomQuest.Initialize()
-
-    if LibDataShare then
-        LCQ_DBG:Info("LibCustomQuestShare: LibDataShare found.")
-        LibCustomQuestShare.Initialize()
-        LibCustomQuestShare.SetEnabled(true)
-    else
-        LCQ_DBG:Info("LibCustomQuestShare: LibDataShare not found. Quest sharing will be disabled.")
-        LibCustomQuestShare.SetEnabled(false)
-    end
 
     LCQ_DBG:Verbose("Registering slash commands...")
     SLASH_COMMANDS["/lcqgetpos"] = LibCustomQuest.Helpers.GetWorldPos

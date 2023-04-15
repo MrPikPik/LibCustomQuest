@@ -37,6 +37,7 @@ LCQTQ.quest = {
     name = "New Content Awaits",
     level = 50,
     instanceDisplayType = INSTANCE_DISPLAY_TYPE_NONE,
+    shareable = true,
     text = "I've heard about an addon creator, MrPikPik, who made it possible to create custom quests.\nI am very intrigued by this, so I will see what's up with this.",
     outcome = "You learnt about custom quests and are now ready to do more of them.",
     stages = {

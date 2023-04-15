@@ -450,7 +450,7 @@ function LCQ_QuestJournalNavigationEntry_OnMouseUp(label, button, upInside)
 
 			--AddMenuItem(GetString(SI_QUEST_JOURNAL_SHOW_ON_MAP), function() ZO_WorldMap_ShowQuestOnMap(questId) end)
 
-			if CUSTOM_QUEST_MANAGER:GetIsCustomQuestSharable(questId) and IsUnitGrouped("player") then
+			if CUSTOM_QUEST_MANAGER:IsCustomQuestSharable(questId) and IsUnitGrouped("player") then
 				--AddMenuItem(GetString(SI_QUEST_JOURNAL_SHARE), function() LCQ_QUEST_JOURNAL_MANAGER:ShareQuest(questId) end)
 			end
 
@@ -459,9 +459,9 @@ function LCQ_QuestJournalNavigationEntry_OnMouseUp(label, button, upInside)
 			end
 
 			AddMenuItem(GetString(SI_QUEST_JOURNAL_REPORT_QUEST), function()
-																	HELP_CUSTOMER_SUPPORT_KEYBOARD:OpenScreen(HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:GetFragment())
-																	HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:SetDetailsText(node.data.name)
-																end)
+				HELP_CUSTOMER_SUPPORT_KEYBOARD:OpenScreen(HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:GetFragment())
+				HELP_CUSTOMER_SERVICE_QUEST_ASSISTANCE_KEYBOARD:SetDetailsText(node.data.name)
+			end)
 
 			ShowMenu(label)
 		end

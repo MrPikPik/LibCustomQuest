@@ -12,7 +12,7 @@ function CustomQuest:New(...)
 end
 
 -- Initializes a CustomQuest object
-function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDisplayType, stages, outcome, repeatType)
+function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDisplayType, stages, outcome, repeatType, shareable)
     self.id = id
     self.name = name or "Unnamed Quest"
     self.text = bgtext or " --- "
@@ -25,6 +25,7 @@ function CustomQuest:Initialize(id, name, bgtext, level, location, instanceDispl
     self.completed = (CUSTOM_QUEST_MANAGER.progress[id] and CUSTOM_QUEST_MANAGER.progress[id].stage > #stages) --false -- TODO: Load progress from SavedVariables (Handled by .currentStage)
     self.outcome = outcome
     self.repeatType = repeatType or QUEST_REPEAT_NOT_REPEATABLE
+    self.shareable = shareable or false
 
     LCQ_DBG:Info("Created quest object with id '<<1>>'.", id)
 end

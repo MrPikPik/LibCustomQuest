@@ -1,12 +1,43 @@
-LibCustomQuestShare = { name = "LibCustomQuestShare" }
+---------------------
+-- LCQ_QuestSharer --
+---------------------
+LCQ_QuestSharer = ZO_Object:Subclass()
 
-local LCQS = LibCustomQuestShare
+function LCQ_QuestSharer:New()
+    local sharer = ZO_Object.New(self)
+    sharer:Initialize()
+    return sharer
+end
 
-local function HandleShareQuest(tag, sharedQuestId)
+function LCQ_QuestSharer:Initialize()
+    LCQ_DBG:Verbose("LCQ_QuestSharer: Initializing...")
+
+	-- Is there possibly a better way to detect LibDataShare?s
+	if LibDataShare then
+        LCQ_DBG:Info("LCQ_QuestSharer: LibDataShare found. Quest sharing and syncing will be enabled.")
+
+		-- Register Small Map for Custom Quest Share, Big Map for Custom Quest Progress Share
+		self.shareCustomQuest = LibDataShare:RegisterMap("LibCustomQuest-ShareQuest", 28, function(...) self:HandleShareQuest(...) end)
+		self.shareCustomQuestProgress = LibDataShare:RegisterMap("LibCustomQuest-ShareProgress", 8, function(...) self:HandleShareProgress(...) end)
+
+		self.enabled = true
+    else
+        LCQ_DBG:Info("LCQ_QuestSharer: LibDataShare not found. Quest sharing will be disabled.")
+		self.enabled = false
+    end
+end
+
+function LCQ_QuestSharer:IsQuestSharingEnabled()
+	return self.enabled
+end
+
+function LCQ_QuestSharer:HandleShareQuest(tag, sharedQuestId)
+	if not self.enabled then return end
+
 	local questId = CUSTOM_QUEST_MANAGER:GetQuestIdFromHash(sharedQuestId)
 	local msgText
 
-	if CUSTOM_QUEST_MANAGER:IsValidCustomQuestId(questId) and (not CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(questId)) then	
+	if CUSTOM_QUEST_MANAGER:IsValidCustomQuestId(questId) and (not CUSTOM_QUEST_MANAGER:IsCustomQuestStarted(questId)) then
 		local questName = CUSTOM_QUEST_MANAGER:GetCustomQuestName(questId)
 		--msgText = zoStr("Receiving Quest <<1>> From <<2>>", questName, GetUnitDisplayName(tag))
 		
@@ -21,7 +52,7 @@ local function HandleShareQuest(tag, sharedQuestId)
 			function()
 				-- Close Prompt
 			end,
-			function(self)
+			function()
 				self:RemoveFromIncomingQueue(INTERACT_TYPE_QUEST_SHARE, characterName, displayName)
 			end)
 		data.questId = questId
@@ -35,7 +66,9 @@ local function HandleShareQuest(tag, sharedQuestId)
 	end
 end
 
-local function HandleShareProgress(tag, progressData)
+function LCQ_QuestSharer:HandleShareProgress(tag, progressData)
+	if not self.enabled then return end
+
 	local noShare = true
 	progressData = tostring(progressData)
 
@@ -46,17 +79,4 @@ local function HandleShareProgress(tag, progressData)
 	local questName = CUSTOM_QUEST_MANAGER:GetCustomQuestName(questId)
 	LCQ_DBG:Info("Sharing Update of <<1>>, Stage <<2>>, Condition <<3>>", questName, stageIndex, conditionIndex)
 	ProgressCustomQuestCondition(questId, stageIndex, conditionIndex, noShare)
-end
-
-function LibCustomQuestShare.Initialize()
-	LCQ_DBG:Verbose("LibCustomQuestShare: Initializing...")
-	-- Register Small Map for Custom Quest Share, Big Map for Custom Quest Progress Share
-	LCQS.shareCustomQuest = LibDataShare:RegisterMap("LibCustomQuest-ShareQuest", 28, HandleShareQuest)
-	LCQS.shareCustomQuestProgress = LibDataShare:RegisterMap("LibCustomQuest-ShareProgress", 8, HandleShareProgress)
-
-	LCQS.SetEnabled(true)
-end
-
-function LibCustomQuestShare.SetEnabled(enabled)
-	LCQS.isEnabled = enabled or false
 end

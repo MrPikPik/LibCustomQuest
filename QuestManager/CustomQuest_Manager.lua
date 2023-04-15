@@ -49,7 +49,7 @@ function CustomQuest_Manager:RegisterQuest(quest)
 		LCQ_DBG:LuaError("Quest ID \"<<1>>\" already in use.", quest.id)
 	else
 		-- Instantiate quest object
-		self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable)
+		self.quests[quest.id] = CustomQuest:New(quest.id, quest.name, quest.text, quest.level, quest.location, quest.instanceDisplayType, quest.stages, quest.outcome, quest.repeatable, quest.shareable)
 
 		self.progress[quest.id] = self.progress[quest.id] or {stage = 0, stages = {}}
 
@@ -200,7 +200,7 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 
 	if LibDataShare and (not noShare) then
 		local progressData = zo_strformat("<<1>><<2>><<3>>", stage, conditionId, questId)
-		--LibCustomQuestShare.shareCustomQuestProgress:QueueData(tonumber(progressData))
+		LCQ_QUEST_SHARER.shareCustomQuestProgress:QueueData(tonumber(progressData))
 	end
 
 	-- Allow/Handle custom quest author-defined function on condition complete (play an event or subtitle, etc.)
@@ -469,9 +469,9 @@ function CustomQuest_Manager:GetCustomQuestEnding(questId)
 	return goal, dialog, confirmComplete, declineComplete, backgroundText, journalStepText
 end
 
-function CustomQuest_Manager:GetIsCustomQuestSharable(questId)
-	--return LibDataShare ~= nil and tonumber(questId) ~= nil
-	return questId and LibCustomQuestShare.isEnabled
+function CustomQuest_Manager:IsCustomQuestSharable(questId)
+	local quest = self.quests[questId]
+	return quest and quest.shareable and LCQ_QUEST_SHARER:IsQuestSharingEnabled()
 end
 
 function CustomQuest_Manager:GetNumCustomJournalQuests()
@@ -487,7 +487,7 @@ function CustomQuest_Manager:GetNumCustomJournalQuests()
 end
 
 function CustomQuest_Manager:IsValidCustomQuestId(questId)
-	return self:GetCustomQuest(questId)
+	return self:GetCustomQuest(questId) ~= nil
 end
 
 -- Gets the questId for a given hash. If no registered quest matches the hash, this function returns nil
@@ -497,13 +497,14 @@ function CustomQuest_Manager:GetQuestIdFromHash(questHash)
 			return questId
 		end
 	end
-	
+
 	-- If it hasn't been registered yet, get hashes until we find it or we run out of quests.
 	for id, _ in ipairs(self.quests) do
 		if questHash == self:GetHashFromQuestId(id) then
 			return self.questHashes[id]
 		end
 	end
+	LCQ_DBG:Info("Tried to get questId for hash '<<1>>', but no registered quest matched.", questHash)
 end
 
 -- Gets the hash for a given questId. Returns nil, if the given questId is not registered.
