@@ -152,7 +152,7 @@ function CustomQuest_Manager:UpdateQuestListeners(questId, suppressCSA)
 	end
 end
 
-function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
+function CustomQuest_Manager:OnConditionComplete(questId, conditionId, suppressSharing)
 	LCQ_DBG:Verbose("Condition complete for QuestID <<1>>.", questId)
 	local stage = self.quests[questId].currentStage -- Should this be pulled from current stage, or add stage incoming parameter?
 	self.quests[questId].stages[stage].tasks[conditionId].complete = true
@@ -198,9 +198,8 @@ function CustomQuest_Manager:OnConditionComplete(questId, conditionId, noShare)
 		end
 	end
 
-	if LibDataShare and (not noShare) then
-		local progressData = zo_strformat("<<1>><<2>><<3>>", stage, conditionId, questId)
-		LCQ_QUEST_SHARER.shareCustomQuestProgress:QueueData(tonumber(progressData))
+	if not suppressSharing then
+		LCQ_QUEST_SHARER:QueueQuestUpdate(questId, stage, conditionId)
 	end
 
 	-- Allow/Handle custom quest author-defined function on condition complete (play an event or subtitle, etc.)

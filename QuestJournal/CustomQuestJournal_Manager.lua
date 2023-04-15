@@ -255,7 +255,7 @@ end
 
 function LCQ_QuestJournal_Manager:ShareQuest(questId)
 	if LCQ_QUEST_SHARER:IsQuestSharingEnabled() then
-		LCQ_QUEST_SHARER.shareCustomQuest:QueueData(CUSTOM_QUEST_MANAGER:GetQuestHash(questId))
+		LCQ_QuestSharer:QueueQuest(questId)
 		ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.QUEST_SHARE_SENT, GetString(SI_QUEST_SHARED))
 	else
 		ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NEGATIVE_CLICK, GetString(LCQ_QUEST_SHARING_DISABLED))
