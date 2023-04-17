@@ -27,7 +27,7 @@ end
 function LCQListener:Remove(target)
     for i, t in ipairs(self.targets) do
         if t.questId == target.questId and t.conditionId == target.conditionId then
-            LCQ_DBG:Verbose("<<1>>: Removed listening target for '<<2>>': '<<3>>'.", self.name, target.questId, target.name or "Unnamed target")
+            LCQ_DBG:Verbose("<<1>>: Removed listening target for '<<2>>': '<<3>>'.", self.name, target.questId, target.name or "Unspecified")
             table.remove(self.targets, i)
         end
     end

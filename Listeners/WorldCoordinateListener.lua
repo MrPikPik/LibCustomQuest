@@ -15,9 +15,9 @@ function LCQWorldCoordinateListener:Initialize()
     self.targets = {}
     self.zone = 0
     self.subzone = 0
-    self.x = 0 -- Forward axis
-    self.y = 0 -- Right axis
-    self.z = 0 -- Up/Height axis
+    self.x = 0 -- Forward axis (map x)
+    self.y = 0 -- Up/Height axis
+    self.z = 0 -- Right axis (map y)
 
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_ZONE_CHANGED, function(...) self:OnZoneChange(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED, function() self:OnPlayerActivated() end)
@@ -39,7 +39,7 @@ function LCQWorldCoordinateListener:Update()
                 local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
                 local distM = zo_floor(distCM / 100)
 
-                LCQ_DBG:Verbose("<<3>>::<<4>>: distM=<<1>>, target.r=<<2>>", distM, target.r, target.questId, target.conditionId)
+                LCQ_DBG:Debug("<<3>>::<<4>>: distM=<<1>>, target.r=<<2>>", distM, target.r, target.questId, target.conditionId)
                 
                 -- If player is close enough
                 if distM <= target.r then
@@ -60,19 +60,27 @@ function LCQWorldCoordinateListener:IsTargetInRadius(target)
     local worldCoordinateListener = self
 
     if target.zone == worldCoordinateListener.zone then
-        -- if target.subzone == self.subzone then (do we still need this?)
-            -- Get the player distance to the target position
-            local z1 = target.z or 0
-            local z2 = target.z and self.z or 0
-
-            local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
-            local distM = zo_floor(distCM / 100)
-
-            -- If player is close enough
-            if distM <= target.r then
-                return true
+        -- If there is a specific subzone needed for position checking:
+        local subzoneCheck = false
+        local subzoneCheckNeeded = false
+        if target.subzone then
+            subzoneCheckNeeded = true
+            if target.subzone == self.subzone then
+                subzoneCheck = true
             end
-        --end
+        end
+
+        -- Get the player distance to the target position
+        local z1 = target.z or 0
+        local z2 = target.z and self.z or 0
+
+        local distCM = zo_floor(zo_distance3D(target.x, target.y, z1, self.x, self.y, z2))
+        local distM = zo_floor(distCM / 100)
+
+        -- If player is close enough
+        if distM <= target.r and (not subzoneCheckNeeded or subzoneCheck) then -- Imply gate A->B = !A || B
+            return true
+        end
     end
 end
 
